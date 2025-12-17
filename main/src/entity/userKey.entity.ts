@@ -40,6 +40,9 @@ export class UserKey extends EntBase{
     Object.assign(this, item)
   }
 
+  /*
+    * Table-ын талбаруудын мэдээлэл
+  */
   static getTableFields() {
     return {
       id: { header: 'ID', type: 'number', sortable: true, filterable: false, width: 'w-16' },
