@@ -7,8 +7,8 @@ export class TableConfigController {
   constructor(private readonly service: TableConfigService) { }
 
   @UseGuards(JwtAuthGuard)
-  @Get('columns-metadata/:name')
-  async getColumnsMetadata(@Param('name') name: string) {
-    return await this.service.getColumnsMetadata(name);
+  @Get('columns/:name')
+  async getColumns(@Param('name') name: string) {
+    return await this.service.getColumns(name);
   }
 }

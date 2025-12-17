@@ -21,7 +21,7 @@ export class TableConfigService {
   constructor(
   ) { }
 
-  getColumnsMetadata(entityName: string) {
+  getColumns(entityName: string) {
     if (!dynamicTables[entityName]) {
       throw new Error('Not found');
     }
