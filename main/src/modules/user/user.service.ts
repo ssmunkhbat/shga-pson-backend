@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { UserKey } from 'src/entity/userKey.entity';
+import { getFilter } from 'src/utils/helper';
 import { Repository } from 'typeorm';
 const md5 = require('md5');
 
@@ -34,7 +35,10 @@ export class UserService {
   }
 
   async getUsers(options: IPaginationOptions, searchParam) {
+    let filterVals = JSON.parse(searchParam)
+    let filter = getFilter('uk', filterVals)
     const queryBuilder = this.usersRepository.createQueryBuilder('uk')
+      .where(filter)
       .orderBy('uk.createdDate', 'DESC')
     const data = await paginate<UserKey>(queryBuilder, options);
     return { rows: data.items, total: data.meta.totalItems }

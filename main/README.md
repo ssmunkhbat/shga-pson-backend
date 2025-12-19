@@ -5,6 +5,12 @@
 
 Хоригдогсдын бүртгэл, хяналтын нэгдсэн систем
 
+## Tech stack
+
+- [Nestjs](https://docs.nestjs.com)
+- [Typeorm](https://typeorm.io/docs/getting-started)
+- [Oracle DB]()
+
 ## Installation
 
 ```bash
