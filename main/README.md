@@ -42,3 +42,10 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+
+
+## DOCKER
+- docker-compose -p shga-pson-docker up    --> start containers
+- docker-compose -p shga-pson-docker up -d --> start containers in background
+- docker-compose down
+- docker-compose logs

@@ -47,7 +47,7 @@ export class UserKey extends EntBase{
     return {
       id: { header: 'ID', type: 'number', sortable: true, filterable: false, width: 'w-16' },
       userName: { header: 'Хэрэглэгчийн Нэр', type: 'string', sortable: true, filterable: true, width: 'w-48' },
-      createdDate: { header: 'Бүртгэсэн Огноо', type: 'string', sortable: true, filterable: true, width: 'w-40' },
+      createdDate: { header: 'Бүртгэсэн Огноо', type: 'date', sortable: true, filterable: true, width: 'w-40' },
     };
   }
 }
