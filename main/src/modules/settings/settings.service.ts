@@ -4,6 +4,7 @@ import { RefDto } from 'src/dto/refDto';
 import { DataSource } from 'typeorm';
 import { plainToClass } from '@nestjs/class-transformer';
 import { RedisService } from 'src/thirdparty/redis/redis.service';
+import { getId } from 'src/utils/unique';
 
 const mapRef = {
   'role': 'ref_role',
@@ -65,12 +66,43 @@ export class SettingsService {
 
     return plainToClass(RefDto, result, { excludeExtraneousValues: true });
   }
-
-  async updateData(refName: string, newData: any) {
+  
+  async createRef(refName, data) {
     if (!mapRef[refName]) {
       throw new NotFoundException('Reference not found');
     }
+    
+    const generatedId = await getId()
+    const newData = {
+      id: generatedId, 
+      name: data.name,
+      isActive: data.isActive,
+      sortDefault: Number(data.sortDefault)
+    }
+    const changedKey = `${refName}-changed`;
+    await this.redisService.set(changedKey, 'true');
     await this.redisService.set(refName, JSON.stringify(newData), redisExpireInSec);
-    return plainToClass(RefDto, newData, { excludeExtraneousValues: true });
+
+    const queryBuilder = this.dataSource
+      .createQueryBuilder()
+      .insert()
+      .into(`${refName}`)
+      .values([newData]);
+    return await queryBuilder.execute();
+  }
+
+  async updateRef(refName, id, data) {
+    if (!mapRef[refName]) {
+      throw new NotFoundException('Reference not found');
+    }
+
+    const updateData = {
+      name: data.name,
+      isActive: data.isActive,
+      sortDefault: data.sortDefault
+    }
+    const changedKey = `${refName}-changed`;
+    await this.redisService.set(changedKey, 'true');
+    await this.dataSource.createQueryBuilder().update(refName).set(updateData).where("id=:id", { id }).execute()
   }
 }
