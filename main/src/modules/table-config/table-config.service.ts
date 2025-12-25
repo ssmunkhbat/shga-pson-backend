@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserKey } from 'src/entity/userKey.entity';
+import { UmSystemUser } from 'src/entity/um/um-ystem-user.entity';
 
 interface TableFieldMeta {
   header: string;
@@ -13,7 +13,7 @@ type TableFields = Record<string, TableFieldMeta>;
 type DynamicTable = { getTableFields(): TableFields };
 
 const dynamicTables: Record<string, DynamicTable> = {
-  'userkey': UserKey as unknown as DynamicTable,
+  'user': UmSystemUser as unknown as DynamicTable,
 };
 
 @Injectable()

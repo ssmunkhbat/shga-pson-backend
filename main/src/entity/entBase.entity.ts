@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany } from 'typeorm';
-import { UserKey } from './userKey.entity';
+import { UmSystemUser } from './um/um-ystem-user.entity';
 
 export class EntBase {
     @Column({ name: "CREATED_DATE", default: new Date() })
@@ -14,15 +14,15 @@ export class EntBase {
     @Column({ name: "MODIFIED_USER_ID" })
     modifiedUserId: number;
 
-    @Column({ name: "IS_ACTIVE", default: true })
-    isActive: boolean;
+    // @Column({ name: "IS_ACTIVE", default: true })
+    // isActive: boolean;
 
-    @OneToOne(() => UserKey, (user) => user.id)
+    @OneToOne(() => UmSystemUser, (user) => user.id)
     @JoinColumn({name: 'CREATED_USER_ID'})
-    createdUser: UserKey
+    createdUser: UmSystemUser
 
 
-    @OneToOne(() => UserKey, (user) => user.id)
+    @OneToOne(() => UmSystemUser, (user) => user.id)
     @JoinColumn({name: 'MODIFIED_USER_ID'})
-    modifiedUser: UserKey
+    modifiedUser: UmSystemUser
 }

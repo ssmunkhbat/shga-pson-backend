@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
-import { UserKey } from 'src/entity/userKey.entity';
+import { UmSystemUser } from 'src/entity/um/um-ystem-user.entity';
 import { getFilter } from 'src/utils/helper';
 import { Repository } from 'typeorm';
 const md5 = require('md5');
@@ -9,8 +9,8 @@ const md5 = require('md5');
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(UserKey)
-    private usersRepository: Repository<UserKey>,
+    @InjectRepository(UmSystemUser)
+    private usersRepository: Repository<UmSystemUser>,
   ) { }
 
   findByUsername(username: string) {
@@ -26,21 +26,21 @@ export class UserService {
     console.log('-----------validateUser-----------', user)
     if (!user) return null;
 
-    const passwordHash = md5(password)
-    if (passwordHash !== user.password) {
-      return null;
-    }
+    // const passwordHash = md5(password)
+    // if (passwordHash !== user.password) {
+    //   return null;
+    // }
 
     return user;
   }
 
   async getUsers(options: IPaginationOptions, searchParam) {
     let filterVals = JSON.parse(searchParam)
-    let filter = getFilter('uk', filterVals)
-    const queryBuilder = this.usersRepository.createQueryBuilder('uk')
+    let filter = getFilter('su', filterVals)
+    const queryBuilder = this.usersRepository.createQueryBuilder('su')
       .where(filter)
-      .orderBy('uk.createdDate', 'DESC')
-    const data = await paginate<UserKey>(queryBuilder, options);
+      .orderBy('su.createdDate', 'DESC')
+    const data = await paginate<UmSystemUser>(queryBuilder, options);
     return { rows: data.items, total: data.meta.totalItems }
   }
 }

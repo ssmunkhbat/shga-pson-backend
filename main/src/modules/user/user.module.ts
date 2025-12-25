@@ -2,12 +2,12 @@ import { Global, Module } from '@nestjs/common';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserKey } from 'src/entity/userKey.entity';
+import { UmSystemUser } from 'src/entity/um/um-ystem-user.entity';
 
 @Global()
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserKey]), // ✅ MUST be here
+    TypeOrmModule.forFeature([UmSystemUser]), // ✅ MUST be here
   ],
   controllers: [UserController],
   providers: [UserService],
