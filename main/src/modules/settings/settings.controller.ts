@@ -7,8 +7,8 @@ export class SettingsController {
 	constructor(private readonly service: SettingsService) { }
 
 	@UseGuards(JwtAuthGuard)
-	@Get('/:refName')
-	async getRefByName(@Req() req, @Query('filters') filters) {
-		return await this.service.getList(req.params.refName, filters)
+	@Get('menu/top')
+	async getMenuTop(@Req() req) {
+		return await this.service.getMenu(req.user);
 	}
 }

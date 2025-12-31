@@ -20,7 +20,7 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Нэвтрэх нэр эсвэл Нууц үгээ шалгана уу!');
     }
-    const payload = { sub: user.id, username: user.userName };
+    const payload = { sub: user.userId, username: user.userName };
     const access_token = this.jwtService.sign(payload);
     
     res.cookie(process.env.TOKEN_NAME || 'pson-token', access_token, {

@@ -1,6 +1,7 @@
-import { UmSystemUser } from "./entity/um/um-ystem-user.entity"
+import { UmSystemUser } from "./entity/um/um-system-user.entity"
+import { UmUserRole } from "./entity/um/um-user-role"
 
 const Entities = [
-  UmSystemUser,
+  UmSystemUser, UmUserRole,
 ]
 export default Entities

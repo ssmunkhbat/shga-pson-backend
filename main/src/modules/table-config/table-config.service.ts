@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UmSystemUser } from 'src/entity/um/um-ystem-user.entity';
+import { UmSystemUser } from 'src/entity/um/um-system-user.entity';
 
 interface TableFieldMeta {
   header: string;

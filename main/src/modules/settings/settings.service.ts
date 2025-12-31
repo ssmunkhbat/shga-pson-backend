@@ -1,108 +1,94 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { RefDto } from 'src/dto/refDto';
 import { DataSource } from 'typeorm';
 import { plainToClass } from '@nestjs/class-transformer';
-import { RedisService } from 'src/thirdparty/redis/redis.service';
-import { getId } from 'src/utils/unique';
-
-const mapRef = {
-  'role': 'ref_role',
-};
-
-const redisExpireInSec = 3600; // Cache data for 1 hour
+import { MenuDto } from 'src/dto/menuDto';
 
 @Injectable()
 export class SettingsService {
   constructor(
     @InjectDataSource() private dataSource: DataSource,
-    private readonly redisService: RedisService,
   ) {}
 
-  async getList(refName: string, rawFilters: string) {
-    if (!mapRef[refName]) {
-      throw new NotFoundException('Reference not found');
+  async getMenu(user: any) {
+    const roleIds = await this.getRoleIds(user.userId)
+    console.log('-------getMenuTop------roleIds-----', roleIds);
+    if (roleIds.length === 0) return []
+    const menus = await this.getTopMenu(roleIds);
+    const list = []
+    for (const item of menus) {
+      const found = list.find(a => a.trgMetaDataId === item.trgMetaDataId)
+      if (!found) {
+        item.children = await this.getSubMenu(item.trgMetaDataId, roleIds)
+        list.push(item)
+      }
     }
 
-    const changedKey = `${refName}-changed`;
-    const isChanged = await this.redisService.get(changedKey);
+    // const list = [
+    //   ...new Map(menus.map(item => [item.trgMetaDataId, item])).values(),
+    // ];
 
-    if (isChanged === 'true') {
-      console.log(`Data for ${refName} has changed, refreshing cache...`);
-      await this.refreshCache(refName, rawFilters);
-      
-      await this.redisService.set(changedKey, 'false');
-
-      const freshData = await this.redisService.get(refName);
-      return JSON.parse(freshData);
-    }
-    await this.redisService.set(changedKey, 'false');
-
-    const cachedData = await this.redisService.get(refName);
-    if (cachedData) {
-      console.log(`Returning cached data for ${refName}`);
-      return JSON.parse(cachedData);
-    }
-    return await this.refreshCache(refName, rawFilters);
+    return list;
   }
 
-  private async refreshCache(refName: string, rawFilters: string) {
-    let customFilter = '';
-    if (rawFilters) {
-      const filters = JSON.parse(rawFilters);
-      filters.forEach((element) => {
-        if (element.value) {
-          customFilter += `and ${element.field} = ${
-            typeof element.value === 'string' ? `'${element.value}'` : element.value
-          }`;
-        }
-      });
-    }
-
-    const query = `SELECT * FROM ${mapRef[refName]} WHERE is_active = 1 ${customFilter} ORDER BY id DESC`;
+  async getTopMenu(roleIds: []) {
+    const query = `
+      SELECT
+        DISTINCT MM.TRG_META_DATA_ID,
+        UMP.PERMISSION_ID AS PERMISSION_ID,
+        MD.META_DATA_NAME AS TRG_META_DATA_NAME,
+        'fa fa-folder icon-state-warning' AS ICON,
+        MD.META_TYPE_ID,
+        MM.ORDER_NUM
+      FROM META_META_MAP MM
+      INNER JOIN META_DATA MD ON MD.META_DATA_ID = MM.TRG_META_DATA_ID 
+      INNER JOIN UM_META_PERMISSION UMP ON MD.META_DATA_ID = UMP.META_DATA_ID AND UMP.ROLE_ID IN (${roleIds})
+      WHERE MD.IS_ACTIVE = 1 AND MM.SRC_META_DATA_ID = 144601542339575
+      ORDER BY MM.ORDER_NUM ASC
+    `;
     const result = await this.dataSource.query(query);
-
-    await this.redisService.set(refName, JSON.stringify(result), redisExpireInSec);
-
-    return plainToClass(RefDto, result, { excludeExtraneousValues: true });
+    const rows: MenuDto[] = plainToClass(
+      MenuDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
+    return rows
   }
   
-  async createRef(refName, data) {
-    if (!mapRef[refName]) {
-      throw new NotFoundException('Reference not found');
-    }
-    
-    const generatedId = await getId()
-    const newData = {
-      id: generatedId, 
-      name: data.name,
-      isActive: data.isActive,
-      sortDefault: Number(data.sortDefault)
-    }
-    const changedKey = `${refName}-changed`;
-    await this.redisService.set(changedKey, 'true');
-    await this.redisService.set(refName, JSON.stringify(newData), redisExpireInSec);
-
-    const queryBuilder = this.dataSource
-      .createQueryBuilder()
-      .insert()
-      .into(`${refName}`)
-      .values([newData]);
-    return await queryBuilder.execute();
+  async getSubMenu(metaDataId: number, roleIds: []) {
+    const query = `
+      SELECT
+        DISTINCT MM.TRG_META_DATA_ID,
+        UMP.PERMISSION_ID AS PERMISSION_ID,
+        MD.META_DATA_NAME AS TRG_META_DATA_NAME,
+        'fa fa-folder icon-state-warning' AS ICON,
+        MD.META_TYPE_ID,
+        MM.ORDER_NUM
+      FROM META_META_MAP MM
+      INNER JOIN META_DATA MD ON MD.META_DATA_ID = MM.TRG_META_DATA_ID 
+      LEFT JOIN UM_META_PERMISSION UMP ON MD.META_DATA_ID = UMP.META_DATA_ID AND UMP.ROLE_ID IN (${roleIds})
+      WHERE MD.IS_ACTIVE = 1 AND MM.SRC_META_DATA_ID = ${metaDataId}  
+      ORDER BY MM.ORDER_NUM ASC
+    `;
+    const result = await this.dataSource.query(query);
+    const rows: MenuDto[] = plainToClass(
+      MenuDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
+    const list = [
+      ...new Map(rows.map(item => [item.trgMetaDataId, item])).values(),
+    ];
+    return list
   }
 
-  async updateRef(refName, id, data) {
-    if (!mapRef[refName]) {
-      throw new NotFoundException('Reference not found');
-    }
-
-    const updateData = {
-      name: data.name,
-      isActive: data.isActive,
-      sortDefault: data.sortDefault
-    }
-    const changedKey = `${refName}-changed`;
-    await this.redisService.set(changedKey, 'true');
-    await this.dataSource.createQueryBuilder().update(refName).set(updateData).where("id=:id", { id }).execute()
+  async getRoleIds(user_id: number) {
+    const query = `
+      SELECT ROLE_ID FROM UM_USER_ROLE WHERE USER_ID = ${user_id} AND IS_ACTIVE = 1
+    `;
+    const result = await this.dataSource.query(query);
+    return result.map(item => item.ROLE_ID);
   }
+
 }
+

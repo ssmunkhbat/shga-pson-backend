@@ -5,7 +5,7 @@ import { EntBase } from '../entBase.entity';
 export class UmSystemUser extends EntBase{
 
   @PrimaryGeneratedColumn({ name: "USER_ID" })
-  id: number;
+  userId: number;
 
   @Column({ name: "USERNAME" })
   userName: string;
