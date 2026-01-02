@@ -1,3 +1,4 @@
+import { MovementController } from "./modules/pri/movement/movement.controller";
 import { PrisonerController } from "./modules/pri/prisoner/prisoner.controller";
 import { RefsController } from "./modules/refs/refs.controller";
 import { SettingsController } from "./modules/settings/settings.controller";
@@ -8,4 +9,5 @@ export const controllers = [
     SettingsController,
     RefsController,
     PrisonerController,
+    MovementController,
 ]

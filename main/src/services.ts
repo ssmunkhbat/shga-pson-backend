@@ -1,3 +1,4 @@
+import { MovementService } from "./modules/pri/movement/movement.service";
 import { PrisonerService } from "./modules/pri/prisoner/prisoner.service";
 import { RefsService } from "./modules/refs/refs.service";
 import { SettingsService } from "./modules/settings/settings.service";
@@ -11,4 +12,5 @@ export const services = [
     RedisService,
     RefsService,
     PrisonerService,
+    MovementService,
 ]
