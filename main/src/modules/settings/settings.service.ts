@@ -79,6 +79,9 @@ export class SettingsService {
     const list = [
       ...new Map(rows.map(item => [item.trgMetaDataId, item])).values(),
     ];
+    for (const item of list) {
+      item.children = await this.getSubMenu(item.trgMetaDataId, roleIds);
+    }
     return list
   }
 
