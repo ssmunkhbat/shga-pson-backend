@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { PriPrisonerKeyView } from 'src/entity/pri/prisoner/priPrisonerKeyView';
 import { UmSystemUser } from 'src/entity/um/um-system-user.entity';
 
 interface TableFieldMeta {
@@ -14,6 +15,7 @@ type DynamicTable = { getTableFields(): TableFields };
 
 const dynamicTables: Record<string, DynamicTable> = {
   'user': UmSystemUser as unknown as DynamicTable,
+  'pkw': PriPrisonerKeyView as unknown as DynamicTable,
 };
 
 @Injectable()
