@@ -131,10 +131,19 @@ export class PriPrisonerKeyView {
   */
   static getTableFields() {
     return {
-      prisonerId: { header: 'ID', type: 'number', sortable: true, filterable: false, width: 'w-16' },
-      prisonerNumber: { header: 'Хоригдогчийн дугаар', type: 'string', sortable: true, filterable: true, width: 'w-48' },
-      stateRegNumber: { header: 'Регистрийн дугаар', type: 'string', sortable: true, filterable: true, width: 'w-48' },
-      createdDate: { header: 'Бүртгэсэн Огноо', type: 'date', sortable: true, filterable: true, width: 'w-40' },
+      // prisonerId: { header: 'ID', type: 'number', sortable: true, filterable: false, width: 'w-16' },
+      prisonerNumber: { header: 'Хоригдогчийн дугаар', type: 'string', sortable: true, filterable: true, width: 'w-24' },
+      stateRegNumber: { header: 'Регистрийн дугаар', type: 'string', sortable: true, filterable: true, width: 'w-24' },
+      lastName: { header: 'Эцэг/Эх-ийн нэр', type: 'string', sortable: true, filterable: true, width: 'w-24' },
+      firstName: { header: 'Өөрийн нэр', type: 'string', sortable: true, filterable: true, width: 'w-24' },
+      nickname: { header: 'Хоч', type: 'string', sortable: true, filterable: true, width: 'w-24' },
+      departmentName: { header: 'Хорих анги, Байгууллага', type: 'string', sortable: true, filterable: true, width: 'w-24' },
+      lastActCode: { header: 'Зүйл анги', type: 'string', sortable: true, filterable: true, width: 'w-24' },
+      beginDate: { header: 'Эхлэх огноо', type: 'date', sortable: true, filterable: true, width: 'w-24' },
+      statusName: { header: 'Төлөв', type: 'string', sortable: true, filterable: true, width: 'w-12' },
+      sentenceCnt: { header: 'Удаа дараа', type: 'string', sortable: true, filterable: true, width: 'w-12' },
+      regimeName: { header: 'Дэглэм', type: 'string', sortable: true, filterable: true, width: 'w-12' },
+      regimeClassName: { header: 'Зэрэглэл', type: 'string', sortable: true, filterable: true, width: 'w-12' },
     };
   }
 }
