@@ -15,8 +15,10 @@ export class PrisonerService {
   async listAll(options: IPaginationOptions, searchParam) {
     // let filterVals = JSON.parse(searchParam)
     // let filter = getFilter('su', filterVals)
+
     const queryBuilder = this.prisonerKeyViewRepo.createQueryBuilder('su')
-      // .where(filter)
+      .where('su.endDate IS NULL')
+      // .andWhere(filter)
       .orderBy('su.createdDate', 'DESC')
     const data = await paginate<PriPrisonerKeyView>(queryBuilder, options);
     return { rows: data.items, total: data.meta.totalItems }
