@@ -9,7 +9,9 @@ export function getFilter(mainAlias, searches: any[]) {
       const val = item.type === 'string' ? item.value.trim() : item.value
       const field = `${!item.field.includes('.') ? mainAlias+'.' : ''}${item.refField ? item.refField : item.field}`
 
-      if (item.type === 'string') {
+      if (item.type === 'number') {
+        result += ` ${field} = ${val} `
+      } else if (item.type === 'string') {
         result += ` UPPER(${field}) like UPPER('%${val}%') `
       } else if (item.type === 'date') {
         result += ` ${field} BETWEEN TO_DATE('${moment(val[0]).format('YYYY-MM-DD')}', 'YYYY-MM-DD') AND TO_DATE('${moment(val[1]).format('YYYY-MM-DD')}', 'YYYY-MM-DD')`

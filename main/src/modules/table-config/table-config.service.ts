@@ -3,6 +3,7 @@ import { PriPrisonerKeyView } from 'src/entity/pri/prisoner/priPrisonerKeyView';
 import { UmSystemUser } from 'src/entity/um/um-system-user.entity';
 import { MovementDeparture } from 'src/entity/pri/movement/movementDeparture.entity';
 import { MovementArrival } from 'src/entity/pri/movement/movementArrival.entity';
+import { PriEmployeeKey } from 'src/entity/pri/employee/priEmployeeKey';
 
 interface TableFieldMeta {
   header: string;
@@ -18,6 +19,7 @@ type DynamicTable = { getTableFields(): TableFields };
 const dynamicTables: Record<string, DynamicTable> = {
   'user': UmSystemUser as unknown as DynamicTable,
   'pkw': PriPrisonerKeyView as unknown as DynamicTable,
+  'employeeKey': PriEmployeeKey as unknown as DynamicTable,
   'movement-departure': MovementDeparture as unknown as DynamicTable,
   'movement-arrival': MovementArrival as unknown as DynamicTable,
 };

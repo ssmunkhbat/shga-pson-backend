@@ -1,3 +1,4 @@
+import { EmployeeService } from "./modules/pri/employee/employee.service";
 import { MovementService } from "./modules/pri/movement/movement.service";
 import { PrisonerService } from "./modules/pri/prisoner/prisoner.service";
 import { RefsService } from "./modules/refs/refs.service";
@@ -13,4 +14,5 @@ export const services = [
     RefsService,
     PrisonerService,
     MovementService,
+    EmployeeService,
 ]

@@ -8,6 +8,7 @@ import { getId } from 'src/utils/unique';
 
 const mapRef = {
   'role': 'ref_role',
+  'mt-prisoner': 'PRI_MOVEMENT_TYPE_PRISONER',
 };
 
 const redisExpireInSec = 3600; // Cache data for 1 hour
@@ -59,7 +60,7 @@ export class RefsService {
       });
     }
 
-    const query = `SELECT * FROM ${mapRef[refName]} WHERE is_active = 1 ${customFilter} ORDER BY id DESC`;
+    const query = `SELECT * FROM ${mapRef[refName]} WHERE is_active = 1 ${customFilter}`; // ORDER BY id DESC
     const result = await this.dataSource.query(query);
 
     await this.redisService.set(refName, JSON.stringify(result), redisExpireInSec);

@@ -2,7 +2,7 @@ import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 import { RefsService } from './refs.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 
-@Controller('settings')
+@Controller('refs')
 export class RefsController {
 	constructor(private readonly service: RefsService) { }
 

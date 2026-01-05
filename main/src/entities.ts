@@ -6,11 +6,21 @@ import { MovementArrival } from "./entity/pri/movement/movementArrival.entity"
 import { PriMovementDeparturePack } from "./entity/pri/movement/PriMovementDeparturePack"
 import { PriMovementDeparture } from "./entity/pri/movement/PriMovementDeparture"
 import { PriMovementArrivalPack } from "./entity/pri/movement/PriMovementArrivalPack"
+import { BasePerson } from "./entity/base/basePerson"
+import { PriEmployee } from "./entity/pri/employee/priEmployee"
+import { PriInfoPositionType } from "./entity/info/priInfoPositionType"
+import { PriInfoMilitaryRank } from "./entity/info/priInfoMilitaryRank"
+import { PriInfoDepartmentType } from "./entity/info/priInfoDepartmentType"
+import { PriInfoDepartment } from "./entity/info/priInfoDepartment"
+import { PriEmployeeKey } from "./entity/pri/employee/priEmployeeKey"
 
 const Entities = [
   UmSystemUser, UmUserRole,
+  BasePerson,
+  PriEmployee, PriEmployeeKey,
   PriPrisonerKeyView,
   MovementDeparture, MovementArrival,
   PriMovementDeparturePack, PriMovementDeparture, PriMovementArrivalPack,
+  PriInfoDepartment, PriInfoDepartmentType, PriInfoPositionType, PriInfoMilitaryRank,
 ]
 export default Entities
