@@ -3,22 +3,20 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { RefDto } from 'src/dto/refDto';
 import { DataSource } from 'typeorm';
 import { plainToClass } from '@nestjs/class-transformer';
-import { RedisService } from 'src/thirdparty/redis/redis.service';
 import { getId } from 'src/utils/unique';
+import { CacheService } from '../cache/cache.service';
 
 const mapRef = {
-  'role': 'ref_role',
+  'role': 'UM_ROLE',
   'mt-prisoner': 'PRI_MOVEMENT_TYPE_PRISONER',
   'departmentList': 'PRI_INFO_DEPARTMENT',
 };
-
-const redisExpireInSec = 3600; // Cache data for 1 hour
 
 @Injectable()
 export class RefsService {
   constructor(
     @InjectDataSource() private dataSource: DataSource,
-    private readonly redisService: RedisService,
+    private readonly cacheService: CacheService,
   ) {}
 
   async getList(refName: string, rawFilters: string) {
@@ -26,85 +24,81 @@ export class RefsService {
       throw new NotFoundException('Reference not found');
     }
 
-    const changedKey = `${refName}-changed`;
-    const isChanged = await this.redisService.get(changedKey);
-
-    if (isChanged === 'true') {
-      console.log(`Data for ${refName} has changed, refreshing cache...`);
-      await this.refreshCache(refName, rawFilters);
-      
-      await this.redisService.set(changedKey, 'false');
-
-      const freshData = await this.redisService.get(refName);
-      return JSON.parse(freshData);
+    if (await this.cacheService.isChanged(refName)) {
+      const data = await this.refreshList(refName, rawFilters);
+      await this.cacheService.resetChanged(refName);
+      return data;
     }
-    await this.redisService.set(changedKey, 'false');
 
-    const cachedData = await this.redisService.get(refName);
+    const cachedData = await this.cacheService.getCache(refName);
     if (cachedData) {
-      console.log(`Returning cached data for ${refName}`);
-      return JSON.parse(cachedData);
+      return cachedData;
     }
-    return await this.refreshCache(refName, rawFilters);
+    return await this.refreshList(refName, rawFilters);
   }
 
-  private async refreshCache(refName: string, rawFilters: string) {
+  private async refreshList(refName: string, rawFilters: string) {
     let customFilter = '';
     if (rawFilters) {
       const filters = JSON.parse(rawFilters);
-      filters.forEach((element) => {
-        if (element.value) {
-          customFilter += `and ${element.field} = ${
-            typeof element.value === 'string' ? `'${element.value}'` : element.value
+      filters.forEach(({ field, value }) => {
+        if (value !== undefined && value !== null) {
+          customFilter += ` AND ${field} = ${
+            typeof value === 'string' ? `'${value}'` : value
           }`;
         }
       });
     }
 
-    const query = `SELECT * FROM ${mapRef[refName]} WHERE is_active = 1 ${customFilter}`; // ORDER BY id DESC
+    const query = `
+      SELECT *
+      FROM ${mapRef[refName]}
+      WHERE is_active = 1 ${customFilter}
+    `;
+
     const result = await this.dataSource.query(query);
 
-    await this.redisService.set(refName, JSON.stringify(result), redisExpireInSec);
+    await this.cacheService.setCache(refName, result);
 
-    return plainToClass(RefDto, result, { excludeExtraneousValues: true });
+    return plainToClass(RefDto, result, {
+      excludeExtraneousValues: true
+    });
   }
-  
-  async createRef(refName, data) {
+
+  async createRef(refName: string, data) {
     if (!mapRef[refName]) {
       throw new NotFoundException('Reference not found');
     }
-    
-    const generatedId = await getId()
+
+    await this.cacheService.markAsChanged(refName);
     const newData = {
-      id: generatedId, 
+      id: await getId(),
       name: data.name,
       isActive: data.isActive,
-      sortDefault: Number(data.sortDefault)
-    }
-    const changedKey = `${refName}-changed`;
-    await this.redisService.set(changedKey, 'true');
-    await this.redisService.set(refName, JSON.stringify(newData), redisExpireInSec);
-
-    const queryBuilder = this.dataSource
+      sortDefault: Number(data.sortDefault),
+    };
+    return this.dataSource
       .createQueryBuilder()
       .insert()
-      .into(`${refName}`)
-      .values([newData]);
-    return await queryBuilder.execute();
+      .into(mapRef[refName])
+      .values([newData])
+      .execute();
   }
 
-  async updateRef(refName, id, data) {
+  async updateRef(refName: string, id: number, data) {
     if (!mapRef[refName]) {
       throw new NotFoundException('Reference not found');
     }
-
-    const updateData = {
-      name: data.name,
-      isActive: data.isActive,
-      sortDefault: data.sortDefault
-    }
-    const changedKey = `${refName}-changed`;
-    await this.redisService.set(changedKey, 'true');
-    await this.dataSource.createQueryBuilder().update(refName).set(updateData).where("id=:id", { id }).execute()
+    await this.cacheService.markAsChanged(refName);
+    return this.dataSource
+      .createQueryBuilder()
+      .update(mapRef[refName])
+      .set({
+        name: data.name,
+        isActive: data.isActive,
+        sortDefault: data.sortDefault,
+      })
+      .where('id = :id', { id })
+      .execute();
   }
 }

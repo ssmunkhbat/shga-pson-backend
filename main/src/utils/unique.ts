@@ -1,7 +1,7 @@
 let counter = 0
 function generate() {
   const timestamp = Date.now().toString();
-  return Number(timestamp) + counter+ '' +getRandomNumber(1, 9) ;
+  return Number(timestamp) + counter+ '' +getRandomNumber(1, 8) ;
 }
 
 function getRandomNumber(min, max) {

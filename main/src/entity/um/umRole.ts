@@ -26,10 +26,10 @@ export class UmRole extends EntBase{
   */
   static getTableFields() {
     return {
-      roleId: { header: 'ID', type: 'number', sortable: true, filterable: false, width: 'w-16' },
-      roleCode: { header: 'Дүрийн код', type: 'string', sortable: true, filterable: true, width: 'w-48' },
-      roleName: { header: 'Дүрийн нэр', type: 'string', sortable: true, filterable: true, width: 'w-48' },
-      createdDate: { header: 'Бүртгэсэн Огноо', type: 'date', sortable: true, filterable: true, width: 'w-40' },
+      roleId: { header: 'ID', type: 'number', sortable: false, filterable: false, width: 'w-16' },
+      roleCode: { header: 'Дүрийн код', type: 'string', sortable: false, filterable: true, width: 'w-48' },
+      roleName: { header: 'Дүрийн нэр', type: 'string', sortable: false, filterable: true, width: 'w-48' },
+      createdDate: { header: 'Бүртгэсэн Огноо', type: 'date', sortable: false, filterable: true, width: 'w-40' },
     };
   }
 }

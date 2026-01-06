@@ -5,6 +5,7 @@ import { MovementDeparture } from 'src/entity/pri/movement/movementDeparture.ent
 import { MovementArrival } from 'src/entity/pri/movement/movementArrival.entity';
 import { PriEmployeeKey } from 'src/entity/pri/employee/priEmployeeKey';
 import { PriAdministrativeDecision } from 'src/entity/pri/administrative/priAdministrativeDecision';
+import { UmRole } from 'src/entity/um/umRole';
 
 interface TableFieldMeta {
   header: string;
@@ -18,6 +19,7 @@ type TableFields = Record<string, TableFieldMeta>;
 type DynamicTable = { getTableFields(): TableFields };
 
 const dynamicTables: Record<string, DynamicTable> = {
+  'role': UmRole as unknown as DynamicTable,
   'user': UmSystemUser as unknown as DynamicTable,
   'pkw': PriPrisonerKeyView as unknown as DynamicTable,
   'employeeKey': PriEmployeeKey as unknown as DynamicTable,

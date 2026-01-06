@@ -10,6 +10,8 @@ export class SettingsService {
     @InjectDataSource() private dataSource: DataSource,
   ) {}
 
+  //#region [MENU]
+
   async getMenu(user: any) {
     const roleIds = await this.getRoleIds(user.userId)
     console.log('-------getMenuTop------roleIds-----', roleIds);
@@ -54,7 +56,7 @@ export class SettingsService {
     );
     return rows
   }
-  
+
   async getSubMenu(metaDataId: number, roleIds: []) {
     const query = `
       SELECT
@@ -92,6 +94,8 @@ export class SettingsService {
     const result = await this.dataSource.query(query);
     return result.map(item => item.ROLE_ID);
   }
+
+  //#endregion
 
 }
 
