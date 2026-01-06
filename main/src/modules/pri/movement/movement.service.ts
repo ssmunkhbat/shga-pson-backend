@@ -81,15 +81,22 @@ export class MovementService {
   /**
    * Шилжин явсан бүртгэлийн жагсаалт
    */
-  async getDepartureList(options: IPaginationOptions, searchParam: string) {
+  async getDepartureList(options: IPaginationOptions, searchParam: string, user: any) {
     let filterVals = JSON.parse(searchParam);
     let filter = getFilter('md', filterVals);
     
     const queryBuilder = this.departureRepository
-      .createQueryBuilder('md');
+      .createQueryBuilder('md')
 
     if (filter) {
       queryBuilder.where(filter);
+    }
+
+    if (user.userId !== 1) {
+      queryBuilder[!!filter ? "andWhere" : "where"](
+        "md.fromDepartmentId = :departmentId",
+        { departmentId: user.employeeKey.departmentId }
+      );
     }
 
     queryBuilder
@@ -102,7 +109,7 @@ export class MovementService {
   /**
    * Шилжин ирсэн бүртгэлийн жагсаалт
    */
-  async getArrivalList(options: IPaginationOptions, searchParam: string) {
+  async getArrivalList(options: IPaginationOptions, searchParam: string, user: any) {
     let filterVals = JSON.parse(searchParam);
     let filter = getFilter('ma', filterVals);
     
@@ -111,6 +118,13 @@ export class MovementService {
 
     if (filter) {
       queryBuilder.where(filter);
+    }
+
+    if (user.userId !== 1) {
+      queryBuilder[!!filter ? "andWhere" : "where"](
+        "ma.toDepartmentId = :departmentId",
+        { departmentId: user.employeeKey.departmentId }
+      );
     }
 
     queryBuilder

@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
+import { PriEmployee } from 'src/entity/pri/employee/priEmployee';
+import { PriEmployeeKey } from 'src/entity/pri/employee/priEmployeeKey';
 import { UmSystemUser } from 'src/entity/um/um-system-user.entity';
 import { UmUserRole } from 'src/entity/um/um-user-role';
 import { getFilter } from 'src/utils/helper';
@@ -14,14 +16,30 @@ export class UserService {
     private usersRepository: Repository<UmSystemUser>,
     @InjectRepository(UmUserRole)
     private userRoleRepository: Repository<UmUserRole>,
+    @InjectRepository(PriEmployee)
+    private employeeRepo: Repository<PriEmployee>,
+    @InjectRepository(PriEmployeeKey)
+    private employeeKeyRepo: Repository<PriEmployeeKey>,
   ) { }
 
   findByUsername(username: string) {
-    return this.usersRepository.findOne({ where: { userName: username } });
+    return this.usersRepository.createQueryBuilder("u")
+      .innerJoin("u.person", "PER").addSelect(['PER.personId', 'PER.firstName', 'PER.lastName', 'PER.stateRegNumber'])
+      .where("u.userName = :username", { username })
+      .getOne();
   }
 
-  findById(userId: number) {
-    return this.usersRepository.findOne({ where: { userId } });
+  async findById(userId: number) {
+    const user = await this.usersRepository.createQueryBuilder("u")
+      .innerJoin("u.person", "PER").addSelect(['PER.personId', 'PER.firstName', 'PER.lastName', 'PER.stateRegNumber'])
+      .where("u.userId = :userId", { userId })
+      .getOne();
+    const emp = await this.employeeRepo.findOne({ where: { userId } });
+    if (emp) {
+      const employeeKey = await this.employeeKeyRepo.findOne({ where: { employeeId: emp.employeeId, isActive: true } });
+      (user as any).employeeKey = employeeKey;
+    }
+    return user
   }
 
   async validateUser(username: string, password: string) {
@@ -50,6 +68,14 @@ export class UserService {
   }
 
   getUserRole(user_id: number) {
-    return this.userRoleRepository.findOne({ where: { user_id: user_id } });
+    return this.userRoleRepository.findOne({
+      join: {
+        alias: "r",
+        innerJoinAndSelect: {
+          role: "r.role",
+        }
+      },
+      where: { user_id: user_id }
+    });
   }
 }

@@ -15,9 +15,10 @@ import { PriInfoDepartment } from "./entity/info/priInfoDepartment"
 import { PriEmployeeKey } from "./entity/pri/employee/priEmployeeKey"
 import { PriAdministrativeDecType } from "./entity/pri/administrative/priAdministrativeDecType"
 import { PriAdministrativeDecision } from "./entity/pri/administrative/priAdministrativeDecision"
+import { UmRole } from "./entity/um/umRole"
 
 const Entities = [
-  UmSystemUser, UmUserRole,
+  UmSystemUser, UmUserRole, UmRole,
   BasePerson,
   PriEmployee, PriEmployeeKey,
   PriPrisonerKeyView,

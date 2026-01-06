@@ -1,5 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
 import { EntBase } from '../entBase.entity';
+import { UmRole } from './umRole';
+import { UmSystemUser } from './um-system-user.entity';
 
 @Entity('UM_USER_ROLE')
 export class UmUserRole extends EntBase{
@@ -9,9 +11,17 @@ export class UmUserRole extends EntBase{
 
   @Column({ name: "USER_ID" })
   user_id: number;
+  
+  @OneToOne(() => UmSystemUser, (u) => u.userId)
+  @JoinColumn({name: 'USER_ID'})
+  user: UmSystemUser;
 
   @Column({ name: "ROLE_ID" })
   roleId: number;
+  
+  @OneToOne(() => UmRole, (r) => r.roleId)
+  @JoinColumn({name: 'ROLE_ID'})
+  role: UmRole;
 
   @Column({ name: "IS_ACTIVE", default: true })
   isActive: boolean;

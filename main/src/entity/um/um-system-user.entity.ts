@@ -1,8 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
 import { EntBase } from '../entBase.entity';
+import { BasePerson } from '../base/basePerson';
 
 @Entity('UM_SYSTEM_USER')
-export class UmSystemUser extends EntBase{
+export class UmSystemUser {
 
   @PrimaryGeneratedColumn({ name: "USER_ID" })
   userId: number;
@@ -12,9 +13,24 @@ export class UmSystemUser extends EntBase{
 
   @Column({ name: "PASSWORD_HASH" })
   passwordHash: string;
+    
+  @Column({ name: "PERSON_ID" })
+  personId: number;
+
+  @OneToOne(() => BasePerson, (p) => p.personId)
+  @JoinColumn({name: 'PERSON_ID'})
+  person: BasePerson;
+
+  @Column({ name: "CREATED_DATE", default: new Date() })
+  createdDate: Date;
+
+  @Column({ name: "CREATED_USER_ID" })
+  createdUserId: number;
+
+  @Column({ name: "CHANGE_DATE" })
+  changeDate: Date;
 
   constructor(item: Partial<UmSystemUser>) {
-    super();
     Object.assign(this, item)
   }
 

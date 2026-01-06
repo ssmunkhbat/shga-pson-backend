@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Request, UseGuards } from '@nestjs/common';
 import { MovementService } from './movement.service';
 import { JwtAuthGuard } from 'src/modules/auth/jwt.guard';
 import { CreateMovementDepartureDto } from './dto/CreateMovementDeparture.dto';
@@ -10,8 +10,8 @@ export class MovementController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/departure')
-  async getDepartureList(@Query('page') page = 1, @Query('limit') limit = 10, @Query('filters') filters = '[]') {
-    return await this.service.getDepartureList({ page, limit }, filters);
+  async getDepartureList(@Req() req, @Query('page') page = 1, @Query('limit') limit = 10, @Query('filters') filters = '[]') {
+    return await this.service.getDepartureList({ page, limit }, filters, req.user);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -22,8 +22,8 @@ export class MovementController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/arrival')
-  async getArrivalList(@Query('page') page = 1, @Query('limit') limit = 10, @Query('filters') filters = '[]') {
-    return await this.service.getArrivalList({ page, limit }, filters);
+  async getArrivalList(@Req() req, @Query('page') page = 1, @Query('limit') limit = 10, @Query('filters') filters = '[]') {
+    return await this.service.getArrivalList({ page, limit }, filters, req.user);
   }
 
   @UseGuards(JwtAuthGuard)

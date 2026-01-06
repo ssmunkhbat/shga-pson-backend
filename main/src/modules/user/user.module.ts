@@ -4,11 +4,13 @@ import { UserService } from './user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UmSystemUser } from 'src/entity/um/um-system-user.entity';
 import { UmUserRole } from 'src/entity/um/um-user-role';
+import { PriEmployee } from 'src/entity/pri/employee/priEmployee';
+import { PriEmployeeKey } from 'src/entity/pri/employee/priEmployeeKey';
 
 @Global()
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UmSystemUser, UmUserRole]), // ✅ MUST be here
+    TypeOrmModule.forFeature([UmSystemUser, UmUserRole, PriEmployee, PriEmployeeKey]), // ✅ MUST be here
   ],
   controllers: [UserController],
   providers: [UserService],
