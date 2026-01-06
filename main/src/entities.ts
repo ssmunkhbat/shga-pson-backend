@@ -13,6 +13,8 @@ import { PriInfoMilitaryRank } from "./entity/info/priInfoMilitaryRank"
 import { PriInfoDepartmentType } from "./entity/info/priInfoDepartmentType"
 import { PriInfoDepartment } from "./entity/info/priInfoDepartment"
 import { PriEmployeeKey } from "./entity/pri/employee/priEmployeeKey"
+import { PriAdministrativeDecType } from "./entity/pri/administrative/priAdministrativeDecType"
+import { PriAdministrativeDecision } from "./entity/pri/administrative/priAdministrativeDecision"
 
 const Entities = [
   UmSystemUser, UmUserRole,
@@ -22,5 +24,6 @@ const Entities = [
   MovementDeparture, MovementArrival,
   PriMovementDeparturePack, PriMovementDeparture, PriMovementArrivalPack,
   PriInfoDepartment, PriInfoDepartmentType, PriInfoPositionType, PriInfoMilitaryRank,
+  PriAdministrativeDecType, PriAdministrativeDecision,
 ]
 export default Entities

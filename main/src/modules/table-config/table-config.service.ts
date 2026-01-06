@@ -4,6 +4,7 @@ import { UmSystemUser } from 'src/entity/um/um-system-user.entity';
 import { MovementDeparture } from 'src/entity/pri/movement/movementDeparture.entity';
 import { MovementArrival } from 'src/entity/pri/movement/movementArrival.entity';
 import { PriEmployeeKey } from 'src/entity/pri/employee/priEmployeeKey';
+import { PriAdministrativeDecision } from 'src/entity/pri/administrative/priAdministrativeDecision';
 
 interface TableFieldMeta {
   header: string;
@@ -22,6 +23,7 @@ const dynamicTables: Record<string, DynamicTable> = {
   'employeeKey': PriEmployeeKey as unknown as DynamicTable,
   'movement-departure': MovementDeparture as unknown as DynamicTable,
   'movement-arrival': MovementArrival as unknown as DynamicTable,
+  'decision': PriAdministrativeDecision as unknown as DynamicTable,
 };
 
 @Injectable()

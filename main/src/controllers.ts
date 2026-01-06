@@ -1,3 +1,4 @@
+import { AdministrativeDecisionController } from "./modules/pri/administrativeDecision/administrative.decision.controller";
 import { EmployeeController } from "./modules/pri/employee/employee.controller";
 import { MovementController } from "./modules/pri/movement/movement.controller";
 import { PrisonerController } from "./modules/pri/prisoner/prisoner.controller";
@@ -12,4 +13,5 @@ export const controllers = [
     PrisonerController,
     MovementController,
     EmployeeController,
+    AdministrativeDecisionController,
 ]

@@ -9,6 +9,7 @@ import { getId } from 'src/utils/unique';
 const mapRef = {
   'role': 'ref_role',
   'mt-prisoner': 'PRI_MOVEMENT_TYPE_PRISONER',
+  'department': 'PRI_INFO_DEPARTMENT',
 };
 
 const redisExpireInSec = 3600; // Cache data for 1 hour
