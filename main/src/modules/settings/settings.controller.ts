@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { SettingsService } from './settings.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RoleService } from './role.service';
@@ -28,11 +28,17 @@ export class SettingsController {
 		return await this.roleService.getList({ limit, page }, search, req.user)
 	}
 	
-  @UseGuards(JwtAuthGuard)
-  @Post('/roles')
-  async sendMail(@Req() req, @Body() body) {
-    return await this.roleService.create(body, req.user)
-  }
+	@UseGuards(JwtAuthGuard)
+	@Post('/roles')
+	async rolePost(@Req() req, @Body() body) {
+		return await this.roleService.create(body, req.user)
+	}
+	
+	@UseGuards(JwtAuthGuard)
+	@Put('/roles')
+	async rolePut(@Req() req, @Body() body) {
+		return await this.roleService.update(body, req.user)
+	}
 
   //#endregion
 

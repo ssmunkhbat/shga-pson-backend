@@ -45,6 +45,26 @@ export class DynamicService {
 			else return await this[repoName].save(saved)
     }
 
+    /**
+     * 
+     * @param queryRunner 
+     * @param tableName string
+     * @param repoName string
+     * @param id number
+     * @param data any
+     * @param user any
+     * @returns void
+     */
+    async updateTableData(queryRunner = null, tableName, repoName, id, data, user) {
+      const updated = new dynamicTableNames[tableName]({
+        ...data,
+        // modifiedUserId: user.id,
+        // modifiedDate: new Date()
+      })
+			if (queryRunner) return await queryRunner.manager.update(updated, id, updated);
+      else return await this[repoName].update({ id }, updated)
+    }
+
     //#endregion
 
 }

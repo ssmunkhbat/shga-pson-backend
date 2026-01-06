@@ -65,4 +65,22 @@ export class RoleService {
     }
   }
 
+  async update(body: any, user: any) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const tableName = 'UmRole';
+      const repoName = 'UmRole';
+		  await this.dynamicService.createTableData(queryRunner, tableName, repoName, body, user)
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      console.log(err)
+      await queryRunner.rollbackTransaction();
+      throw new HttpException(err, 500)
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
 }
