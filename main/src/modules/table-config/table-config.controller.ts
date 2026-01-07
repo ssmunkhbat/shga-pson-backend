@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { TableConfigService } from './table-config.service';
 import { JwtAuthGuard } from 'src/modules/auth/jwt.guard';
 
@@ -10,5 +10,11 @@ export class TableConfigController {
   @Get('columns/:name')
   async getColumns(@Param('name') name: string) {
     return await this.service.getColumns(name);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('actions/:metaDataId')
+  async getActions(@Req() req, @Param('metaDataId') metaDataId: number) {
+    return await this.service.getActions(metaDataId, req.user);
   }
 }

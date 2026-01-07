@@ -10,7 +10,7 @@ export class UmUserRole extends EntBase{
   id: number;
 
   @Column({ name: "USER_ID" })
-  user_id: number;
+  userId: number;
   
   @OneToOne(() => UmSystemUser, (u) => u.userId)
   @JoinColumn({name: 'USER_ID'})

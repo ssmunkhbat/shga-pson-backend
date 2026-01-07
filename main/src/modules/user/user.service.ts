@@ -39,6 +39,10 @@ export class UserService {
       const employeeKey = await this.employeeKeyRepo.findOne({ where: { employeeId: emp.employeeId, isActive: true } });
       (user as any).employeeKey = employeeKey;
     }
+    const userRole = await this.userRoleRepository.findOne({ where: { userId } });
+    if (userRole) {
+      (user as any).userRole = userRole;
+    }
     return user
   }
 
@@ -75,7 +79,7 @@ export class UserService {
           role: "r.role",
         }
       },
-      where: { user_id: user_id }
+      where: { userId: user_id }
     });
   }
 }
