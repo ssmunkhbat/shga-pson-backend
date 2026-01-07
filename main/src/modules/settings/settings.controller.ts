@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post, Put, Query, Req, UseGuards } from '@nestjs
 import { SettingsService } from './settings.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RoleService } from './role.service';
+import { CreateRoleDto } from 'src/dto/validation/createRole.dto';
 
 @Controller('settings')
 export class SettingsController {
@@ -30,7 +31,7 @@ export class SettingsController {
 	
 	@UseGuards(JwtAuthGuard)
 	@Post('/roles')
-	async rolePost(@Req() req, @Body() body) {
+	async rolePost(@Req() req, @Body() body: CreateRoleDto) {
 		return await this.roleService.create(body, req.user)
 	}
 	
