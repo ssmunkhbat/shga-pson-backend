@@ -55,6 +55,15 @@ export class TableConfigService {
     return columns;
   }
 
+  async getActionsByPath(url: string, user: any) {
+    const query = `
+      SELECT META_DATA_ID FROM pri_settings_menu WHERE path = '${url}'
+    `;
+    const result = await this.dataSource.query(query);
+    if (result.length === 0) return []
+    return await this.getActions(result[0].META_DATA_ID, user)
+  }
+
   async getActions(metaDataId: number, user: any) {
     console.log('------getActions----metaDataId---', metaDataId)
     console.log('------getActions----roleId---', user.userRole.roleId)
@@ -96,11 +105,30 @@ export class TableConfigService {
             DISTINCT MMM.ACTION_META_DATA_ID 
           FROM META_META_MAP MM
             INNER JOIN META_MENU_LINK MMM ON MMM.META_DATA_ID = MM.TRG_META_DATA_ID 
-          WHERE MM.SRC_META_DATA_ID = ${metaDataId}  
+          WHERE MM.SRC_META_DATA_ID = ${metaDataId}
         )
     `;
-    const result = await this.dataSource.query(query);
+    let result = []
+    result = await this.dataSource.query(query);
+    if (result.length === 0) {
+      const query2 = `
+        SELECT WEB_URL FROM META_MENU_LINK WHERE META_DATA_ID = 1456201997392;
+      `;
+      const result2 = await this.dataSource.query(query2);
+      if (result2.length > 0) {
+        const parsedMetaDataId = await this.getMetaDataIdFromUrl(result2[0].WEB_URL)
+        result = await this.getChildMetaDataId(parsedMetaDataId);
+      }
+    }
     return result
+  }
+  getMetaDataIdFromUrl(url) {
+    if (!url) return;
+    // const url = 'mdobject/dataview/144705286748736?dv[wfmStatusId]=100101&title=Баривчлагдсан+этгээд';
+    const match = url.match(/dataview\/(\d+)/);
+    const id = match ? match[1] : null;
+    console.log(id);
+    return id;
   }
 
 }
