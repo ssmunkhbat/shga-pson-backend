@@ -1,23 +1,30 @@
-import { Expose, Type } from '@nestjs/class-transformer';
+import { Expose } from '@nestjs/class-transformer';
 
 export class MenuDto {
-    @Expose({ name: 'META_TYPE_ID' })
-    metaTypeId: number;
 
-    @Expose({ name: 'PERMISSION_ID' })
-    permissionId: number;
+    @Expose({ name: 'ID' })
+    id: number;
 
-    @Expose({ name: 'TRG_META_DATA_ID' })
-    trgMetaDataId: number;
+    @Expose({ name: 'META_DATA_ID' })
+    metaDataId: number;
 
-    @Expose({ name: 'TRG_META_DATA_NAME' })
-    trgMetaDataName: string;
+    @Expose({ name: 'PARENT_ID' })
+    parentId: number;
+
+    @Expose({ name: 'CODE' })
+    code: string;
+
+    @Expose({ name: 'TYPE' })
+    type: string;
 
     @Expose({ name: 'ICON' })
     icon: string;
 
     @Expose({ name: 'ORDER_NUM' })
     orderNum: number;
+
+    @Expose({ name: 'PATH' })
+    path: string;
 
     @Expose({ name: 'CHILDREN' })
     children: MenuDto[];

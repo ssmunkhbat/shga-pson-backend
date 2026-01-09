@@ -14,6 +14,12 @@ export class SettingsController {
   //#region [MENU]
 
 	@UseGuards(JwtAuthGuard)
+	@Get('menu/default')
+	async getDefaultMenu(@Req() req) {
+		return await this.service.getDefaultMenu();
+	}
+
+	@UseGuards(JwtAuthGuard)
 	@Get('menu/top')
 	async getMenuTop(@Req() req) {
 		return await this.service.getMenu(req.user);

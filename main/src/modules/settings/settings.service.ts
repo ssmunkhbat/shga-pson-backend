@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { plainToClass } from '@nestjs/class-transformer';
+import { MenuMetaDto } from 'src/dto/menuMetaDto';
 import { MenuDto } from 'src/dto/menuDto';
 
 @Injectable()
@@ -18,7 +19,7 @@ export class SettingsService {
     if (roleIds.length === 0) return []
     const menus = await this.getTopMenu(roleIds);
     const list = []
-    for (const item of menus) {
+    for (const item of menus.slice(0)) {
       const found = list.find(a => a.trgMetaDataId === item.trgMetaDataId)
       if (!found) {
         item.children = await this.getSubMenu(item.trgMetaDataId, roleIds)
@@ -31,6 +32,11 @@ export class SettingsService {
     // ];
 
     return list;
+    // const result = list.reduce((acc, item) => {
+    //   acc.push(...item.children)
+    //   return acc
+    // }, [])
+    // return result
   }
 
   async getTopMenu(roleIds: []) {
@@ -49,8 +55,8 @@ export class SettingsService {
       ORDER BY MM.ORDER_NUM ASC
     `;
     const result = await this.dataSource.query(query);
-    const rows: MenuDto[] = plainToClass(
-      MenuDto,
+    const rows: MenuMetaDto[] = plainToClass(
+      MenuMetaDto,
       result as object[],
       { excludeExtraneousValues: true },
     );
@@ -73,8 +79,8 @@ export class SettingsService {
       ORDER BY MM.ORDER_NUM ASC
     `;
     const result = await this.dataSource.query(query);
-    const rows: MenuDto[] = plainToClass(
-      MenuDto,
+    const rows: MenuMetaDto[] = plainToClass(
+      MenuMetaDto,
       result as object[],
       { excludeExtraneousValues: true },
     );
@@ -93,6 +99,34 @@ export class SettingsService {
     `;
     const result = await this.dataSource.query(query);
     return result.map(item => item.ROLE_ID);
+  }
+
+  async getDefaultMenu() {
+    const query = `
+      SELECT
+        DISTINCT null ID
+        , MM.TRG_META_DATA_ID META_DATA_ID
+        , null PARENT_ID
+        , MD.META_DATA_CODE CODE
+        , 'root' TYPE
+        , MD.META_DATA_NAME NAME
+        , null ICON
+        , MM.ORDER_NUM
+        , null PATH
+      FROM META_META_MAP MM
+      INNER JOIN META_DATA MD ON MD.META_DATA_ID = MM.TRG_META_DATA_ID 
+      LEFT JOIN UM_META_PERMISSION UMP ON MD.META_DATA_ID = UMP.META_DATA_ID
+      WHERE MD.IS_ACTIVE = 1 AND MM.SRC_META_DATA_ID = 144601542339575
+      GROUP BY MM.TRG_META_DATA_ID, MD.META_DATA_CODE, MD.META_DATA_NAME, MM.ORDER_NUM
+      ORDER BY MM.ORDER_NUM ASC;
+    `;
+    const result = await this.dataSource.query(query);
+    const rows: MenuDto[] = plainToClass(
+      MenuDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
+    return rows
   }
 
   //#endregion
