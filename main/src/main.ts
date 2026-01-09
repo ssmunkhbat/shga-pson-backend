@@ -12,17 +12,20 @@ async function bootstrap() {
       transform: true,
       forbidNonWhitelisted: true,
       exceptionFactory: (errors) => {
-        const message = errors
-          .map(err => {
-            // DTO-д байхгүй field
-            if (err.constraints?.whitelistValidation) {
-              return `${err.property}: Талбар байхгүй байна`;
-            }
-            // Бусад validation
-            return Object.values(err.constraints ?? {}).map(
-              msg => `${err.property}: ${msg}`,
-            );
-          }).flat().join('\n');
+        console.log('VALIDATION ERRORS:', JSON.stringify(errors, null, 2));
+        const formatError = (errs: any[]) => {
+            return errs.map(err => {
+                let msgs: string[] = [];
+                if (err.constraints) {
+                    msgs = [...msgs, ...Object.values(err.constraints).map((m: any) => `${err.property}: ${m}`)];
+                }
+                if (err.children && err.children.length > 0) {
+                    msgs = [...msgs, ...formatError(err.children).split('\n')];
+                }
+                return msgs.join('\n');
+            }).join('\n');
+        }
+        const message = formatError(errors);
         return new BadRequestException(message);
       },
     }),

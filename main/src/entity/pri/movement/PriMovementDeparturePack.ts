@@ -15,17 +15,17 @@ export class PriMovementDeparturePack {
   @Column({ name: 'TO_DEPARTMENT_ID', nullable: true })
   toDepartmentId: number;
 
-  @Column({ name: 'DECISION_ID', nullable: true })
+  @Column({ name: 'ADMINISTRATIVE_DECISION_ID', nullable: true })
   decisionId: number;
 
   @Column({ name: 'OFFICER_ID', nullable: true })
   officerId: number;
 
-  @Column({ name: 'OFFICER_NAME', nullable: true })
-  officerName: string; // Used for "Other" officer or textual name
+  @Column({ name: 'EMPLOYEE_ID', nullable: true })
+  employeeId: number; // Used for "Other" officer or textual name
 
-  @Column({ name: 'GRANT_PASSWORD', nullable: true })
-  grantPassword: string;
+  // @Column({ name: 'GRANT_PASSWORD', nullable: true })
+  // grantPassword: string;
 
   @Column({ name: 'WFM_STATUS_ID', nullable: true })
   wfmStatusId: number;
@@ -36,12 +36,9 @@ export class PriMovementDeparturePack {
   @Column({ name: 'NUMBER_OF_PRISONERS', nullable: true })
   numberOfPrisoners: number;
 
-  @Column({ name: 'CREATED_BY', nullable: true })
-  createdBy: number;
+  @Column({ name: 'CREATED_EMPLOYEE_KEY_ID', nullable: true })
+  createdEmployeeKeyId: number;
 
   @Column({ name: 'CREATED_DATE', type: 'date', default: () => 'SYSDATE' })
   createdDate: Date;
-
-  @Column({ name: 'IS_ACTIVE', default: 1 })
-  isActive: number;
 }

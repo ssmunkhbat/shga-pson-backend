@@ -10,6 +10,8 @@ const mapRef = {
   'role': 'UM_ROLE',
   'mt-prisoner': 'PRI_MOVEMENT_TYPE_PRISONER',
   'departmentList': 'PRI_INFO_DEPARTMENT',
+  'regimen': 'PRI_INFO_DEPARTMENT_REGIME',
+  'regimenClass': 'PRI_INFO_DEP_REGIME_CLASS',
 };
 
 @Injectable()

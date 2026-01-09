@@ -9,6 +9,7 @@ import { RoleService } from "./modules/settings/role.service";
 import { SettingsService } from "./modules/settings/settings.service";
 import { TableConfigService } from "./modules/table-config/table-config.service";
 import { RedisService } from "./thirdparty/redis/redis.service";
+import { OfficerService } from "./modules/pri/officer/officer.service";
 
 
 export const services = [
@@ -22,5 +23,6 @@ export const services = [
     PrisonerService,
     MovementService,
     EmployeeService,
+    OfficerService,
     AdministrativeDecisionService,
 ]

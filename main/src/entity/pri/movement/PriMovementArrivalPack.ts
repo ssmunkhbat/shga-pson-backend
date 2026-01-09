@@ -12,9 +12,6 @@ export class PriMovementArrivalPack {
   @Column({ name: 'ARRIVAL_DATE', type: 'date', default: () => 'SYSDATE' })
   arrivalDate: Date;
 
-  @Column({ name: 'CREATED_BY', nullable: true })
-  createdBy: number;
-
   @Column({ name: 'CREATED_DATE', type: 'date', default: () => 'SYSDATE' })
   createdDate: Date;
 }

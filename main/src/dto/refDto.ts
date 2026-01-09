@@ -19,4 +19,16 @@ export class RefDto {
 
     @Expose({ name: 'SORT_DEFAULT' })
     sortDefault: number;
+
+    @Expose({ name: 'DEPARTMENT_REGIME_ID' })
+    departmentRegimeId: number;
+
+    @Expose({ name: 'DEPARTMENT_REGIME_CLASS_ID' })
+    departmentRegimeClassId: number;
+
+    @Expose({ name: 'REGIME_NAME' })
+    regimeName: string;
+
+    @Expose({ name: 'CLASS_NAME' })
+    className: string;
 }

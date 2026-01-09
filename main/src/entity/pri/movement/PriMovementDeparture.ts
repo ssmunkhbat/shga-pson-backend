@@ -12,23 +12,20 @@ export class PriMovementDeparture {
   @Column({ name: 'PRISONER_KEY_ID' })
   prisonerKeyId: number;
 
-  @Column({ name: 'REASON_ID', nullable: true })
+  @Column({ name: 'MOVEMENT_TYPE_PRISONER_ID', nullable: true })
   reasonId: number;
 
-  @Column({ name: 'REGIMEN_ID', nullable: true })
+  @Column({ name: 'DEPARTMENT_REGIME_ID', nullable: true })
   regimenId: number;
 
-  @Column({ name: 'CLASS_ID', nullable: true })
+  @Column({ name: 'REGIME_CLASS_ID', nullable: true })
   classId: number;
 
   @Column({ name: 'DESCRIPTION', nullable: true })
   description: string; // Additional Info
 
-  @Column({ name: 'IS_SPECIAL_ATTENTION', nullable: true })
-  isSpecialAttention: number;
-
-  @Column({ name: 'CREATED_BY', nullable: true })
-  createdBy: number;
+  // @Column({ name: 'IS_SPECIAL_ATTENTION', nullable: true })
+  // isSpecialAttention: number;
 
   @Column({ name: 'CREATED_DATE', type: 'date', default: () => 'SYSDATE' })
   createdDate: Date;

@@ -17,14 +17,18 @@ import { PriAdministrativeDecType } from "./entity/pri/administrative/priAdminis
 import { PriAdministrativeDecision } from "./entity/pri/administrative/priAdministrativeDecision"
 import { UmRole } from "./entity/um/umRole"
 
+import { PriPrisonerKey } from "./entity/pri/prisoner/PriPrisonerKey"
+import { PriOfficer } from "./entity/pri/officer/PriOfficer"
+
 const Entities = [
   UmSystemUser, UmUserRole, UmRole,
   BasePerson,
   PriEmployee, PriEmployeeKey,
-  PriPrisonerKeyView,
+  PriPrisonerKeyView, PriPrisonerKey,
   MovementDeparture, MovementArrival,
   PriMovementDeparturePack, PriMovementDeparture, PriMovementArrivalPack,
   PriInfoDepartment, PriInfoDepartmentType, PriInfoPositionType, PriInfoMilitaryRank,
   PriAdministrativeDecType, PriAdministrativeDecision,
+  PriOfficer,
 ]
 export default Entities

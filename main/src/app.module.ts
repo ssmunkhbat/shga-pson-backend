@@ -6,12 +6,13 @@ import Entities from './entities';
 import { controllers } from './controllers';
 import { services } from './services';
 
+
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
-      // envFilePath: '.env-production',
+      envFilePath: `.env.${process.env.NODE_ENV}`,
     }),
     TypeOrmModule.forFeature(Entities),
     ...modules,

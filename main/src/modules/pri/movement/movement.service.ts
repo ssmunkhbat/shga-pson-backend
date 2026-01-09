@@ -10,6 +10,7 @@ import { CreateMovementArrivalDto } from './dto/CreateMovementArrival.dto';
 import { PriMovementDeparturePack } from 'src/entity/pri/movement/PriMovementDeparturePack';
 import { PriMovementDeparture } from 'src/entity/pri/movement/PriMovementDeparture';
 import { PriMovementArrivalPack } from 'src/entity/pri/movement/PriMovementArrivalPack';
+import { PriPrisonerKey } from 'src/entity/pri/prisoner/PriPrisonerKey';
 
 @Injectable()
 export class MovementService {
@@ -18,6 +19,8 @@ export class MovementService {
     private departureRepository: Repository<MovementDeparture>,
     @InjectRepository(MovementArrival)
     private arrivalRepository: Repository<MovementArrival>,
+    @InjectRepository(PriPrisonerKey)
+    private prisonerKeyRepository: Repository<PriPrisonerKey>,
     private dataSource: DataSource,
   ) { }
 
@@ -30,12 +33,12 @@ export class MovementService {
       pack.toDepartmentId = dto.toDepartmentId;
       pack.decisionId = dto.decisionId;
       pack.officerId = dto.officerId;
-      pack.officerName = dto.officerName;
-      pack.grantPassword = dto.grantPassword;
+      pack.employeeId = dto.employeeId; 
+      // pack.grantPassword = dto.grantPassword;
       pack.wfmStatusId = 100302;
-      pack.movementTypeId = 1;
+      pack.movementTypeId = dto.movementTypeId;
       pack.numberOfPrisoners = dto.prisoners.length;
-      pack.createdBy = user.userId; // user object should have userId
+      // pack.createdEmployeeKeyId = user.userId; // User ID is not a valid Employee Key ID, causing FK error
       pack.createdDate = new Date();
 
       await manager.save(pack);
@@ -52,30 +55,81 @@ export class MovementService {
         detail.regimenId = p.regimenId;
         detail.classId = p.classId;
         detail.description = p.description;
-        detail.isSpecialAttention = p.isSpecialAttention;
-        detail.createdBy = user.userId;
+        // detail.isSpecialAttention = p.isSpecialAttention;
+        // detail.createdUserId = user.userId;
         detail.createdDate = new Date();
         
         await manager.save(detail);
 
-        // Update Prisoner Status? 
-        // In old system, `PRI_PRISONER_KEY` likely has status/department.
-        // But for now, just insert the movement record.
-        // The View `PRI_MOVEMENT_DEPARTURE_PACK_VW` should pick it up.
+        await manager.save(detail);
+
+        // Update Prisoner Status to "En Route" (100302)
+        const prisonerKey = await manager.findOne(PriPrisonerKey, {
+          where: { prisonerKeyId: p.prisonerKeyId }
+        });
+
+        if (prisonerKey) {
+            prisonerKey.wfmStatusId = 100302; // Departed Status
+            await manager.save(prisonerKey);
+        }
       }
       return pack;
     });
   }
 
   async registerArrival(user: any, dto: CreateMovementArrivalDto) {
+    return this.dataSource.transaction(async manager => {
       const arrival = new PriMovementArrivalPack();
       arrival.movementArrivalPackId = Number(new Date().getTime().toString() + Math.floor(Math.random() * 100).toString());
       arrival.movementDeparturePackId = dto.movementDeparturePackId;
       arrival.arrivalDate = new Date(dto.arrivalDate);
-      arrival.createdBy = user.userId;
+      // arrival.createdUserId = user.userId;
       arrival.createdDate = new Date();
       
-      return this.dataSource.manager.save(arrival);
+      const savedArrival = await manager.save(arrival);
+
+      // Get Movement Departure Pack and Details to identify prisoners
+      const departureDetails = await manager.find(PriMovementDeparture, {
+          where: { movementDeparturePackId: dto.movementDeparturePackId }
+      });
+
+      const departurePack = await manager.findOne(PriMovementDeparturePack, {
+          where: { movementDeparturePackId: dto.movementDeparturePackId }
+      });
+
+      for (const departureDetail of departureDetails) {
+          // Find the current Prisoners Key (which should be "Departure" status 100302)
+          const currentKey = await manager.findOne(PriPrisonerKey, {
+              where: { prisonerKeyId: departureDetail.prisonerKeyId }
+          });
+
+          if (currentKey) {
+              // 1. Close current key
+              currentKey.endDate = new Date(dto.arrivalDate); // Set End Date as Arrival Date
+              await manager.save(currentKey);
+
+              // 2. Create NEW key for the new Department
+              const newKey = new PriPrisonerKey();
+              // Generate new ID (Assuming simplistic approach or sequence if required, using Random for now as per project style)
+              newKey.prisonerKeyId = Number(new Date().getTime().toString() + Math.floor(Math.random() * 1000).toString());
+              newKey.prisonerId = currentKey.prisonerId;
+              newKey.departmentId = departurePack.toDepartmentId; // New Department
+              newKey.wfmStatusId = 100301; // Active Status
+              newKey.beginDate = new Date(dto.arrivalDate);
+              newKey.createdBy = user.userId;
+              newKey.createdDate = new Date();
+              
+              // Copy other attributes
+              newKey.regimenId = currentKey.regimenId;
+              newKey.detentionId = currentKey.detentionId;
+              newKey.decisionId = currentKey.decisionId;
+
+              await manager.save(newKey);
+          }
+      }
+
+      return savedArrival;
+    });
   }
 
   /**
