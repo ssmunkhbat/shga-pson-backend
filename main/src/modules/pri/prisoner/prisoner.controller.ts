@@ -11,4 +11,10 @@ export class PrisonerController {
   async listAll(@Query('limit') limit, @Query('page') page, @Query('search') search) {
     return await this.service.listAll({ limit, page }, search);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/:prisonerId')
+  async getColumns(@Req() req, @Param('prisonerId') prisonerId: number) {
+    return await this.service.findOne(prisonerId, req.user);
+  }
 }
