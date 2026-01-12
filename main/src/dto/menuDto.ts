@@ -17,6 +17,9 @@ export class MenuDto {
     @Expose({ name: 'TYPE' })
     type: string;
 
+    @Expose({ name: 'NAME' })
+    label: string;
+
     @Expose({ name: 'ICON' })
     icon: string;
 

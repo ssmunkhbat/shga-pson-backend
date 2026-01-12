@@ -16,7 +16,7 @@ export class SettingsController {
 	@UseGuards(JwtAuthGuard)
 	@Get('menu/default')
 	async getDefaultMenu(@Req() req) {
-		return await this.service.getDefaultMenu();
+		return await this.service.getDefaultMenu(req.user);
 	}
 
 	@UseGuards(JwtAuthGuard)
