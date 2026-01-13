@@ -64,6 +64,9 @@ export class PrisonerInfoDto {
     @Expose({ name: 'POSITION' })
     position: string;
 
+    @Expose({ name: 'PRISONER_NUMBER' })
+    prisonerNumber: number;
+
     // Мэргэжил
     @Expose({ name: 'PROFESSION' })
     profession: string;
