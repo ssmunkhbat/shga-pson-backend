@@ -13,6 +13,12 @@ export class PrisonerController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/card/:prisonerId')
+  async getPrisonerCard(@Req() req, @Param('prisonerId') prisonerId: number) {
+    return await this.service.findPrisonerCard(prisonerId, req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('/personalinfo/:prisonerId')
   async getPersonalInfo(@Req() req, @Param('prisonerId') prisonerId: number) {
     return await this.service.findOnePersonalInfo(prisonerId, req.user);
