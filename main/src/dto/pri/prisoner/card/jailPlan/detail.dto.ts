@@ -2,6 +2,9 @@ import { Expose } from '@nestjs/class-transformer';
 
 export class PrisonerCardJailPlanDetailDto {
 
+    @Expose({ name: 'CODE' })
+    code: string;
+
     @Expose({ name: 'DEPARTMENT_REGIME_NAME' })
     departmentRegimeName: string;
 

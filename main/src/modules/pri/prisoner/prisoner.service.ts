@@ -16,6 +16,18 @@ import { PrisonerCardJailPlanDto } from 'src/dto/pri/prisoner/card/jailPlan/jail
 import { PrisonerCardJailPlanChangeListDto } from 'src/dto/pri/prisoner/card/jailPlan/changeList.dto';
 import { PrisonerCardJailPlanDetailDto } from 'src/dto/pri/prisoner/card/jailPlan/detail.dto';
 import { PrisonerCardJailPlanFineDto } from 'src/dto/pri/prisoner/card/jailPlan/fine.dto';
+import { PrisonerCardMovementDepartureDto } from 'src/dto/pri/prisoner/card/movement.department.dto';
+import { PrisonerCardOldJailListDto } from 'src/dto/pri/prisoner/card/old.jail.list.dto';
+import { PrisonerCardReleaseDto } from 'src/dto/pri/prisoner/card/release.dto';
+import { PrisonerCardSymptomDto } from 'src/dto/pri/prisoner/card/symptom.dto';
+import { PrisonerCardOffenceDto } from 'src/dto/pri/prisoner/card/offence.dto';
+import { PrisonerCardJailPlanDepriveDto } from 'src/dto/pri/prisoner/card/jailPlan/deprive.dto';
+import { PrisonerCardJailPlanForceWorkDto } from 'src/dto/pri/prisoner/card/jailPlan/forceWork.dto';
+import { PrisonerCardBonusDayDto } from 'src/dto/pri/prisoner/card/bonusDay.dto';
+import { PrisonerCardJailPlanHamDto } from 'src/dto/pri/prisoner/card/jailPlan/ham.dto';
+import { PriJailPanDetailDto } from 'src/dto/pri/jailPlan/detail.dto';
+import { PrisonerCardJailPlanJailTimeDto } from 'src/dto/pri/prisoner/card/jailPlan/jail.time.dto';
+import { PrisonerCardJailPlanJailBreakDto } from 'src/dto/pri/prisoner/card/jailPlan/jail.break.dto';
 
 @Injectable()
 export class PrisonerService {
@@ -120,24 +132,28 @@ export class PrisonerService {
   //#region [JAIL]
 
   async getPrisonerJailData(prisonerId: number) {
-    let jailPlan = null
-    let jailPlanDetail = []
-    let allBonusDays = []
-    let jailPlanDetailCode = []
+    const jailPlan = await this.getJailPlanData(prisonerId);
+    if (!jailPlan) {
+      return { jailPlan, jailPlanDetail: [], allBonusDays: [], jailPlanDetailCode: [], };
+    }
 
-    jailPlan = await this.getJailPlanData(prisonerId)
-    if (!jailPlan) return { jailPlan, jailPlanDetail, allBonusDays, jailPlanDetailCode }
+    const [jailPlanDetail, jailPlanDetailCode] = await Promise.all([
+      this.getJailPlanDetailData(jailPlan.jailPlanId),
+      this.getJailPlanDetailCodeData(jailPlan.jailPlanId),
+    ]);
 
-    jailPlanDetail = await this.getJailPlanDetailData(jailPlan.jailPlanId);
+    const prisonerKey = await this.prisonerKeyRepo.findOne({
+      where: { prisonerId, endDate: null },
+    });
+    if (!prisonerKey) {
+      return { jailPlan, jailPlanDetail, allBonusDays: [], jailPlanDetailCode, };
+    }
 
-    const prisonerKey = await this.prisonerKeyRepo.findOne({ where: { prisonerId, endDate: null } })
-    if (!prisonerKey) return { jailPlan, jailPlanDetail, allBonusDays, jailPlanDetailCode }
+    const allBonusDays = await this.getBonusDaysData(prisonerKey.detentionId);
 
-    allBonusDays = await this.getBonusDaysData(prisonerKey.detentionId);
-    jailPlanDetailCode = await this.getJailPlanDetailCodeData(jailPlan.jailPlanId);
-
-    return { jailPlan, jailPlanDetail, allBonusDays, jailPlanDetailCode }
+    return { jailPlan, jailPlanDetail, allBonusDays, jailPlanDetailCode, };
   }
+
 
   async getJailPlanData(prisonerId: number) {
     if (!prisonerId) return null
@@ -199,72 +215,120 @@ export class PrisonerService {
   //#region [CARD]
 
   async getPrisonerCardAll(prisonerId: number) {
-    let prisonerInfo = null
-    let postureInfo = null
-    let skillList = []
-    let addressList = []
-    let familyList = []
-    let relativeList = []
-    let symptomList = []
-    let bodyAttributeList = []
-    let offenceList = []
-    let jailPlan = null
-    let jailPlanDetail = []
-    let jailPlanFine = []
-    let jailPlanFineAsAdditional = []
-    let jailPlanDeprive = []
-    let jailPlanForceWork = []
-    let jailPlanDetailCode = []
-    let jailPlanChangeList = []
-    let jailPlanBonusDays = []
-    let jailPlanAllBonusDays = []
-    let jailPlanHamList = []
-    let oldJailList = []
-    let releaseList = []
-    let jailPlanDtl2 = []
-    let movementDepartmentList = []
-
-    const prisoner = await this.prisonerRepo.findOne({ where: { prisonerId } })
+    const prisoner = await this.prisonerRepo.findOne({ where: { prisonerId } });
     if (!prisoner) {
-      throw new BadRequestException("Not found!");
+      throw new BadRequestException('Not found!');
     }
-    prisonerInfo = await this.getPrisonerCardData(prisonerId)
-    postureInfo = await this.getPrisonerCardPostureData(prisonerId);
-    skillList = await this.getPrisonerCardSkillListData(prisonerId);
-    addressList = await this.getPrisonerCardAddressListData(prisoner.personId);
-    familyList = await this.getPrisonerCardFamilyListData(prisonerId);
-    relativeList = await this.getPrisonerCardRelativeListData(prisonerId);
-    symptomList = await this.getPrisonerCardSymptomListData(prisoner.personId);
-    bodyAttributeList = await this.getPrisonerCardBodyAttributeListData(prisonerId);
-    offenceList = await this.getPrisonerCardOffenceListData(prisoner.personId);
-    jailPlan = await this.getPrisonerCardJailPlanData(prisonerId)
+
+    const [
+      prisonerInfo,
+      postureInfo,
+      skillList,
+      addressList,
+      familyList,
+      relativeList,
+      symptomList,
+      bodyAttributeList,
+      offenceList,
+      oldJailList,
+      releaseList,
+      movementDepartmentList,
+      jailTime,
+      prisonerBreak,
+    ] = await Promise.all([
+      this.getPrisonerCardData(prisonerId),
+      this.getPrisonerCardPostureData(prisonerId),
+      this.getPrisonerCardSkillListData(prisonerId),
+      this.getPrisonerCardAddressListData(prisoner.personId),
+      this.getPrisonerCardFamilyListData(prisonerId),
+      this.getPrisonerCardRelativeListData(prisonerId),
+      this.getPrisonerCardSymptomListData(prisoner.personId),
+      this.getPrisonerCardBodyAttributeListData(prisonerId),
+      this.getPrisonerCardOffenceListData(prisoner.personId),
+      this.getPrisonerCardOldJailListData(prisoner.personId),
+      this.getPrisonerCardReleaseListData(prisonerId),
+      this.getPrisonerCardMovementDepartmentData(prisonerId),
+      this.getPrisonerCardJailPlanJailTimeData(prisonerId),
+      this.getPrisonerCardJailPlanBreakData(prisonerId),
+    ]);
+
+    const jailPlan: PrisonerCardJailPlanDto = await this.getPrisonerCardJailPlanData(prisonerId);
+
+    let jailPlanDetail = [];
+    let jailPlanFine = [];
+    let jailPlanFineAsAdditional = [];
+    let jailPlanDeprive = [];
+    let jailPlanForceWork = [];
+    let jailPlanDetailCode = [];
+    let jailPlanChangeList = [];
+    let jailPlanBonusDays = [];
+    let jailPlanAllBonusDays = [];
+    let jailPlanHamList = [];
+    let jailPlanDtl2 = [];
+
     if (jailPlan) {
-      jailPlanDetail = await this.getPrisonerCardJailPlanDetailData(jailPlan.jailPlanId)
-      jailPlanFine = await this.getPrisonerCardJailPlanFineData(jailPlan.jailPlanId)
-      jailPlanFineAsAdditional = await this.getPrisonerCardJailPlanFineAsAdditionalData(jailPlan.jailPlanId)
-      jailPlanDeprive = await this.getPrisonerCardJailPlanDepriveData(jailPlan.jailPlanId)
-      jailPlanForceWork = await this.getPrisonerCardJailPlanForceWorkData(jailPlan.jailPlanId)
-      jailPlanDetailCode = await this.getPrisonerCardJailPlanDetailCodeData(jailPlan.jailPlanId)
-      jailPlanChangeList = await this.getPrisonerCardJailPlanChangeListData(jailPlan.jailPlanId)
-      jailPlanBonusDays = await this.getPrisonerCardJailPlanBonusDaysData(jailPlan.jailPlanId)
-      jailPlanAllBonusDays = await this.getPrisonerCardJailPlanAllBonusDaysData(jailPlan.jailPlanId)
-      if (jailPlan['IS_UNITED'] == 1) {
-        jailPlanHamList = await this.getPrisonerCardJailPlanHamListData(jailPlan.jailPlanId)
+      [
+        jailPlanDetail,
+        jailPlanFine,
+        jailPlanFineAsAdditional,
+        jailPlanDeprive,
+        jailPlanForceWork,
+        jailPlanDetailCode,
+        jailPlanChangeList,
+        jailPlanBonusDays,
+        jailPlanAllBonusDays,
+        jailPlanDtl2,
+      ] = await Promise.all([
+        this.getPrisonerCardJailPlanDetailData(jailPlan.jailPlanId),
+        this.getPrisonerCardJailPlanFineData(jailPlan.jailPlanId),
+        this.getPrisonerCardJailPlanFineAsAdditionalData(jailPlan.jailPlanId),
+        this.getPrisonerCardJailPlanDepriveData(jailPlan.jailPlanId),
+        this.getPrisonerCardJailPlanForceWorkData(jailPlan.jailPlanId),
+        this.getPrisonerCardJailPlanDetailCodeData(jailPlan.jailPlanId),
+        this.getPrisonerCardJailPlanChangeListData(jailPlan.jailPlanId),
+        this.getPrisonerCardJailPlanBonusDaysData(jailPlan.jailPlanId),
+        this.getPrisonerCardJailPlanAllBonusDaysData(jailPlan.jailPlanId),
+        this.getPrisonerCardJailPlanDtl2Data(prisonerId),
+      ]);
+
+      if (jailPlan.isUnited === 1) {
+        jailPlanHamList =
+          await this.getPrisonerCardJailPlanHamListData(jailPlan.jailPlanId);
       }
-      jailPlanDtl2 = await this.getPrisonerCardJailPlanDtl2Data(jailPlan.jailPlanId)
     }
-    oldJailList = await this.getPrisonerCardOldJailListData(prisoner.personId);
-    releaseList = await this.getPrisonerCardReleaseListData(prisonerId)
-    movementDepartmentList = await this.getPrisonerCardMovementDepartmentData(prisonerId)
+
     return {
-      prisonerInfo, postureInfo, skillList, addressList, familyList,
-      relativeList, symptomList, bodyAttributeList, offenceList,
-      jailPlan, jailPlanDetail, jailPlanFine, jailPlanFineAsAdditional, jailPlanDeprive, jailPlanForceWork,
-      jailPlanDetailCode, jailPlanChangeList, jailPlanBonusDays, jailPlanAllBonusDays, jailPlanHamList,
+      prisonerInfo,
+      postureInfo,
+      skillList,
+      addressList,
+      familyList,
+      relativeList,
+      symptomList,
+      bodyAttributeList,
+      offenceList,
+
+      jailPlan,
+      jailPlanDetail,
+      jailPlanFine,
+      jailPlanFineAsAdditional,
+      jailPlanDeprive,
+      jailPlanForceWork,
+      jailPlanDetailCode,
+      jailPlanChangeList,
+      jailPlanBonusDays,
+      jailPlanAllBonusDays,
+      jailPlanHamList,
       jailPlanDtl2,
-      oldJailList, releaseList, movementDepartmentList,
-    }
+
+      oldJailList,
+      releaseList,
+      movementDepartmentList,
+      jailTime,
+      prisonerBreak,
+    };
   }
+
 
   //#region [MAIN INFO]
 
@@ -409,7 +473,12 @@ export class PrisonerService {
       INNER JOIN PRI_PRISONER_KEY PPK ON PP.PRISONER_KEY_ID = PPK.PRISONER_KEY_ID
       WHERE PPK.PRISONER_ID = ${prisonerId} AND PP.PARTICIPANT_GROUP_ID = 2
     `;
-    const data = await this.dataSource.query(query);
+    const result = await this.dataSource.query(query);
+    const data: PrisonerCardFamilyDto[] = plainToClass(
+      PrisonerCardFamilyDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
     return data;
   }
   async getPrisonerCardSymptomListData(personId: number) {
@@ -426,7 +495,12 @@ export class PrisonerService {
       INNER JOIN PRI_INFO_SYMPTOM PIS ON PPS.SYMPTOM_ID = PIS.SYMPTOM_ID
       WHERE PPS.PERSON_ID = ${personId} AND PPS.IS_ACTIVE = 1
     `;
-    const data = await this.dataSource.query(query);
+    const result = await this.dataSource.query(query);
+    const data: PrisonerCardSymptomDto[] = plainToClass(
+      PrisonerCardSymptomDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
     return data;
   }
   async getPrisonerCardBodyAttributeListData(prisonerId: number) {
@@ -457,7 +531,12 @@ export class PrisonerService {
       FROM PRI_OFFENCE_ACTION_VIEW 
       WHERE PRISONER_ID = ${prisonerId} ORDER BY OFFENCE_DATE DESC
     `;
-    const data = await this.dataSource.query(query);
+    const result = await this.dataSource.query(query);
+    const data: PrisonerCardOffenceDto[] = plainToClass(
+      PrisonerCardOffenceDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
     return data;
   }
 
@@ -482,7 +561,12 @@ export class PrisonerService {
         LEFT JOIN PRI_INFO_LAW_ACT PILA ON PPOSL.LAW_ACT_ID = PILA.LAW_ACT_ID
       WHERE PPOS.PERSON_ID = ${personId}
     `;
-    const data = await this.dataSource.query(query);
+    const result = await this.dataSource.query(query);
+    const data: PrisonerCardOldJailListDto[] = plainToClass(
+      PrisonerCardOldJailListDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
     return data;
   }
   async getPrisonerCardReleaseListData(prisonerId: number) {
@@ -499,7 +583,12 @@ export class PrisonerService {
       INNER JOIN PRI_INFO_DECISION_TYPE PIDT ON PD.DECISION_TYPE_ID = PIDT.DECISION_TYPE_ID
       WHERE PPK.PRISONER_ID = ${prisonerId} AND PR.IS_ROLLEDBACK != 1
     `;
-    const data = await this.dataSource.query(query);
+    const result = await this.dataSource.query(query);
+    const data: PrisonerCardReleaseDto[] = plainToClass(
+      PrisonerCardReleaseDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
     return data;
   }
   async getPrisonerCardMovementDepartmentData(prisonerId: number) {
@@ -519,7 +608,49 @@ export class PrisonerService {
         LEFT JOIN (SELECT PID.DEPARTMENT_ID, PID.NAME FROM PRI_INFO_DEPARTMENT PID) TO_DEPARTMENT ON PMDP.TO_DEPARTMENT_ID = TO_DEPARTMENT.DEPARTMENT_ID
       WHERE PPK.PRISONER_ID = ${prisonerId}
     `;
-    const data = await this.dataSource.query(query);
+    const result = await this.dataSource.query(query);
+    const data: PrisonerCardMovementDepartureDto[] = plainToClass(
+      PrisonerCardMovementDepartureDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
+    return data;
+  }
+  async getPrisonerCardJailPlanJailTimeData(prisonerId: number) {
+    if (!prisonerId) return null
+    const query = `
+      SELECT 
+        p.JAIL_PLAN_ID, 
+        (p.JAIL_BEGIN_DATE - p.DAYS_IN_CUSTODY) AS JAIL_BEGIN_DATE
+      FROM PRI_JAIL_PLAN p
+      WHERE p.PRISONER_ID = ${prisonerId} and p.IS_ACTIVE = 1 AND p.JAIL_PLAN_TYPE_ID = 1
+    `;
+    const result = await this.dataSource.query(query);
+    const data: PrisonerCardJailPlanJailTimeDto[] = plainToClass(
+      PrisonerCardJailPlanJailTimeDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
+    return data;
+  }
+  async getPrisonerCardJailPlanBreakData(prisonerId: number) {
+    if (!prisonerId) return null
+    const query = `
+      SELECT
+        TO_CHAR(B.BREAK_DATE, 'yyyy-mm-dd') BREAK_DATE, B.DESCRIPTION, D.NAME DEPARTMENT_NAME,
+        WS.WFM_STATUS_NAME, TO_CHAR(B.FOUND_DATE, 'yyyy-mm-dd') FOUND_DATE
+      FROM PRI_PRISONER_BREAK B
+      LEFT JOIN PRI_PRISONER_KEY K on B.PRISONER_KEY_ID = K.PRISONER_KEY_ID
+      LEFT JOIN PRI_INFO_DEPARTMENT D ON K.DEPARTMENT_ID = D.DEPARTMENT_ID
+      LEFT JOIN WFM_STATUS WS ON B.WFM_STATUS_ID = WS.WFM_STATUS_ID
+      WHERE K.PRISONER_ID = ${prisonerId}
+    `;
+    const result = await this.dataSource.query(query);
+    const data: PrisonerCardJailPlanJailBreakDto[] = plainToClass(
+      PrisonerCardJailPlanJailBreakDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
     return data;
   }
 
@@ -599,7 +730,12 @@ export class PrisonerService {
         LEFT JOIN PRI_INFO_FINE_TYPE FT ON F.FINE_TYPE_ID = FT.FINE_TYPE_ID
       WHERE F.IS_ACTIVE = 1 AND F.FINE_TYPE_ID = 2 AND F.JAIL_PLAN_ID = ${jailPlanId}
     `;
-    const data = await this.dataSource.query(query);
+    const result = await this.dataSource.query(query);
+    const data: PrisonerCardJailPlanFineDto[] = plainToClass(
+      PrisonerCardJailPlanFineDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
     return data;
   }
   async getPrisonerCardJailPlanDepriveData(jailPlanId: number) {
@@ -610,7 +746,12 @@ export class PrisonerService {
       INNER JOIN PRI_INFO_DEPRIVE_TYPE PIDT ON PJPD.DEPRIVE_TYPE_ID = PIDT.DEPRIVE_TYPE_ID
       WHERE PJPD.JAIL_PLAN_ID = ${jailPlanId}
     `;
-    const data = await this.dataSource.query(query);
+    const result = await this.dataSource.query(query);
+    const data: PrisonerCardJailPlanDepriveDto[] = plainToClass(
+      PrisonerCardJailPlanDepriveDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
     return data;
   }
   async getPrisonerCardJailPlanForceWorkData(jailPlanId: number) {
@@ -622,7 +763,12 @@ export class PrisonerService {
       FROM PRI_JAIL_PLAN_FORCE_WORK
       WHERE IS_ACTIVE = 1 AND JAIL_PLAN_ID = ${jailPlanId}
     `;
-    const data = await this.dataSource.query(query);
+    const result = await this.dataSource.query(query);
+    const data: PrisonerCardJailPlanForceWorkDto[] = plainToClass(
+      PrisonerCardJailPlanForceWorkDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
     return data;
   }
   async getPrisonerCardJailPlanDetailCodeData(jailPlanId: number) {
@@ -634,7 +780,12 @@ export class PrisonerService {
       LEFT JOIN PRI_INFO_LAW_ACT PILA ON PJPDL.LEGAL_ACT_ID = PILA.LAW_ACT_ID
       WHERE PJPD.JAIL_PLAN_ID = ${jailPlanId} AND PJPD.IS_ACTIVE = 1
     `;
-    const data = await this.dataSource.query(query);
+    const result = await this.dataSource.query(query);
+    const data: PrisonerCardJailPlanDetailDto[] = plainToClass(
+      PrisonerCardJailPlanDetailDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
     return data;
   }
   async getPrisonerCardJailPlanChangeListData(jailPlanId: number) {
@@ -693,7 +844,12 @@ export class PrisonerService {
         AND PPBD.JAIL_PLAN_ID = ${jailPlanId}
       ORDER BY PPBD.DATE_OF_BONUS DESC
     `;
-    const data = await this.dataSource.query(query);
+    const result = await this.dataSource.query(query);
+    const data: PrisonerCardBonusDayDto[] = plainToClass(
+      PrisonerCardBonusDayDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
     return data;
   }
   async getPrisonerCardJailPlanAllBonusDaysData(jailPlanId: number) {
@@ -704,7 +860,12 @@ export class PrisonerService {
       INNER JOIN PRI_PRISONER_KEY PPK ON PPBD.PRISONER_KEY_ID = PPK.PRISONER_KEY_ID
       WHERE PPBD.JAIL_PLAN_ID = ${jailPlanId}
     `;
-    const data = await this.dataSource.query(query);
+    const result = await this.dataSource.query(query);
+    const data: PrisonerCardBonusDayDto[] = plainToClass(
+      PrisonerCardBonusDayDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
     return data;
   }
   async getPrisonerCardJailPlanHamListData(jailPlanId: number) {
@@ -720,7 +881,12 @@ export class PrisonerService {
         LEFT JOIN PRI_INFO_DEPARTMENT D ON PK.DEPARTMENT_ID = D.DEPARTMENT_ID
       WHERE PP.PARTICIPANT_TYPE_ID = 123 AND PP.JAIL_PLAN_ID = ${jailPlanId}
     `;
-    const data = await this.dataSource.query(query);
+    const result = await this.dataSource.query(query);
+    const data: PrisonerCardJailPlanHamDto[] = plainToClass(
+      PrisonerCardJailPlanHamDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
     return data;
   }
   async getPrisonerCardJailPlanDtl2Data(prisonerId: number) {
@@ -736,7 +902,12 @@ export class PrisonerService {
         AND D.IS_ACTIVE = 1
         AND JP.PRISONER_ID = ${prisonerId}
     `;
-    const data = await this.dataSource.query(query);
+    const result = await this.dataSource.query(query);
+    const data: PriJailPanDetailDto[] = plainToClass(
+      PriJailPanDetailDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
     return data;
   }
 
