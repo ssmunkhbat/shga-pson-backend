@@ -1,7 +1,18 @@
-import { Expose, Type } from '@nestjs/class-transformer';
+import { Expose, Transform, Type } from '@nestjs/class-transformer';
 
 export class RefDto {
-    @Expose({ name: 'ID' })
+    @Expose()
+    @Transform(({ obj }) =>
+        obj.SOUM_ID ??
+        obj.AIMAG_ID ??
+        obj.ROLE_ID ??
+        obj.MOVEMENT_TYPE_PRISONER_ID ??
+        obj.DEPARTMENT_ID ??
+        obj.DEPARTMENT_REGIME_ID ??
+        obj.COUNTRY_ID ??
+        obj.NATIONALITY_ID ??
+        obj.EDUCATION_ID
+    )
     id: number;
 
     @Expose({ name: 'NAME' })

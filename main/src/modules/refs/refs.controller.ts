@@ -11,4 +11,10 @@ export class RefsController {
 	async getRefByName(@Req() req, @Query('filters') filters) {
 		return await this.service.getList(req.params.refName, filters)
 	}
+
+	@UseGuards(JwtAuthGuard)
+	@Get('/byid/:id')
+	async getRefById(@Req() req, @Query('tbl') tbl, @Query('col') col) {
+		return await this.service.getListById(req.params.id, tbl, col)
+	}
 }

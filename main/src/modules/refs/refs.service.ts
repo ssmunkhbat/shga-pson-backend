@@ -12,6 +12,11 @@ const mapRef = {
   'departmentList': 'PRI_INFO_DEPARTMENT',
   'regimen': 'PRI_INFO_DEPARTMENT_REGIME',
   'regimenClass': 'PRI_INFO_DEP_REGIME_CLASS',
+  'countryList': 'REF_COUNTRY',
+  'nationalityList': 'PRI_INFO_NATIONALITY',
+  'aimagCityList': 'PRI_INFO_AIMAG_CITY',
+  'soumDistrictList': 'PRI_INFO_SOUM_DISTRICT',
+  'educationList': 'PRI_INFO_EDUCATION',
 };
 
 @Injectable()
@@ -102,5 +107,21 @@ export class RefsService {
       })
       .where('id = :id', { id })
       .execute();
+  }
+
+  async getListById(id: number, tableName: string, columnName: string) {
+    if (!id || (id && !mapRef[tableName])) {
+      throw new NotFoundException('id not found');
+    }
+    const query = `
+      SELECT *
+      FROM ${mapRef[tableName]}
+      WHERE is_active = 1 AND ${columnName} = ${id}
+    `;
+    const result = await this.dataSource.query(query);
+    return plainToClass(RefDto, result, {
+      excludeExtraneousValues: true
+    });
+    return []
   }
 }

@@ -9,6 +9,9 @@ export class PrisonerPersonalInfoDto {
     @Expose({ name: 'DATE_OF_BIRTH' })
     dateOfBirth: Date;
 
+    @Expose({ name: 'EDUCATION_ID' })
+    educationId: number;
+
     // Боловсрол
     @Expose({ name: 'EDUCATION_NAME' })
     educationName: string;

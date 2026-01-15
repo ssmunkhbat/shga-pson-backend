@@ -100,6 +100,7 @@ export class PrisonerService {
       SELECT
         C.COUNTRY_NAME,
         GT.GENDER_NAME,
+        IE.EDUCATION_ID,
         IE.NAME AS EDUCATION_NAME,
         INA.NAME AS NATIONALITY_NAME,
         PP.NICKNAME,
