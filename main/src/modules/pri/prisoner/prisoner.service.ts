@@ -48,6 +48,8 @@ export class PrisonerService {
     private basePersonRepo: Repository<BasePerson>,
   ) {}
 
+  //#region [LIST]
+
   async listAll(options: IPaginationOptions, searchParam) {
     let filterVals = JSON.parse(searchParam)
     console.log('-------filterVals---------', filterVals)
@@ -65,6 +67,26 @@ export class PrisonerService {
     const data = await paginate<PriPrisonerKeyView>(queryBuilder, options);
     return { rows: data.items, total: data.meta.totalItems }
   }
+
+  async listArrested(options: IPaginationOptions, searchParam) {
+    let filterVals = JSON.parse(searchParam)
+    console.log('-------filterVals---------', filterVals)
+    let filter = null
+    if (filterVals) {
+      filter = getFilter('su', filterVals)
+    }
+    console.log('-------filter---------', filter)
+
+    const queryBuilder = this.prisonerKeyViewRepo.createQueryBuilder('su')
+      .where('su.endDate IS NULL AND su.wfmStatusId = 100101')
+    
+    if (filter) queryBuilder.andWhere(filter)
+    queryBuilder.orderBy('su.createdDate', 'DESC')
+    const data = await paginate<PriPrisonerKeyView>(queryBuilder, options);
+    return { rows: data.items, total: data.meta.totalItems }
+  }
+
+  //#endregion
 
   //#region [API]
 

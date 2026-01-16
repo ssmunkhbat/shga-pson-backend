@@ -7,11 +7,21 @@ import { CreatePrisonerCardPersonalInfoDto } from 'src/dto/validation/pri/prison
 export class PrisonerController {
 	constructor(private readonly service: PrisonerService) { }
 
+  //#region [LIST]
+
 	@UseGuards(JwtAuthGuard)
 	@Get('all')
   async listAll(@Query('limit') limit, @Query('page') page, @Query('search') search) {
     return await this.service.listAll({ limit, page }, search);
   }
+
+	@UseGuards(JwtAuthGuard)
+	@Get('arrested')
+  async listArrested(@Query('limit') limit, @Query('page') page, @Query('search') search) {
+    return await this.service.listArrested({ limit, page }, search);
+  }
+
+  //#endregion
 
   @UseGuards(JwtAuthGuard)
   @Get('/card/:prisonerId')
