@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PriPrisonerKeyView } from 'src/entity/pri/prisoner/priPrisonerKeyView';
 import { UmSystemUser } from 'src/entity/um/um-system-user.entity';
 import { MovementDeparture } from 'src/entity/pri/movement/movementDeparture.entity';
@@ -7,7 +7,9 @@ import { PriEmployeeKey } from 'src/entity/pri/employee/priEmployeeKey';
 import { PriAdministrativeDecision } from 'src/entity/pri/administrative/priAdministrativeDecision';
 import { UmRole } from 'src/entity/um/umRole';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
+import { PriPrisonerAccountBook } from 'src/entity/pri/prisoner/priPrisonerAccountBook';
+import { PriPrisonerAccountBookView } from 'src/entity/pri/prisoner/priPrisonerAccountBookView';
 
 interface TableFieldMeta {
   header: string;
@@ -28,6 +30,8 @@ const dynamicTables: Record<string, DynamicTable> = {
   'movement-departure': MovementDeparture as unknown as DynamicTable,
   'movement-arrival': MovementArrival as unknown as DynamicTable,
   'decision': PriAdministrativeDecision as unknown as DynamicTable,
+  'account-book': PriPrisonerAccountBook as unknown as DynamicTable,
+  'account-book-view': PriPrisonerAccountBookView as unknown as DynamicTable,
 };
 
 @Injectable()
@@ -54,6 +58,59 @@ export class TableConfigService {
     }));
     return columns;
   }
+
+  async getList(
+    tableKey: string,
+    query: { page?: number; limit?: number; search?: string },
+  ) {
+    const entity = dynamicTables[tableKey];
+    if (!entity) {
+      throw new NotFoundException(`Table "${tableKey}" not found`);
+    }
+
+    const repository: Repository<any> = this.dataSource.getRepository(entity as any);
+
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const skip = (page - 1) * limit;
+
+    let qb: SelectQueryBuilder<any> = repository.createQueryBuilder(tableKey);
+    let filters: Array<{ field: string; value: any; type: string }> = [];
+    if (query.search) {
+      try {
+        filters = JSON.parse(query.search);
+      } catch (e) {
+        throw new BadRequestException('Invalid filter format');
+      }
+    }
+    filters.forEach((f, index) => {
+      const paramName = `filter_${index}`;
+      if (f.type === 'string') {
+        qb.andWhere(`${tableKey}.${f.field} LIKE :${paramName}`, { [paramName]: `%${f.value}%` });
+      } else if (f.type === 'number') {
+        qb.andWhere(`${tableKey}.${f.field} = :${paramName}`, { [paramName]: f.value });
+      } else if (f.type === 'date') {
+        qb.andWhere(`${tableKey}.${f.field} = :${paramName}`, { [paramName]: new Date(f.value) });
+      } else {
+        qb.andWhere(`${tableKey}.${f.field} LIKE :${paramName}`, { [paramName]: `%${f.value}%` });
+      }
+    });
+    // const [sql, params] = qb.getQueryAndParameters();
+    // console.log('Generated SQL:', sql);
+    // console.log('Parameters:', params);
+
+    const [items, total] = await qb.skip(skip).take(limit).getManyAndCount();
+
+    return {
+      rows: items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  //#region [MENU]
 
   async getActionsByPath(url: string, user: any) {
     const query = `
@@ -130,5 +187,7 @@ export class TableConfigService {
     console.log(id);
     return id;
   }
+
+  //#endregion
 
 }

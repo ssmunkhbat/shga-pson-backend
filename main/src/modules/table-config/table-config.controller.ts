@@ -1,10 +1,20 @@
 import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
 import { TableConfigService } from './table-config.service';
 import { JwtAuthGuard } from 'src/modules/auth/jwt.guard';
+import { ListQueryDto } from 'src/dto/listQuery.dto';
 
 @Controller('table-config')
 export class TableConfigController {
   constructor(private readonly service: TableConfigService) { }
+
+  
+  @Get('list/:tableKey')
+  async getList(
+    @Param('tableKey') tableKey: string,
+    @Query() query: ListQueryDto,
+  ) {
+    return this.service.getList(tableKey, query);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get('columns/:name')

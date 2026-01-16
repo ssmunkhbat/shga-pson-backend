@@ -21,6 +21,8 @@ import { PriOfficer } from "./entity/pri/officer/PriOfficer"
 
 import { MovementDeparture } from "./entity/pri/movement/movementDeparture.entity"
 import { MovementArrival } from "./entity/pri/movement/movementArrival.entity"
+import { PriPrisonerAccountBook } from "./entity/pri/prisoner/priPrisonerAccountBook"
+import { PriPrisonerAccountBookView } from "./entity/pri/prisoner/priPrisonerAccountBookView"
 
 const Entities = [
   UmSystemUser, UmUserRole, UmRole,
@@ -32,5 +34,6 @@ const Entities = [
   PriInfoDepartment, PriInfoDepartmentType, PriInfoPositionType, PriInfoMilitaryRank,
   PriAdministrativeDecType, PriAdministrativeDecision,
   PriOfficer,
+  PriPrisonerAccountBook, PriPrisonerAccountBookView,
 ]
 export default Entities
