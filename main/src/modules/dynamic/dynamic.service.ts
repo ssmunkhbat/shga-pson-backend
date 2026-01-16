@@ -1,14 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { BasePerson } from 'src/entity/base/basePerson';
 import { UmRole } from 'src/entity/um/umRole';
 import { getId } from 'src/utils/unique';
 import { Repository } from 'typeorm';
 
 const dynamicTableNames = {
   'UmRole': UmRole,
+  'BasePerson': BasePerson,
 }
 const dynamicTableRepos = {
   'UmRole': 'roleRepo',
+  'BasePerson': 'basePersonRepo',
 }
 
 @Injectable()
@@ -16,6 +19,9 @@ export class DynamicService {
   constructor(
     @InjectRepository(UmRole)
     private roleRepo: Repository<UmRole>,
+    
+    @InjectRepository(BasePerson)
+    private basePersonRepo: Repository<BasePerson>,
   ) {}
 
     //#region Dynamic table data
@@ -27,42 +33,41 @@ export class DynamicService {
     /**
      * 
      * @param queryRunner 
-     * @param tableName string
-     * @param repoName string
+     * @param TableEntity Entity
+     * @param repo Repository
      * @param data any
      * @param user any
-     * @returns void
+     * @returns data
      */
-    async createTableData(queryRunner = null, tableName, repoName, data, user) {
-      const saved = new dynamicTableNames[tableName]({
-        // id: getId(),
+    async createTableData(queryRunner = null, TableEntity, repo, data, user) {
+      const saved = new TableEntity({
+        id: getId(),
         ...data,
         // isActive: true,
         // createdUserId: user.id,
         // createdDate: new Date(),
       })
-			if (queryRunner) return await queryRunner.manager.save(saved)
-			else return await this[repoName].save(saved)
+      if (queryRunner) return await queryRunner.manager.save(saved)
+      else return await repo.save(saved)
     }
 
     /**
      * 
      * @param queryRunner 
-     * @param tableName string
-     * @param repoName string
-     * @param id number
+     * @param TableEntity Entity
+     * @param repo Repository
      * @param data any
      * @param user any
      * @returns void
      */
-    async updateTableData(queryRunner = null, tableName, repoName, id, data, user) {
-      const updated = new dynamicTableNames[tableName]({
+    async updateTableData(queryRunner = null, TableEntity, repo, data, user) {
+      const saved = new TableEntity({
         ...data,
         // modifiedUserId: user.id,
         // modifiedDate: new Date()
       })
-			if (queryRunner) return await queryRunner.manager.update(updated, id, updated);
-      else return await this[repoName].update({ id }, updated)
+      if (queryRunner) return await queryRunner.manager.save(saved)
+      else return await repo.save(saved)
     }
 
     //#endregion

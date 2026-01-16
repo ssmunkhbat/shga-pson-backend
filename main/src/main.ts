@@ -14,16 +14,24 @@ async function bootstrap() {
       exceptionFactory: (errors) => {
         console.log('VALIDATION ERRORS:', JSON.stringify(errors, null, 2));
         const formatError = (errs: any[]) => {
-            return errs.map(err => {
-                let msgs: string[] = [];
-                if (err.constraints) {
-                    msgs = [...msgs, ...Object.values(err.constraints).map((m: any) => `${err.property}: ${m}`)];
+          return errs.map(err => {
+            let msgs: string[] = [];
+            if (err.constraints) {
+              Object.entries(err.constraints).forEach(([key, value]: any) => {
+                if (key === 'whitelistValidation') {
+                  msgs.push(
+                    `${err.property} талбар зөвшөөрөгдөөгүй байна.`,
+                  );
+                } else {
+                  msgs.push(value);
                 }
-                if (err.children && err.children.length > 0) {
-                    msgs = [...msgs, ...formatError(err.children).split('\n')];
-                }
-                return msgs.join('\n');
-            }).join('\n');
+              });
+            }
+            if (err.children && err.children.length > 0) {
+              msgs = [...msgs, ...formatError(err.children).split('\n')];
+            }
+            return msgs.join('\n');
+          }).join('\n');
         }
         const message = formatError(errors);
         return new BadRequestException(message);

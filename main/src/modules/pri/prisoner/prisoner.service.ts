@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { PriPrisonerKeyView } from 'src/entity/pri/prisoner/priPrisonerKeyView';
@@ -28,6 +28,10 @@ import { PrisonerCardJailPlanHamDto } from 'src/dto/pri/prisoner/card/jailPlan/h
 import { PriJailPanDetailDto } from 'src/dto/pri/jailPlan/detail.dto';
 import { PrisonerCardJailPlanJailTimeDto } from 'src/dto/pri/prisoner/card/jailPlan/jail.time.dto';
 import { PrisonerCardJailPlanJailBreakDto } from 'src/dto/pri/prisoner/card/jailPlan/jail.break.dto';
+import { CreatePrisonerCardPersonalInfoDto } from 'src/dto/validation/pri/prisoner/card/personalInfo.dto';
+import { DynamicService } from 'src/modules/dynamic/dynamic.service';
+import { BasePerson } from 'src/entity/base/basePerson';
+import { getId } from 'src/utils/unique';
 
 @Injectable()
 export class PrisonerService {
@@ -39,6 +43,9 @@ export class PrisonerService {
     private prisonerKeyRepo: Repository<PriPrisonerKey>,
     @InjectRepository(PriPrisonerKeyView)
     private prisonerKeyViewRepo: Repository<PriPrisonerKeyView>,
+    private readonly dynamicService: DynamicService,
+    @InjectRepository(BasePerson)
+    private basePersonRepo: Repository<BasePerson>,
   ) {}
 
   async listAll(options: IPaginationOptions, searchParam) {
@@ -90,6 +97,26 @@ export class PrisonerService {
     return data;
   }
 
+  async saveCardPersonalInfo(dto: CreatePrisonerCardPersonalInfoDto, user: any) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const body = await this.getBasePersonDataFromDTO(dto)
+      console.log('---------saveCardPersonalInfo----------', body)
+		  await this.dynamicService.updateTableData(queryRunner, BasePerson, this.basePersonRepo, body, user)
+
+      await queryRunner.commitTransaction();
+      return { success: true }
+    } catch (err) {
+      console.log(err)
+      await queryRunner.rollbackTransaction();
+      throw new HttpException(err, 500)
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
   //#endregion
 
   //#region [PERSONAL]
@@ -103,6 +130,7 @@ export class PrisonerService {
         IE.EDUCATION_ID,
         IE.NAME AS EDUCATION_NAME,
         INA.NAME AS NATIONALITY_NAME,
+        PP.PRISONER_ID,
         PP.NICKNAME,
         PP.PRISONER_NUMBER,
         PP.PICTURE_PATH,
@@ -139,8 +167,8 @@ export class PrisonerService {
     }
 
     const [jailPlanDetail, jailPlanDetailCode] = await Promise.all([
-      this.getJailPlanDetailData(jailPlan.jailPlanId),
-      this.getJailPlanDetailCodeData(jailPlan.jailPlanId),
+      this.getJailPlanDetailData(jailPlan.JAIL_PLAN_ID),
+      this.getJailPlanDetailCodeData(jailPlan.JAIL_PLAN_ID),
     ]);
 
     const prisonerKey = await this.prisonerKeyRepo.findOne({
@@ -154,7 +182,6 @@ export class PrisonerService {
 
     return { jailPlan, jailPlanDetail, allBonusDays, jailPlanDetailCode, };
   }
-
 
   async getJailPlanData(prisonerId: number) {
     if (!prisonerId) return null
@@ -331,7 +358,7 @@ export class PrisonerService {
   }
 
 
-  //#region [MAIN INFO]
+  //#region [CARD -> MAIN INFO]
 
   async getPrisonerCardData(prisonerId: number) {
     if (!prisonerId) return null
@@ -543,7 +570,7 @@ export class PrisonerService {
 
   //#endregion
 
-  //#region [OTHER INFO]
+  //#region [CARD -> OTHER INFO]
 
   async getPrisonerCardOldJailListData(personId: number) {
     if (!personId) return null
@@ -657,7 +684,7 @@ export class PrisonerService {
 
   //#endregion
 
-  //#region [CARD JAILPLAN INFO]
+  //#region [CARD -> CARD JAILPLAN INFO]
 
   async getPrisonerCardJailPlanData(prisonerId: number) {
     if (!prisonerId) return null
@@ -913,6 +940,30 @@ export class PrisonerService {
   }
 
   //#endregion
+
+  //#endregion
+
+  //#region [MAP]
+
+  getBasePersonDataFromDTO(dto: CreatePrisonerCardPersonalInfoDto) {
+    return {
+      personId: dto.personId,
+      stateRegNumber: dto.stateRegNumber,
+      lastName: dto.lastName,
+      firstName: dto.firstName,
+      dateOfBirth: dto.dateOfBirth,
+      profession: dto.profession,
+      position: dto.position,
+      familyMemberCount: dto.familyMemberCount,
+      birthAimagId: dto.birthAimagId,
+      birthSoumId: dto.birthSoumId,
+      administrationAimagId: dto.birthAimagId,
+      administrationSoumId: dto.birthSoumId,
+      administrationAddress: dto.administrationAddress,
+      nationalityId: dto.nationalityId,
+      educationId: dto.educationId,
+    };
+  }
 
   //#endregion
 

@@ -6,8 +6,6 @@ import Entities from './entities';
 import { controllers } from './controllers';
 import { services } from './services';
 
-
-
 @Module({
   imports: [
     ConfigModule.forRoot({

@@ -40,8 +40,6 @@ export class RoleService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const tableName = 'UmRole';
-      const repoName = 'UmRole';
       const found = await this.roleRepo.findOne({ where: { roleName: body.roleName.trim(), isActive: true } });
       if(found) {
         throw new BadRequestException(`${body.roleName} -нэртэй дүр өмнө нь бүртгэгдсэн байна!`)
@@ -54,7 +52,7 @@ export class RoleService {
         createdUserId: user.userId,
         createdDate: new Date(),
       };
-		  await this.dynamicService.createTableData(queryRunner, tableName, repoName, newData, user)
+      await this.dynamicService.createTableData(queryRunner, UmRole, this.roleRepo, newData, user)
       await queryRunner.commitTransaction();
     } catch (err) {
       console.log(err)
@@ -70,9 +68,7 @@ export class RoleService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const tableName = 'UmRole';
-      const repoName = 'UmRole';
-		  await this.dynamicService.createTableData(queryRunner, tableName, repoName, body, user)
+      await this.dynamicService.updateTableData(queryRunner, UmRole, this.roleRepo, body, user)
       await queryRunner.commitTransaction();
     } catch (err) {
       console.log(err)
