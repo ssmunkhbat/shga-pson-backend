@@ -29,8 +29,8 @@ export class TableConfigController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('actions/:metaDataId')
-  async getActions(@Req() req, @Param('metaDataId') metaDataId: number) {
-    return await this.service.getActions(metaDataId, req.user);
+  @Get('actions/:menuId')
+  async getActions(@Req() req, @Param('menuId') menuId: number) {
+    return await this.service.getActions(menuId, req.user);
   }
 }

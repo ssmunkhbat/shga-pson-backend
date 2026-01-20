@@ -23,8 +23,13 @@ import { MovementDeparture } from "./entity/pri/movement/movementDeparture.entit
 import { MovementArrival } from "./entity/pri/movement/movementArrival.entity"
 import { PriPrisonerAccountBook } from "./entity/pri/prisoner/priPrisonerAccountBook"
 import { PriPrisonerAccountBookView } from "./entity/pri/prisoner/priPrisonerAccountBookView"
+import { MenuSettings } from "./entity/pri/settings/MenuSettings"
+import { ActionSettings } from "./entity/pri/settings/ActionSettings.ts"
+import { RoleActionSettings } from "./entity/pri/settings/RoleActionSettings"
+import { RoleMenuSettings } from "./entity/pri/settings/RoleMenuSettings"
 
 const Entities = [
+  MenuSettings, ActionSettings, RoleMenuSettings, RoleActionSettings,
   UmSystemUser, UmUserRole, UmRole,
   BasePerson,
   PriEmployee, PriEmployeeKey,

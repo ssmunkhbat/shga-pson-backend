@@ -10,6 +10,8 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { PriPrisonerAccountBook } from 'src/entity/pri/prisoner/priPrisonerAccountBook';
 import { PriPrisonerAccountBookView } from 'src/entity/pri/prisoner/priPrisonerAccountBookView';
+import { ActionSettingsDto } from 'src/dto/settings/action.dto';
+import { plainToClass } from '@nestjs/class-transformer';
 
 interface TableFieldMeta {
   header: string;
@@ -114,34 +116,51 @@ export class TableConfigService {
 
   async getActionsByPath(url: string, user: any) {
     const query = `
-      SELECT META_DATA_ID FROM pri_settings_menu WHERE path = '${url}'
+      SELECT ID, META_DATA_ID FROM pri_settings_menu WHERE path = '${url}'
     `;
     const result = await this.dataSource.query(query);
     if (result.length === 0) return []
-    return await this.getActions(result[0].META_DATA_ID, user)
+    // return await this.getActions(result[0].META_DATA_ID, user)
+    return await this.getActions(result[0].ID, user)
   }
 
-  async getActions(metaDataId: number, user: any) {
-    console.log('------getActions----metaDataId---', metaDataId)
-    console.log('------getActions----roleId---', user.userRole.roleId)
-    const childList = await this.getChildMetaDataId(metaDataId);
-    const query = `
+  // async getActions(metaDataId: number, user: any) {
+  //   console.log('------getActions----metaDataId---', metaDataId)
+  //   console.log('------getActions----roleId---', user.userRole.roleId)
+  //   const childList = await this.getChildMetaDataId(metaDataId);
+  //   const query = `
+  //     SELECT
+  //       DISTINCT pd.PROCESS_META_DATA_ID AS TRG_META_DATA_ID,
+  //       UMP.PERMISSION_ID AS PERMISSION_ID,
+  //       PD.PROCESS_NAME AS TRG_META_DATA_NAME,
+  //       'fa ' || pd.ICON_NAME AS ICON,
+  //       PMD.META_TYPE_ID
+  //     FROM META_DM_PROCESS_DTL PD
+  //     LEFT JOIN META_DATA PMD ON pd.PROCESS_META_DATA_ID = PMD.META_DATA_ID
+  //     LEFT JOIN UM_META_PERMISSION UMP ON PMD.META_DATA_ID = UMP.META_DATA_ID AND UMP.ROLE_ID = ${user.userRole.roleId}
+  //     WHERE PD.MAIN_META_DATA_ID = ${childList.length > 0 ? childList[0].TRG_META_DATA_ID : metaDataId}
+  //   `;
+  //   const result = await this.dataSource.query(query);
+  //   console.log('------getActions----result---', result)
+  //   return result.map((item: any) => {
+  //     return { id: item.PERMISSION_ID, name: item.TRG_META_DATA_NAME, metaDataId: item.TRG_META_DATA_ID, icon: item.ICON, }
+  //   })
+  // }
+  async getActions(menuId: number, user: any) {
+    if (!menuId) return []
+    const queryAction = `
       SELECT
-        DISTINCT pd.PROCESS_META_DATA_ID AS TRG_META_DATA_ID,
-        UMP.PERMISSION_ID AS PERMISSION_ID,
-        PD.PROCESS_NAME AS TRG_META_DATA_NAME,
-        'fa ' || pd.ICON_NAME AS ICON,
-        PMD.META_TYPE_ID
-      FROM META_DM_PROCESS_DTL PD
-      LEFT JOIN META_DATA PMD ON pd.PROCESS_META_DATA_ID = PMD.META_DATA_ID
-      LEFT JOIN UM_META_PERMISSION UMP ON PMD.META_DATA_ID = UMP.META_DATA_ID AND UMP.ROLE_ID = ${user.userRole.roleId}
-      WHERE PD.MAIN_META_DATA_ID = ${childList.length > 0 ? childList[0].TRG_META_DATA_ID : metaDataId}
+        *
+      FROM PRI_SETTINGS_ACTION SA
+      WHERE SA.MENU_ID = ${menuId}
     `;
-    const result = await this.dataSource.query(query);
-    console.log('------getActions----result---', result)
-    return result.map((item: any) => {
-      return { id: item.PERMISSION_ID, name: item.TRG_META_DATA_NAME, metaDataId: item.TRG_META_DATA_ID, icon: item.ICON, }
-    })
+    const result = await this.dataSource.query(queryAction);
+    const rows: ActionSettingsDto[] = plainToClass(
+      ActionSettingsDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
+    return rows;
   }
 
   async getChildMetaDataId(metaDataId: number) {

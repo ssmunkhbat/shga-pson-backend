@@ -3,6 +3,7 @@ import { SettingsService } from './settings.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RoleService } from './role.service';
 import { CreateRoleDto } from 'src/dto/validation/createRole.dto';
+import { SaveMenuSettingsDto } from 'src/dto/settings/saveMenuSettings.dto';
 
 @Controller('settings')
 export class SettingsController {
@@ -14,6 +15,12 @@ export class SettingsController {
   //#region [MENU]
 
 	@UseGuards(JwtAuthGuard)
+	@Get('menu')
+	async getMenuList(@Req() req) {
+		return await this.service.getMenuList(req.user);
+	}
+
+	@UseGuards(JwtAuthGuard)
 	@Get('menu/default')
 	async getDefaultMenu(@Req() req) {
 		return await this.service.getDefaultMenu(req.user);
@@ -23,6 +30,19 @@ export class SettingsController {
 	@Get('menu/top')
 	async getMenuTop(@Req() req) {
 		return await this.service.getMenu(req.user);
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Get('menu/role')
+	async geMenuByRole(@Req() req, @Query('roleId') roleId: number) {
+		// return await this.service.getMenuAndAction(roleId, req.user);
+		return await this.service.getMenuTree(roleId, req.user);
+	}
+  	@UseGuards(JwtAuthGuard)
+	@Post('menu/save')
+	async saveRoleMenuSettings(@Body() dto: SaveMenuSettingsDto, @Req() req) {
+		await this.service.saveRoleMenuSettings(dto, req.user);
+		return { success: true, message: 'Settings saved successfully' };
 	}
 
   //#endregion
