@@ -26,11 +26,19 @@ export class SettingsService {
   //#region [MANAIH]
 
   async getMenuList(user: any, isAction: boolean = false) {
+    let joinStr = '';
+    let whereStr = '';
+    if (!isAction) {
+      joinStr = ' INNER JOIN PRI_SETTINGS_ROLE_MENU RM ON SM.ID = RM.MENU_ID';
+      whereStr = ` AND RM.ROLE_ID = ${user.userRole.roleId} `;
+    }
     const query = `
       SELECT
         *
       FROM PRI_SETTINGS_MENU SM
+      ${joinStr}
       WHERE SM.TYPE = 'sub' AND SM.IS_ACTIVE = 1 AND SM.PARENT_ID != 10878524
+      ${whereStr}
       ORDER BY SM.ORDER_NUM ASC
     `;
     const result = await this.dataSource.query(query);
@@ -45,7 +53,9 @@ export class SettingsService {
         SELECT
           *
         FROM PRI_SETTINGS_MENU SM
+        ${joinStr}
         WHERE SM.TYPE = 'list' AND SM.IS_ACTIVE = 1 AND SM.PARENT_ID = ${item.id}
+        ${whereStr}
         ORDER BY SM.ORDER_NUM ASC
       `;
       const resultChildren = await this.dataSource.query(queryChildren);
