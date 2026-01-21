@@ -10,6 +10,7 @@ import { SettingsService } from "./modules/settings/settings.service";
 import { TableConfigService } from "./modules/table-config/table-config.service";
 import { RedisService } from "./thirdparty/redis/redis.service";
 import { OfficerService } from "./modules/pri/officer/officer.service";
+import { NotificationService } from "./modules/pri/notification/notification.service";
 
 
 export const services = [
@@ -19,6 +20,7 @@ export const services = [
     CacheService,
     RefsService,
     SettingsService,
+    NotificationService,
     RoleService,
     PrisonerService,
     MovementService,

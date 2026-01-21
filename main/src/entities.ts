@@ -27,6 +27,7 @@ import { MenuSettings } from "./entity/pri/settings/MenuSettings"
 import { ActionSettings } from "./entity/pri/settings/ActionSettings.ts"
 import { RoleActionSettings } from "./entity/pri/settings/RoleActionSettings"
 import { RoleMenuSettings } from "./entity/pri/settings/RoleMenuSettings"
+import { PriNotificationMView } from "./entity/pri/notification/priNotificationMView"
 
 const Entities = [
   MenuSettings, ActionSettings, RoleMenuSettings, RoleActionSettings,
@@ -40,5 +41,6 @@ const Entities = [
   PriAdministrativeDecType, PriAdministrativeDecision,
   PriOfficer,
   PriPrisonerAccountBook, PriPrisonerAccountBookView,
+  PriNotificationMView,
 ]
 export default Entities
