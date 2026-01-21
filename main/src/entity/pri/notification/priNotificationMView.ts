@@ -6,6 +6,12 @@ export class PriNotificationMView {
   @Column({ name: "NOTIF_ID" })
   notifId: number;
 
+  @Column({ name: "DEPARTMENT_ID" })
+  departmentId: number;
+
+  @Column({ name: "DEPARTMENT_NAME" })
+  departmentName: string;
+
   @Column({ name: "TYPE" })
   type: string;
 
