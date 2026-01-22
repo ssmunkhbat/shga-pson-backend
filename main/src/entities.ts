@@ -18,7 +18,7 @@ import { PriAdministrativeDecType } from "./entity/pri/administrative/priAdminis
 import { PriAdministrativeDecision } from "./entity/pri/administrative/priAdministrativeDecision"
 import { PriPrisonerKey } from "./entity/pri/prisoner/PriPrisonerKey"
 import { PriOfficer } from "./entity/pri/officer/PriOfficer"
-
+import { PriMovementArrival } from "./entity/pri/movement/PriMovementArrival"
 import { MovementDeparture } from "./entity/pri/movement/movementDeparture.entity"
 import { MovementArrival } from "./entity/pri/movement/movementArrival.entity"
 import { PriPrisonerAccountBook } from "./entity/pri/prisoner/priPrisonerAccountBook"
@@ -41,6 +41,6 @@ const Entities = [
   PriAdministrativeDecType, PriAdministrativeDecision,
   PriOfficer,
   PriPrisonerAccountBook, PriPrisonerAccountBookView,
-  PriNotificationMView,
+  PriNotificationMView, PriMovementArrival,
 ]
 export default Entities

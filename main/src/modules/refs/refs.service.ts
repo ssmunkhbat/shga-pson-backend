@@ -57,11 +57,19 @@ export class RefsService {
       });
     }
 
-    const query = `
+    let query = `
       SELECT *
       FROM ${mapRef[refName]}
       WHERE is_active = 1 ${customFilter}
     `;
+
+    if (refName === 'departmentList') {
+       query = `
+      SELECT *
+      FROM ${mapRef[refName]}
+      WHERE is_active = 1 ${customFilter} AND (DEPARTMENT_TYPE_ID IN (2, 3) OR (DEPARTMENT_REGIME_ID = 3 AND SHOW_ON_INQUIRY = 0))
+    `;
+    }
 
     const result = await this.dataSource.query(query);
 

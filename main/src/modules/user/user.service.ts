@@ -48,28 +48,36 @@ export class UserService {
       ])
       .where("u.userId = :userId", { userId })
       .getOne();
-    const emp = await this.employeeRepo.findOne({ where: { userId } });
-    if (emp) {
-      const employeeKey = await this.employeeKeyRepo.findOne({
-        where: { employeeId: emp.employeeId, isActive: true },
-        join: {
-          alias: "r",
-          innerJoinAndSelect: {
-            employee: "r.employee",
-            department: "r.department",
-            positionType: "r.positionType",
-            militaryRank: "r.militaryRank",
-          }
-        },
-      });
-      (user as any).employeeKey = employeeKey;
-    }
+    const emp = await this.employeeRepo.findOne({
+  where: { userId: user.userId ?? userId },
+});
+
+if (emp) {
+  const employeeKey = await this.employeeKeyRepo.findOne({
+    where: {
+      employeeId: emp.employeeId,
+      isActive: true,
+    },
+    join: {
+      alias: 'r',
+      innerJoinAndSelect: {
+        employee: 'r.employee',
+        department: 'r.department',
+        positionType: 'r.positionType',
+        militaryRank: 'r.militaryRank',
+      },
+    },
+  });
+  
+  (user as any).employeeKey = employeeKey;
+}
     const userRole = await this.userRoleRepository.findOne({ where: { userId } });
     if (userRole) {
       (user as any).userRole = userRole;
     }
     return user
   }
+  
 
   async validateUser(username: string, password: string) {
     const user = await this.findByUsername(username);

@@ -10,6 +10,9 @@ export class MovementArrival {
   @ViewColumn({ name: 'MOVEMENT_ARRIVAL_PACK_ID' })
   movementArrivalPackId: number;
 
+  @ViewColumn({ name: 'MOVEMENT_DEPARTURE_PACK_ID' })
+  movementDeparturePackId: number;
+
   @ViewColumn({ name: 'ARRIVAL_DATE' })
   arrivalDate: Date;
 
@@ -27,6 +30,9 @@ export class MovementArrival {
 
   @ViewColumn({ name: 'TO_DEPARTMENT_NAME' })
   toDepartmentName: string;
+
+  @ViewColumn({ name: 'ADMINISTRATIVE_DECISION_ID' })
+  administrativeDecisionId: number;
 
   @ViewColumn({ name: 'ADMINISTRATIVE_DECISION_NUMBER' })
   administrativeDecisionNumber: string;
@@ -46,22 +52,29 @@ export class MovementArrival {
   @ViewColumn({ name: 'NUMBER_OF_PRISONERS' })
   numberOfPrisoners: number;
 
+  @ViewColumn({ name: 'PASSWORD' })
+  password: string;
+
+  @ViewColumn({ name: 'OFFICER_ID' })
+  officerId: number;
+
+  @ViewColumn({ name: 'OFFICER_NAME' })
+  officerName: string;
+
+  @ViewColumn({ name: 'EMPLOYEE_CODE' })
+  employeeCode: string;
+
+  @ViewColumn({ name: 'EMPLOYEE_NAME' })
+  employeeName: string;
+
   @ViewColumn({ name: 'WFM_STATUS_ID' })
   wfmStatusId: number;
 
   @ViewColumn({ name: 'WFM_STATUS_NAME' })
   wfmStatusName: string;
 
-
-
-  @ViewColumn({ name: 'OFFICER_NAME' })
-  officerName: string;
-
-
-
-  @ViewColumn({ name: 'EMPLOYEE_NAME' })
-  employeeName: string;
-
+  @ViewColumn({ name: 'CREATED_EMPLOYEE_KEY_ID' })
+  createdEmployeeKeyId: number;
   
   @ViewColumn({ name: 'CREATED_EMPLOYEE_NAME' })
   createdEmployeeName: string;
@@ -70,9 +83,6 @@ export class MovementArrival {
   createdDate: Date;
 
 
-  /**
-   * Frontend-д table харуулахад ашиглах баганын тохиргоо
-   */
   static getTableFields() {
     return {
       movementTypeName: { header: 'Шилжилт хөдөлгөөний төрөл', type: 'string', sortable: true, filterable: true, width: 'w-72' },

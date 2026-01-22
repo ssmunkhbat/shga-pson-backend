@@ -10,7 +10,9 @@ import { CreateMovementArrivalDto } from './dto/CreateMovementArrival.dto';
 import { PriMovementDeparturePack } from 'src/entity/pri/movement/PriMovementDeparturePack';
 import { PriMovementDeparture } from 'src/entity/pri/movement/PriMovementDeparture';
 import { PriMovementArrivalPack } from 'src/entity/pri/movement/PriMovementArrivalPack';
+import { PriMovementArrival } from 'src/entity/pri/movement/PriMovementArrival';
 import { PriPrisonerKey } from 'src/entity/pri/prisoner/PriPrisonerKey';
+import { PriPrisoner } from 'src/entity/pri/prisoner/priPrisoner';
 
 @Injectable()
 export class MovementService {
@@ -25,6 +27,7 @@ export class MovementService {
   ) { }
 
   async registerDeparture(user: any, dto: CreateMovementDepartureDto) {
+    console.log(`--------------Departure haanas id-----------${dto.fromDepartmentId} ---------haasha:${dto.toDepartmentId}`);
     return this.dataSource.transaction(async manager => {
       const pack = new PriMovementDeparturePack();
       pack.movementDeparturePackId = Number(new Date().getTime().toString() + Math.floor(Math.random() * 100).toString());
@@ -42,7 +45,7 @@ export class MovementService {
       pack.createdDate = new Date();
 
       await manager.save(pack);
-
+      console.log(`------------ ussen departurepackid----------${pack.movementDeparturePackId}`);
       for (const p of dto.prisoners) {
         const detail = new PriMovementDeparture();
         // Ensure unique ID for detail even in same loop
@@ -61,14 +64,13 @@ export class MovementService {
         
         await manager.save(detail);
 
-        await manager.save(detail);
-
         // Update Prisoner Status to "En Route" (100302)
         const prisonerKey = await manager.findOne(PriPrisonerKey, {
           where: { prisonerKeyId: p.prisonerKeyId }
         });
 
         if (prisonerKey) {
+            console.log(`---------prisoner_ke_ID----${prisonerKey.prisonerKeyId} (---prisonerid-- ${prisonerKey.prisonerId})`);
             prisonerKey.wfmStatusId = 100302; // Departed Status
             await manager.save(prisonerKey);
         }
@@ -77,64 +79,7 @@ export class MovementService {
     });
   }
 
-  async registerArrival(user: any, dto: CreateMovementArrivalDto) {
-    return this.dataSource.transaction(async manager => {
-      const arrival = new PriMovementArrivalPack();
-      arrival.movementArrivalPackId = Number(new Date().getTime().toString() + Math.floor(Math.random() * 100).toString());
-      arrival.movementDeparturePackId = dto.movementDeparturePackId;
-      arrival.arrivalDate = new Date(dto.arrivalDate);
-      // arrival.createdUserId = user.userId;
-      arrival.createdDate = new Date();
-      
-      const savedArrival = await manager.save(arrival);
 
-      // Get Movement Departure Pack and Details to identify prisoners
-      const departureDetails = await manager.find(PriMovementDeparture, {
-          where: { movementDeparturePackId: dto.movementDeparturePackId }
-      });
-
-      const departurePack = await manager.findOne(PriMovementDeparturePack, {
-          where: { movementDeparturePackId: dto.movementDeparturePackId }
-      });
-
-      for (const departureDetail of departureDetails) {
-          // Find the current Prisoners Key (which should be "Departure" status 100302)
-          const currentKey = await manager.findOne(PriPrisonerKey, {
-              where: { prisonerKeyId: departureDetail.prisonerKeyId }
-          });
-
-          if (currentKey) {
-              // 1. Close current key
-              currentKey.endDate = new Date(dto.arrivalDate); // Set End Date as Arrival Date
-              await manager.save(currentKey);
-
-              // 2. Create NEW key for the new Department
-              const newKey = new PriPrisonerKey();
-              // Generate new ID (Assuming simplistic approach or sequence if required, using Random for now as per project style)
-              newKey.prisonerKeyId = Number(new Date().getTime().toString() + Math.floor(Math.random() * 1000).toString());
-              newKey.prisonerId = currentKey.prisonerId;
-              newKey.departmentId = departurePack.toDepartmentId; // New Department
-              newKey.wfmStatusId = 100301; // Active Status
-              newKey.beginDate = new Date(dto.arrivalDate);
-              newKey.createdBy = user.userId;
-              newKey.createdDate = new Date();
-              
-              // Copy other attributes
-              newKey.regimenId = currentKey.regimenId;
-              newKey.detentionId = currentKey.detentionId;
-              newKey.decisionId = currentKey.decisionId;
-
-              await manager.save(newKey);
-          }
-      }
-
-      return savedArrival;
-    });
-  }
-
-  /**
-   * Шилжин явсан бүртгэлийн жагсаалт
-   */
   async getDepartureList(options: IPaginationOptions, searchParam: string, user: any) {
     let filterVals = JSON.parse(searchParam);
     let filter = getFilter('md', filterVals);
@@ -153,38 +98,153 @@ export class MovementService {
       );
     }
 
+    queryBuilder.andWhere("md.wfmStatusId IN (:...statuses)", { statuses: [100302, 100303] });
+
     queryBuilder
       .orderBy('md.createdDate', 'DESC');
     
     const data = await paginate<MovementDeparture>(queryBuilder, options);
-    return { rows: data.items, total: data.meta.totalItems };
-  }
+    
+    // Inject Arrival Date
+    const mappedItems = data.items.map(item => {
+        (item as any).arrivalDate = (item as any).arrivalPack?.arrivalDate;
+        return item;
+    });
 
-  /**
-   * Шилжин ирсэн бүртгэлийн жагсаалт
-   */
+    return { rows: mappedItems, total: data.meta.totalItems };
+  }
   async getArrivalList(options: IPaginationOptions, searchParam: string, user: any) {
     let filterVals = JSON.parse(searchParam);
-    let filter = getFilter('ma', filterVals);
+    let filter = getFilter('md', filterVals);
     
-    const queryBuilder = this.arrivalRepository
-      .createQueryBuilder('ma');
+    const queryBuilder = this.departureRepository
+      .createQueryBuilder('md')
+      .leftJoinAndMapOne("md.arrivalPack", PriMovementArrivalPack, "map", "map.movementDeparturePackId = md.movementDeparturePackId")
 
     if (filter) {
       queryBuilder.where(filter);
     }
-
+    
     if (user.userId !== 1) {
       queryBuilder[!!filter ? "andWhere" : "where"](
-        "ma.toDepartmentId = :departmentId",
+        "md.toDepartmentId = :departmentId",
         { departmentId: user.employeeKey.departmentId }
       );
     }
 
+    queryBuilder.andWhere("md.wfmStatusId IN (:...statuses)", { statuses: [100302, 100303] });
     queryBuilder
-      .orderBy('ma.createdDate', 'DESC');
+      .orderBy('COALESCE(map.createdDate, md.createdDate)', 'DESC');
     
-    const data = await paginate<MovementArrival>(queryBuilder, options);
-    return { rows: data.items, total: data.meta.totalItems };
+    const data = await paginate<MovementDeparture>(queryBuilder, options);
+
+    const mappedItems = data.items.map(item => {
+      (item as any).arrivalDate = (item as any).arrivalPack?.arrivalDate;
+
+      if (item.wfmStatusId === 100303) {
+        item.wfmStatusId = 100304;
+        item.wfmStatusName = 'Шилжин ирсэн';
+      }
+      return item;
+    });
+
+    return { rows: mappedItems, total: data.meta.totalItems };
+  }
+
+  async registerArrival(user: any, dto: CreateMovementArrivalDto) {
+    console.log(`-----useriindeptid---- ${user.employeeKey?.departmentId}`);
+    return this.dataSource.transaction(async manager => {
+      const DEPARTURE_STATUS_DELIVERED = 100303;
+      const ARRIVAL_STATUS_ARRIVED = 100304;
+
+      for (const departurePackId of dto.movementDepartureIds) {
+        console.log(`-----departurepackid---------${departurePackId}`);
+        const departurePack = await manager.findOne(PriMovementDeparturePack, {
+            where: { movementDeparturePackId: departurePackId }
+        });
+
+        if (!departurePack) {
+            console.error(`[Movement] DeparturePack ${departurePackId} NOT FOUND`);
+            continue;
+        }
+
+        const targetDepartmentId = departurePack.toDepartmentId;
+        console.log(`------irsendepartment------- ${targetDepartmentId}`);
+
+        // 1. 100303 shiljinirsen ni
+        await manager.createQueryBuilder()
+          .update(PriMovementDeparturePack)
+          .set({ wfmStatusId: DEPARTURE_STATUS_DELIVERED })
+          .where("movementDeparturePackId = :id", { id: departurePackId })
+          .execute();
+
+        // 2. 100304 shiljin ochson 
+        const arrivalPack = new PriMovementArrivalPack();
+        arrivalPack.movementArrivalPackId = Number(new Date().getTime().toString() + Math.floor(Math.random() * 100).toString());
+        arrivalPack.movementDeparturePackId = departurePackId;
+        arrivalPack.arrivalDate = new Date(dto.arrivalDate);
+        arrivalPack.wfmStatusId = ARRIVAL_STATUS_ARRIVED;
+        arrivalPack.createdDate = new Date();
+        await manager.save(arrivalPack);
+        console.log(`-----uussenarrivalpackid------: ${arrivalPack.movementArrivalPackId}`);
+
+        
+        const departureDetails = await manager.find(PriMovementDeparture, {
+          where: { movementDeparturePackId: departurePackId }
+        });
+
+        for (const departureDetail of departureDetails) {
+            // Find the current Prisoners Key using ID from departure detail
+            const currentKey = await manager.findOne(PriPrisonerKey, {
+                where: { prisonerKeyId: departureDetail.prisonerKeyId }
+            });
+
+            if (currentKey) {
+                currentKey.endDate = new Date(dto.arrivalDate);
+                await manager.save(currentKey);
+
+                const newKey = new PriPrisonerKey();
+                newKey.prisonerKeyId = Number(new Date().getTime().toString() + Math.floor(Math.random() * 1000).toString());
+                newKey.prisonerId = currentKey.prisonerId;
+                newKey.departmentId = targetDepartmentId; 
+                newKey.wfmStatusId = 17861; 
+                newKey.beginDate = new Date(dto.arrivalDate);
+                newKey.createdBy = user.employeeKey?.id;
+                newKey.createdDate = new Date();
+                newKey.regimenId = currentKey.regimenId;
+                newKey.detentionId = currentKey.detentionId;
+                newKey.decisionId = currentKey.decisionId;
+
+                await manager.save(newKey);
+
+                // 4. Create Arrival Detail Record (PRI_MOVEMENT_ARRIVAL)
+                const arrivalDetail = new PriMovementArrival();
+                arrivalDetail.movementArrivalId = Number(new Date().getTime().toString() + Math.floor(Math.random() * 1000).toString()); 
+                arrivalDetail.movementArrivalPackId = arrivalPack.movementArrivalPackId;
+                arrivalDetail.movementDepartureId = departureDetail.movementDepartureId;
+                arrivalDetail.prisonerKeyId = newKey.prisonerKeyId; // Link to the NEW key (active in this dept)
+                arrivalDetail.createdDate = new Date();
+                
+                await manager.save(arrivalDetail);
+
+                console.log(`--prisonerid--- (ID: ${currentKey.prisonerId}) ----haana irsen--- ${targetDepartmentId}, Status: 17861`);
+                await manager.update(PriPrisoner, 
+                    { prisonerId: currentKey.prisonerId }, 
+                    { 
+                        departmentId: targetDepartmentId, 
+                        wfmStatusId: 17861 
+                    }
+                );
+            } else {
+                console.warn(`notfooundkeyid ${departureDetail.prisonerKeyId}`);
+            }
+        }
+      }
+
+      return {
+        messageType: 'success',
+        message: 'Amjilttai'
+      };
+    });
   }
 }

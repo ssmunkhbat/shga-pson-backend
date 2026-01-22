@@ -9,9 +9,15 @@ export class MovementController {
   constructor(private readonly service: MovementService) { }
 
   @UseGuards(JwtAuthGuard)
+  @Post('/arrival/register')
+  async registerArrival(@Body() dto: CreateMovementArrivalDto, @Req() req) {
+    return await this.service.registerArrival(req.user, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('/departure')
-  async getDepartureList(@Req() req, @Query('page') page = 1, @Query('limit') limit = 10, @Query('filters') filters = '[]') {
-    return await this.service.getDepartureList({ page, limit }, filters, req.user);
+  async getDepartureList(@Req() req, @Query('page') page = 1, @Query('limit') limit = 10, @Query('search') search = '[]') {
+    return await this.service.getDepartureList({ page, limit }, search, req.user);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -22,13 +28,7 @@ export class MovementController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/arrival')
-  async getArrivalList(@Req() req, @Query('page') page = 1, @Query('limit') limit = 10, @Query('filters') filters = '[]') {
-    return await this.service.getArrivalList({ page, limit }, filters, req.user);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('/arrival')
-  async registerArrival(@Request() req, @Body() dto: CreateMovementArrivalDto) {
-    return await this.service.registerArrival(req.user, dto);
+  async getArrivalList(@Req() req, @Query('page') page = 1, @Query('limit') limit = 10, @Query('search') search = '[]') {
+    return await this.service.getArrivalList({ page, limit }, search, req.user);
   }
 }
