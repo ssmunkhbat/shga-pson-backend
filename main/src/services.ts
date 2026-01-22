@@ -11,9 +11,11 @@ import { TableConfigService } from "./modules/table-config/table-config.service"
 import { RedisService } from "./thirdparty/redis/redis.service";
 import { OfficerService } from "./modules/pri/officer/officer.service";
 import { NotificationService } from "./modules/pri/notification/notification.service";
+import { UserService } from "./modules/user/user.service";
 
 
 export const services = [
+    UserService,
     DynamicService,
     TableConfigService,
     RedisService,

@@ -61,6 +61,9 @@ export class BasePerson extends EntBase{
   @Column({ name: "IS_POSITION" })
   isPosition: number;
 
+  @Column({ name: "IMAGE_URL" })
+  imageUrl: string;
+
   constructor(item: Partial<BasePerson>) {
     super();
     Object.assign(this, item)

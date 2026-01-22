@@ -7,12 +7,12 @@ export class PriInfoDepartment{
   @PrimaryGeneratedColumn({ name: "DEPARTMENT_ID" })
   departmentId: number;
 
-  @Column({ name: "PARENT_ID" })
-  parentId: number;
+  // @Column({ name: "PARENT_ID" })
+  // parentId: number;
 
-  @OneToOne(() => PriInfoDepartment, (dm) => dm.departmentId)
-  @JoinColumn({name: 'PARENT_ID'})
-  parent: PriInfoDepartment;
+  // @OneToOne(() => PriInfoDepartment, (dm) => dm.departmentId)
+  // @JoinColumn({name: 'PARENT_ID'})
+  // parent: PriInfoDepartment;
 
   @Column({ name: "CODE" })
   code: string;

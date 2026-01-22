@@ -31,16 +31,16 @@ export class RefsService {
       throw new NotFoundException('Reference not found');
     }
 
-    if (await this.cacheService.isChanged(refName)) {
-      const data = await this.refreshList(refName, rawFilters);
-      await this.cacheService.resetChanged(refName);
-      return data;
-    }
+    // if (await this.cacheService.isChanged(refName)) {
+    //   const data = await this.refreshList(refName, rawFilters);
+    //   await this.cacheService.resetChanged(refName);
+    //   return data;
+    // }
 
-    const cachedData = await this.cacheService.getCache(refName);
-    if (cachedData) {
-      return cachedData;
-    }
+    // const cachedData = await this.cacheService.getCache(refName);
+    // if (cachedData) {
+    //   return cachedData;
+    // }
     return await this.refreshList(refName, rawFilters);
   }
 

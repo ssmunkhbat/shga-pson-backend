@@ -1,17 +1,20 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { HttpException, Injectable } from '@nestjs/common';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
+import { BaseRoleDtoValidator } from 'src/dto/validation/basePerson.dto.validator';
 import { PriEmployee } from 'src/entity/pri/employee/priEmployee';
 import { PriEmployeeKey } from 'src/entity/pri/employee/priEmployeeKey';
 import { UmSystemUser } from 'src/entity/um/um-system-user.entity';
 import { UmUserRole } from 'src/entity/um/um-user-role';
 import { getFilter } from 'src/utils/helper';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { BasePerson } from 'src/entity/base/basePerson';
 const md5 = require('md5');
 
 @Injectable()
 export class UserService {
   constructor(
+    @InjectDataSource() private dataSource: DataSource,
     @InjectRepository(UmSystemUser)
     private usersRepository: Repository<UmSystemUser>,
     @InjectRepository(UmUserRole)
@@ -20,23 +23,45 @@ export class UserService {
     private employeeRepo: Repository<PriEmployee>,
     @InjectRepository(PriEmployeeKey)
     private employeeKeyRepo: Repository<PriEmployeeKey>,
+    @InjectRepository(BasePerson)
+    private basePersonRepo: Repository<BasePerson>,
   ) { }
 
-  findByUsername(username: string) {
-    return this.usersRepository.createQueryBuilder("u")
-      .innerJoin("u.person", "PER").addSelect(['PER.personId', 'PER.firstName', 'PER.lastName', 'PER.stateRegNumber'])
+  async findByUsername(username: string) {
+    const user = await this.usersRepository.createQueryBuilder("u")
+      .innerJoin("u.person", "PER").addSelect([
+        'PER.personId', 'PER.firstName', 'PER.lastName', 'PER.stateRegNumber', 'PER.familyName',
+        'PER.dateOfBirth', 'PER.genderId', 'PER.countryId', 'PER.nationalityId', 'PER.educationId',
+        'PER.imageUrl'
+      ])
       .where("u.userName = :username", { username })
       .getOne();
+    return user;
   }
 
   async findById(userId: number) {
     const user = await this.usersRepository.createQueryBuilder("u")
-      .innerJoin("u.person", "PER").addSelect(['PER.personId', 'PER.firstName', 'PER.lastName', 'PER.stateRegNumber'])
+      .innerJoin("u.person", "PER").addSelect([
+        'PER.personId', 'PER.firstName', 'PER.lastName', 'PER.stateRegNumber', 'PER.familyName',
+        'PER.dateOfBirth', 'PER.genderId', 'PER.countryId', 'PER.nationalityId', 'PER.educationId',
+        'PER.imageUrl'
+      ])
       .where("u.userId = :userId", { userId })
       .getOne();
     const emp = await this.employeeRepo.findOne({ where: { userId } });
     if (emp) {
-      const employeeKey = await this.employeeKeyRepo.findOne({ where: { employeeId: emp.employeeId, isActive: true } });
+      const employeeKey = await this.employeeKeyRepo.findOne({
+        where: { employeeId: emp.employeeId, isActive: true },
+        join: {
+          alias: "r",
+          innerJoinAndSelect: {
+            employee: "r.employee",
+            department: "r.department",
+            positionType: "r.positionType",
+            militaryRank: "r.militaryRank",
+          }
+        },
+      });
       (user as any).employeeKey = employeeKey;
     }
     const userRole = await this.userRoleRepository.findOne({ where: { userId } });
@@ -82,4 +107,42 @@ export class UserService {
       where: { userId: user_id }
     });
   }
+  
+  async saveBasePerson(dto: BaseRoleDtoValidator, user: any) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const body = dto;
+      await this.updateTableData(queryRunner, BasePerson, this.basePersonRepo, body, user)
+
+      await queryRunner.commitTransaction();
+      return { success: true }
+    } catch (err) {
+      console.log(err)
+      await queryRunner.rollbackTransaction();
+      throw new HttpException(err, 500)
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+    /**
+     * 
+     * @param queryRunner 
+     * @param TableEntity Entity
+     * @param repo Repository
+     * @param data any
+     * @param user any
+     * @returns void
+     */
+    async updateTableData(queryRunner = null, TableEntity, repo, data, user) {
+      const saved = new TableEntity({
+        ...data,
+        // modifiedUserId: user.id,
+        // modifiedDate: new Date()
+      })
+      if (queryRunner) return await queryRunner.manager.save(saved)
+      else return await repo.save(saved)
+    }
 }
