@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { MovementDeparture } from 'src/entity/pri/movement/movementDeparture.entity';
@@ -13,6 +13,8 @@ import { PriMovementArrivalPack } from 'src/entity/pri/movement/PriMovementArriv
 import { PriMovementArrival } from 'src/entity/pri/movement/PriMovementArrival';
 import { PriPrisonerKey } from 'src/entity/pri/prisoner/PriPrisonerKey';
 import { PriPrisoner } from 'src/entity/pri/prisoner/priPrisoner';
+import { getId } from 'src/utils/unique';
+import { DynamicService } from 'src/modules/dynamic/dynamic.service';
 
 @Injectable()
 export class MovementService {
@@ -24,59 +26,119 @@ export class MovementService {
     @InjectRepository(PriPrisonerKey)
     private prisonerKeyRepository: Repository<PriPrisonerKey>,
     private dataSource: DataSource,
+    private readonly dynamicService: DynamicService,
+    @InjectRepository(PriMovementDeparturePack)
+    private departurePackRepo: Repository<PriMovementDeparturePack>,
+    @InjectRepository(PriMovementDeparture)
+    private departureRepo: Repository<PriMovementDeparture>,
   ) { }
 
+  // async registerDeparture(user: any, dto: CreateMovementDepartureDto) {
+  //   console.log(`--------------Departure haanas id-----------${dto.fromDepartmentId} ---------haasha:${dto.toDepartmentId}`);
+  //   return this.dataSource.transaction(async manager => {
+  //     const pack = new PriMovementDeparturePack();
+  //     pack.movementDeparturePackId = Number(new Date().getTime().toString() + Math.floor(Math.random() * 100).toString());
+  //     pack.departureDate = new Date(dto.departureDate);
+  //     pack.fromDepartmentId = dto.fromDepartmentId;
+  //     pack.toDepartmentId = dto.toDepartmentId;
+  //     pack.decisionId = dto.decisionId;
+  //     pack.officerId = dto.officerId;
+  //     pack.employeeId = dto.employeeId; 
+  //     // pack.grantPassword = dto.grantPassword;
+  //     pack.wfmStatusId = 100302;
+  //     pack.movementTypeId = dto.movementTypeId;
+  //     pack.numberOfPrisoners = dto.prisoners.length;
+  //     // pack.createdEmployeeKeyId = user.userId; // User ID is not a valid Employee Key ID, causing FK error
+  //     pack.createdDate = new Date();
+
+  //     await manager.save(pack);
+  //     console.log(`------------ ussen departurepackid----------${pack.movementDeparturePackId}`);
+  //     for (const p of dto.prisoners) {
+  //       const detail = new PriMovementDeparture();
+  //       // Ensure unique ID for detail even in same loop
+  //       await new Promise(r => setTimeout(r, 1)); // tiny delay or better random
+  //       detail.movementDepartureId = Number(new Date().getTime().toString() + Math.floor(Math.random() * 1000).toString());
+        
+  //       detail.movementDeparturePackId = pack.movementDeparturePackId;
+  //       detail.prisonerKeyId = p.prisonerKeyId;
+  //       detail.reasonId = p.reasonId;
+  //       detail.regimenId = p.regimenId;
+  //       detail.classId = p.classId;
+  //       detail.description = p.description;
+  //       // detail.isSpecialAttention = p.isSpecialAttention;
+  //       // detail.createdUserId = user.userId;
+  //       detail.createdDate = new Date();
+        
+  //       await manager.save(detail);
+
+  //       // Update Prisoner Status to "En Route" (100302)
+  //       const prisonerKey = await manager.findOne(PriPrisonerKey, {
+  //         where: { prisonerKeyId: p.prisonerKeyId }
+  //       });
+
+  //       if (prisonerKey) {
+  //           console.log(`---------prisoner_ke_ID----${prisonerKey.prisonerKeyId} (---prisonerid-- ${prisonerKey.prisonerId})`);
+  //           prisonerKey.wfmStatusId = 100302; // Departed Status
+  //           await manager.save(prisonerKey);
+  //       }
+  //     }
+  //     return pack;
+  //   });
+  // }
   async registerDeparture(user: any, dto: CreateMovementDepartureDto) {
-    console.log(`--------------Departure haanas id-----------${dto.fromDepartmentId} ---------haasha:${dto.toDepartmentId}`);
-    return this.dataSource.transaction(async manager => {
-      const pack = new PriMovementDeparturePack();
-      pack.movementDeparturePackId = Number(new Date().getTime().toString() + Math.floor(Math.random() * 100).toString());
-      pack.departureDate = new Date(dto.departureDate);
-      pack.fromDepartmentId = dto.fromDepartmentId;
-      pack.toDepartmentId = dto.toDepartmentId;
-      pack.decisionId = dto.decisionId;
-      pack.officerId = dto.officerId;
-      pack.employeeId = dto.employeeId; 
-      // pack.grantPassword = dto.grantPassword;
-      pack.wfmStatusId = 100302;
-      pack.movementTypeId = dto.movementTypeId;
-      pack.numberOfPrisoners = dto.prisoners.length;
-      // pack.createdEmployeeKeyId = user.userId; // User ID is not a valid Employee Key ID, causing FK error
-      pack.createdDate = new Date();
-
-      await manager.save(pack);
-      console.log(`------------ ussen departurepackid----------${pack.movementDeparturePackId}`);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const wfmStatusId = 100302;
+      const movementDeparturePackId = await getId();
+      const packNewItem = {
+        movementDeparturePackId: movementDeparturePackId,
+        departureDate: new Date(dto.departureDate),
+        fromDepartmentId: dto.fromDepartmentId,
+        toDepartmentId: dto.toDepartmentId,
+        decisionId: dto.decisionId,
+        officerId: dto.officerId,
+        employeeId: dto.employeeId, 
+        wfmStatusId: wfmStatusId,
+        movementTypeId: dto.movementTypeId,
+        numberOfPrisoners: dto.prisoners.length,
+        isActive: true,
+        createdEmployeeKeyId: user?.employeeKey?.employeeKeyId,
+        createdDate: new Date(),
+      };
+      await this.dynamicService.createTableData(queryRunner, PriMovementDeparturePack, this.departurePackRepo, packNewItem, user)
       for (const p of dto.prisoners) {
-        const detail = new PriMovementDeparture();
-        // Ensure unique ID for detail even in same loop
-        await new Promise(r => setTimeout(r, 1)); // tiny delay or better random
-        detail.movementDepartureId = Number(new Date().getTime().toString() + Math.floor(Math.random() * 1000).toString());
-        
-        detail.movementDeparturePackId = pack.movementDeparturePackId;
-        detail.prisonerKeyId = p.prisonerKeyId;
-        detail.reasonId = p.reasonId;
-        detail.regimenId = p.regimenId;
-        detail.classId = p.classId;
-        detail.description = p.description;
-        // detail.isSpecialAttention = p.isSpecialAttention;
-        // detail.createdUserId = user.userId;
-        detail.createdDate = new Date();
-        
-        await manager.save(detail);
-
-        // Update Prisoner Status to "En Route" (100302)
-        const prisonerKey = await manager.findOne(PriPrisonerKey, {
+        const prisonerKey = await this.prisonerKeyRepository.findOne({
           where: { prisonerKeyId: p.prisonerKeyId }
         });
-
-        if (prisonerKey) {
-            console.log(`---------prisoner_ke_ID----${prisonerKey.prisonerKeyId} (---prisonerid-- ${prisonerKey.prisonerId})`);
-            prisonerKey.wfmStatusId = 100302; // Departed Status
-            await manager.save(prisonerKey);
+        if (!prisonerKey) {
+          throw new BadRequestException('Хоригдогч олдсонгүй!');
         }
+        console.log(`---------prisoner_ke_ID----${prisonerKey.prisonerKeyId} (---prisonerid-- ${prisonerKey.prisonerId})`);
+        prisonerKey.wfmStatusId = wfmStatusId;
+        await this.dynamicService.updateTableData(queryRunner, PriPrisonerKey, this.prisonerKeyRepository, prisonerKey, user)
+        const departureNewItem = {
+          movementDepartureId: await getId(),
+          movementDeparturePackId: movementDeparturePackId,
+          prisonerKeyId: p.prisonerKeyId,
+          reasonId: p.reasonId,
+          regimenId: p.regimenId,
+          classId: p.classId,
+          description: p.description,
+          createdDate: new Date(),
+        };
+        await this.dynamicService.createTableData(queryRunner, PriMovementDeparture, this.departureRepo, departureNewItem, user)
       }
-      return pack;
-    });
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      console.log(err)
+      await queryRunner.rollbackTransaction();
+      throw new HttpException(err, 500)
+    } finally {
+      await queryRunner.release();
+    }
   }
 
 
