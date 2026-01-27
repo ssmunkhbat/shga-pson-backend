@@ -20,4 +20,8 @@ export class PriMovementArrivalPack {
 
   @Column({ name: 'CREATED_DATE', type: 'date', default: () => 'SYSDATE' })
   createdDate: Date;
+
+  constructor(item: Partial<PriMovementArrivalPack>) {
+    Object.assign(this, item)
+  }
 }

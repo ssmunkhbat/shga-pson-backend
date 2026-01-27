@@ -1,5 +1,6 @@
 
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn, OneToOne, JoinColumn } from 'typeorm';
+import { PriInfoDepartment } from 'src/entity/info/priInfoDepartment';
 
 @Entity({ schema: 'KHORIGDOL_VT', name: 'PRI_MOVEMENT_DEPARTURE_PACK' })
 export class PriMovementDeparturePack {
@@ -12,8 +13,16 @@ export class PriMovementDeparturePack {
   @Column({ name: 'FROM_DEPARTMENT_ID', nullable: true })
   fromDepartmentId: number;
 
+  @OneToOne(() => PriInfoDepartment, (d) => d.departmentId)
+  @JoinColumn({ name: 'FROM_DEPARTMENT_ID' })
+  fromDepartment: PriInfoDepartment;
+
   @Column({ name: 'TO_DEPARTMENT_ID', nullable: true })
   toDepartmentId: number;
+
+  @OneToOne(() => PriInfoDepartment, (d) => d.departmentId)
+  @JoinColumn({ name: 'TO_DEPARTMENT_ID' })
+  toDepartment: PriInfoDepartment;
 
   @Column({ name: 'ADMINISTRATIVE_DECISION_ID', nullable: true })
   decisionId: number;
@@ -41,4 +50,8 @@ export class PriMovementDeparturePack {
 
   @Column({ name: 'CREATED_DATE', type: 'date', default: () => 'SYSDATE' })
   createdDate: Date;
+
+  constructor(item: Partial<PriMovementDeparturePack>) {
+    Object.assign(this, item)
+  }
 }

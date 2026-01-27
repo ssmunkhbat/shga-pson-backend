@@ -17,4 +17,8 @@ export class PriMovementArrival {
 
   @Column({ name: 'CREATED_DATE', type: 'date', default: () => 'SYSDATE' })
   createdDate: Date;
+
+  constructor(item: Partial<PriMovementArrival>) {
+    Object.assign(this, item)
+  }
 }

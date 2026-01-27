@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Post, Query, Req, Request, UseGuards } from '@nestjs/common';
 import { MovementService } from './movement.service';
 import { JwtAuthGuard } from 'src/modules/auth/jwt.guard';
-import { CreateMovementDepartureDto } from './dto/CreateMovementDeparture.dto';
-import { CreateMovementArrivalDto } from './dto/CreateMovementArrival.dto';
+import { CreateMovementDepartureDto } from 'src/dto/validation/pri/movement/movementDeparture.dto';
+import { CreateMovementArrivalDto } from 'src/dto/validation/pri/movement/movementArrival.dto';
 
 @Controller('movement')
 export class MovementController {

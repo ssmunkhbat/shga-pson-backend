@@ -29,4 +29,8 @@ export class PriMovementDeparture {
 
   @Column({ name: 'CREATED_DATE', type: 'date', default: () => 'SYSDATE' })
   createdDate: Date;
+
+  constructor(item: Partial<PriMovementDeparture>) {
+    Object.assign(this, item)
+  }
 }

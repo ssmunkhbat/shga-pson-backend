@@ -31,11 +31,30 @@ export class UserService {
     const user = await this.usersRepository.createQueryBuilder("u")
       .innerJoin("u.person", "PER").addSelect([
         'PER.personId', 'PER.firstName', 'PER.lastName', 'PER.stateRegNumber', 'PER.familyName',
-        'PER.dateOfBirth', 'PER.genderId', 'PER.countryId', 'PER.nationalityId', 'PER.educationId',
         'PER.imageUrl'
       ])
       .where("u.userName = :username", { username })
       .getOne();
+
+    if (user) {
+      const emp = await this.employeeRepo.findOne({
+        where: { userId: user.userId },
+      });
+
+      if (emp) {
+        console.log('---findByUsername Found Employee---', emp.employeeId);
+        const employeeKey = await this.employeeKeyRepo.createQueryBuilder('r')
+          .leftJoinAndSelect('r.department', 'd')
+          .leftJoinAndSelect('r.positionType', 'pt')
+          .leftJoinAndSelect('r.militaryRank', 'mr')
+          .where('r.employeeId = :empId', { empId: emp.employeeId })
+          .andWhere('r.isActive = :active', { active: true })
+          .orderBy('r.createdDate', 'DESC')
+          .getOne();
+
+        (user as any).employeeKey = employeeKey;
+      }
+    }
     return user;
   }
 
@@ -43,7 +62,6 @@ export class UserService {
     const user = await this.usersRepository.createQueryBuilder("u")
       .innerJoin("u.person", "PER").addSelect([
         'PER.personId', 'PER.firstName', 'PER.lastName', 'PER.stateRegNumber', 'PER.familyName',
-        'PER.dateOfBirth', 'PER.genderId', 'PER.countryId', 'PER.nationalityId', 'PER.educationId',
         'PER.imageUrl'
       ])
       .where("u.userId = :userId", { userId })
@@ -53,21 +71,14 @@ export class UserService {
       });
 
     if (emp) {
-      const employeeKey = await this.employeeKeyRepo.findOne({
-        where: {
-          employeeId: emp.employeeId,
-          isActive: true,
-        },
-        join: {
-          alias: 'r',
-          innerJoinAndSelect: {
-            employee: 'r.employee',
-            department: 'r.department',
-            positionType: 'r.positionType',
-            militaryRank: 'r.militaryRank',
-          },
-        },
-      });
+      const employeeKey = await this.employeeKeyRepo.createQueryBuilder('r')
+        .leftJoinAndSelect('r.department', 'd')
+        .leftJoinAndSelect('r.positionType', 'pt')
+        .leftJoinAndSelect('r.militaryRank', 'mr')
+        .where('r.employeeId = :empId', { empId: emp.employeeId })
+        .andWhere('r.isActive = :active', { active: true })
+        .orderBy('r.createdDate', 'DESC')
+        .getOne();
       
       (user as any).employeeKey = employeeKey;
     }

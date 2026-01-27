@@ -34,4 +34,8 @@ export class PriPrisonerKey {
 
   @Column({ name: 'CREATED_DATE', default: () => 'SYSDATE' })
   createdDate: Date;
+
+  constructor(item: Partial<PriPrisonerKey>) {
+    Object.assign(this, item)
+  }
 }

@@ -5,8 +5,8 @@ import { MovementDeparture } from 'src/entity/pri/movement/movementDeparture.ent
 import { MovementArrival } from 'src/entity/pri/movement/movementArrival.entity';
 import { getFilter } from 'src/utils/helper';
 import { Repository, DataSource } from 'typeorm';
-import { CreateMovementDepartureDto } from './dto/CreateMovementDeparture.dto';
-import { CreateMovementArrivalDto } from './dto/CreateMovementArrival.dto';
+import { CreateMovementDepartureDto } from 'src/dto/validation/pri/movement/movementDeparture.dto';
+import { CreateMovementArrivalDto } from 'src/dto/validation/pri/movement/movementArrival.dto';
 import { PriMovementDeparturePack } from 'src/entity/pri/movement/PriMovementDeparturePack';
 import { PriMovementDeparture } from 'src/entity/pri/movement/PriMovementDeparture';
 import { PriMovementArrivalPack } from 'src/entity/pri/movement/PriMovementArrivalPack';
@@ -31,6 +31,10 @@ export class MovementService {
     private departurePackRepo: Repository<PriMovementDeparturePack>,
     @InjectRepository(PriMovementDeparture)
     private departureRepo: Repository<PriMovementDeparture>,
+    @InjectRepository(PriMovementArrivalPack)
+    private arrivalPackRepo: Repository<PriMovementArrivalPack>,
+    @InjectRepository(PriMovementArrival)
+    private arrivalRepo: Repository<PriMovementArrival>,
   ) { }
 
   // async registerDeparture(user: any, dto: CreateMovementDepartureDto) {
@@ -154,10 +158,12 @@ export class MovementService {
     }
 
     if (user.userId !== 1) {
-      queryBuilder[!!filter ? "andWhere" : "where"](
-        "md.fromDepartmentId = :departmentId",
-        { departmentId: user.employeeKey.departmentId }
-      );
+      if (user.employeeKey?.departmentId) {
+        queryBuilder[!!filter ? "andWhere" : "where"](
+          "md.fromDepartmentId = :departmentId",
+          { departmentId: user.employeeKey.departmentId }
+        );
+      }
     }
 
     queryBuilder.andWhere("md.wfmStatusId IN (:...statuses)", { statuses: [100302, 100303] });
@@ -188,10 +194,12 @@ export class MovementService {
     }
     
     if (user.userId !== 1) {
-      queryBuilder[!!filter ? "andWhere" : "where"](
-        "md.toDepartmentId = :departmentId",
-        { departmentId: user.employeeKey.departmentId }
-      );
+      if (user.employeeKey?.departmentId) {
+        queryBuilder[!!filter ? "andWhere" : "where"](
+          "md.toDepartmentId = :departmentId",
+          { departmentId: user.employeeKey.departmentId }
+        );
+      }
     }
 
     queryBuilder.andWhere("md.wfmStatusId IN (:...statuses)", { statuses: [100302, 100303] });
@@ -215,98 +223,104 @@ export class MovementService {
 
   async registerArrival(user: any, dto: CreateMovementArrivalDto) {
     console.log(`-----useriindeptid---- ${user.employeeKey?.departmentId}`);
-    return this.dataSource.transaction(async manager => {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
       const DEPARTURE_STATUS_DELIVERED = 100303;
       const ARRIVAL_STATUS_ARRIVED = 100304;
 
       for (const departurePackId of dto.movementDepartureIds) {
         console.log(`-----departurepackid---------${departurePackId}`);
-        const departurePack = await manager.findOne(PriMovementDeparturePack, {
-            where: { movementDeparturePackId: departurePackId }
+        const departurePack = await this.departurePackRepo.findOne({
+          where: { movementDeparturePackId: departurePackId }
         });
 
         if (!departurePack) {
-            console.error(`[Movement] DeparturePack ${departurePackId} NOT FOUND`);
-            continue;
+          console.error(`[Movement] DeparturePack ${departurePackId} NOT FOUND`);
+          continue;
         }
 
         const targetDepartmentId = departurePack.toDepartmentId;
         console.log(`------irsendepartment------- ${targetDepartmentId}`);
 
         // 1. 100303 shiljinirsen ni
-        await manager.createQueryBuilder()
-          .update(PriMovementDeparturePack)
-          .set({ wfmStatusId: DEPARTURE_STATUS_DELIVERED })
-          .where("movementDeparturePackId = :id", { id: departurePackId })
-          .execute();
+        departurePack.wfmStatusId = DEPARTURE_STATUS_DELIVERED;
+        await this.dynamicService.updateTableData(queryRunner, PriMovementDeparturePack, this.departurePackRepo, departurePack, user)
 
         // 2. 100304 shiljin ochson 
-        const arrivalPack = new PriMovementArrivalPack();
-        arrivalPack.movementArrivalPackId = Number(new Date().getTime().toString() + Math.floor(Math.random() * 100).toString());
-        arrivalPack.movementDeparturePackId = departurePackId;
-        arrivalPack.arrivalDate = new Date(dto.arrivalDate);
-        arrivalPack.wfmStatusId = ARRIVAL_STATUS_ARRIVED;
-        arrivalPack.createdDate = new Date();
-        await manager.save(arrivalPack);
-        console.log(`-----uussenarrivalpackid------: ${arrivalPack.movementArrivalPackId}`);
+        const arrivalPackId = await getId();
+        const arrivalPack = {
+          movementArrivalPackId: arrivalPackId,
+          movementDeparturePackId: departurePackId,
+          arrivalDate: new Date(dto.arrivalDate),
+          wfmStatusId: ARRIVAL_STATUS_ARRIVED,
+          createdDate: new Date(),
+          isActive: true
+        };
+        await this.dynamicService.createTableData(queryRunner, PriMovementArrivalPack, this.arrivalPackRepo, arrivalPack, user);
 
-        
-        const departureDetails = await manager.find(PriMovementDeparture, {
+        const departureDetails = await this.departureRepo.find({
           where: { movementDeparturePackId: departurePackId }
         });
 
         for (const departureDetail of departureDetails) {
-            // Find the current Prisoners Key using ID from departure detail
-            const currentKey = await manager.findOne(PriPrisonerKey, {
+            const currentKey = await this.prisonerKeyRepository.findOne({
                 where: { prisonerKeyId: departureDetail.prisonerKeyId }
             });
 
             if (currentKey) {
                 currentKey.endDate = new Date(dto.arrivalDate);
-                await manager.save(currentKey);
+                await this.dynamicService.updateTableData(queryRunner, PriPrisonerKey, this.prisonerKeyRepository, currentKey, user);
 
-                const newKey = new PriPrisonerKey();
-                newKey.prisonerKeyId = Number(new Date().getTime().toString() + Math.floor(Math.random() * 1000).toString());
-                newKey.prisonerId = currentKey.prisonerId;
-                newKey.departmentId = targetDepartmentId; 
-                newKey.wfmStatusId = 17861; 
-                newKey.beginDate = new Date(dto.arrivalDate);
-                newKey.createdBy = user.employeeKey?.id;
-                newKey.createdDate = new Date();
-                newKey.regimenId = currentKey.regimenId;
-                newKey.detentionId = currentKey.detentionId;
-                newKey.decisionId = currentKey.decisionId;
+                const newKeyId = await getId();
+                const newKey = {
+                   prisonerKeyId: newKeyId,
+                   prisonerId: currentKey.prisonerId,
+                   departmentId: targetDepartmentId,
+                   wfmStatusId: 17861, // Active
+                   beginDate: new Date(dto.arrivalDate),
+                   createdBy: user.employeeKey?.id,
+                   createdDate: new Date(),
+                   regimenId: currentKey.regimenId,
+                   detentionId: currentKey.detentionId,
+                   decisionId: currentKey.decisionId,
+                   isActive: true
+                };
+                await this.dynamicService.createTableData(queryRunner, PriPrisonerKey, this.prisonerKeyRepository, newKey, user);
 
-                await manager.save(newKey);
-
-                // 4. Create Arrival Detail Record (PRI_MOVEMENT_ARRIVAL)
-                const arrivalDetail = new PriMovementArrival();
-                arrivalDetail.movementArrivalId = Number(new Date().getTime().toString() + Math.floor(Math.random() * 1000).toString()); 
-                arrivalDetail.movementArrivalPackId = arrivalPack.movementArrivalPackId;
-                arrivalDetail.movementDepartureId = departureDetail.movementDepartureId;
-                arrivalDetail.prisonerKeyId = newKey.prisonerKeyId; // Link to the NEW key (active in this dept)
-                arrivalDetail.createdDate = new Date();
-                
-                await manager.save(arrivalDetail);
+                const arrivalDetail = {
+                   movementArrivalId: await getId(),
+                   movementArrivalPackId: arrivalPackId,
+                   movementDepartureId: departureDetail.movementDepartureId,
+                   prisonerKeyId: newKeyId,
+                   createdDate: new Date(),
+                   isActive: true
+                };
+                await this.dynamicService.createTableData(queryRunner, PriMovementArrival, this.arrivalRepo, arrivalDetail, user);
 
                 console.log(`--prisonerid--- (ID: ${currentKey.prisonerId}) ----haana irsen--- ${targetDepartmentId}, Status: 17861`);
-                await manager.update(PriPrisoner, 
+                await queryRunner.manager.update(PriPrisoner, 
                     { prisonerId: currentKey.prisonerId }, 
                     { 
                         departmentId: targetDepartmentId, 
                         wfmStatusId: 17861 
                     }
                 );
+
             } else {
                 console.warn(`notfooundkeyid ${departureDetail.prisonerKeyId}`);
             }
         }
       }
-
-      return {
-        messageType: 'success',
-        message: 'Amjilttai'
-      };
-    });
+      await queryRunner.commitTransaction();
+      return { success: true };
+    } catch (err) {
+      console.log(err);
+      await queryRunner.rollbackTransaction();
+      throw new HttpException(err, 500);
+    } finally {
+      await queryRunner.release();
+    }
   }
 }
