@@ -1,6 +1,6 @@
 import { Expose } from '@nestjs/class-transformer';
 
-export class PrisonerCardPersonalDto {
+export class PrisonerCardPersonalDetentionDto {
     @Expose({ name: 'ACTION_DATE' })
     actionDate: Date;
 
@@ -73,4 +73,28 @@ export class PrisonerCardPersonalDto {
 
     @Expose({ name: 'STATE_REG_NUMBER' })
     stateRegNumber: string;
+
+    @Expose({ name: 'LAW_ACT_CODE' })
+    lawActCode: string;
+
+    @Expose({ name: 'CLOTHES_DETAIL' })
+    clothesDetail: string;
+
+    @Expose({ name: 'DETENTION_ID' })
+    detentionId: number;
+
+    @Expose({ name: 'CASE_NUMBER' })
+    caseNumber: string;
+
+    @Expose({ name: 'DO_DEPARTMENT_NAME' })
+    doDepartmentName: string;
+
+    @Expose({ name: 'DO_POSITION' })
+    doPosition: string;
+
+    @Expose({ name: 'DO_FIRST_NAME' })
+    doFirstName: string;
+
+    @Expose({ name: 'DO_PHONE' })
+    doPhone: string;
 }
