@@ -89,6 +89,10 @@ export class PrisonerPersonalInfoDto {
 
     @Expose({ name: 'BIRTH_SOUM_ID' })
     birthSoumId: number;
+
+    @Expose({ name: 'BIRTH_PLACE' })
+    birthPlace: string;
+
     @Expose({ name: 'RELIGION_ID' })
     religionId: number;
 }

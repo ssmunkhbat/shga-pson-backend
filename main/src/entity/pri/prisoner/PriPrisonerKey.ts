@@ -14,11 +14,11 @@ export class PriPrisonerKey {
   @Column({ name: 'WFM_STATUS_ID' })
   wfmStatusId: number;
 
-  @Column({ name: 'BEGIN_DATE', type: 'date', nullable: true })
+  @Column({ name: 'BEGIN_DATE' })
   beginDate: Date;
 
-  @Column({ name: 'END_DATE', type: 'date', nullable: true })
-  endDate: Date;
+  @Column({ name: 'END_DATE', nullable: true })
+  endDate: Date | null;
 
   @Column({ name: 'DETENTION_ID', nullable: true })
   detentionId: number;
