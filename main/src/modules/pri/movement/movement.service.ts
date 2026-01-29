@@ -8,6 +8,7 @@ import { Repository, DataSource } from 'typeorm';
 import { CreateMovementDepartureDto } from 'src/dto/validation/pri/movement/movementDeparture.dto';
 import { CreateMovementArrivalDto } from 'src/dto/validation/pri/movement/movementArrival.dto';
 import { PriMovementDeparturePack } from 'src/entity/pri/movement/PriMovementDeparturePack';
+import { ChangeMovementPasswordDto } from 'src/dto/validation/pri/movement/changeMovementPassword.dto';
 import { PriMovementDeparture } from 'src/entity/pri/movement/PriMovementDeparture';
 import { PriMovementArrivalPack } from 'src/entity/pri/movement/PriMovementArrivalPack';
 import { PriMovementArrival } from 'src/entity/pri/movement/PriMovementArrival';
@@ -15,6 +16,11 @@ import { PriPrisonerKey } from 'src/entity/pri/prisoner/PriPrisonerKey';
 import { PriPrisoner } from 'src/entity/pri/prisoner/priPrisoner';
 import { getId } from 'src/utils/unique';
 import { DynamicService } from 'src/modules/dynamic/dynamic.service';
+
+import { PriEmployee } from 'src/entity/pri/employee/priEmployee';
+import { PriOfficer } from 'src/entity/pri/officer/PriOfficer';
+import { PriAdministrativeDecision } from 'src/entity/pri/administrative/priAdministrativeDecision';
+import { BasePerson } from 'src/entity/base/basePerson';
 
 @Injectable()
 export class MovementService {
@@ -109,6 +115,7 @@ export class MovementService {
         numberOfPrisoners: dto.prisoners.length,
         isActive: true,
         createdEmployeeKeyId: user?.employeeKey?.employeeKeyId,
+        password: dto.grantPassword,
         createdDate: new Date(),
       };
       await this.dynamicService.createTableData(queryRunner, PriMovementDeparturePack, this.departurePackRepo, packNewItem, user)
@@ -173,7 +180,6 @@ export class MovementService {
     
     const data = await paginate<MovementDeparture>(queryBuilder, options);
     
-    // Inject Arrival Date
     const mappedItems = data.items.map(item => {
         (item as any).arrivalDate = (item as any).arrivalPack?.arrivalDate;
         return item;
@@ -239,6 +245,11 @@ export class MovementService {
         if (!departurePack) {
           console.error(`[Movement] DeparturePack ${departurePackId} NOT FOUND`);
           continue;
+        }
+
+        // Password Verification
+        if (departurePack.password && departurePack.password !== dto.password) {
+            throw new BadRequestException(`Нууц үг буруу байна! (ID: ${departurePackId})`);
         }
 
         const targetDepartmentId = departurePack.toDepartmentId;
@@ -322,5 +333,153 @@ export class MovementService {
     } finally {
       await queryRunner.release();
     }
+  }
+  async changeDeparturePassword(user: any, dto: ChangeMovementPasswordDto) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const departurePack = await this.departurePackRepo.findOne({
+        where: { movementDeparturePackId: dto.movementDeparturePackId }
+      });
+
+      if (!departurePack) {
+        throw new BadRequestException('Шилжилт хөдөлгөөн олдсонгүй!');
+      }
+
+      const isCreator = user.employeeKey?.employeeKeyId === departurePack.createdEmployeeKeyId;
+      const isAdmin = user.userId === 1;
+
+      if (!isCreator && !isAdmin) {
+         throw new BadRequestException('Та зөвхөн өөрийн үүсгэсэн бүртгэлийн нууц үгийг солих эрхтэй!');
+      }
+
+      if (departurePack.wfmStatusId !== 100302) {
+        throw new BadRequestException('Зөвхөн "Замд яваа" төлөвтэй бүртгэлийн нууц үгийг солих боломжтой!');
+      }
+
+
+      departurePack.password = dto.newPassword;
+      await this.dynamicService.updateTableData(queryRunner, PriMovementDeparturePack, this.departurePackRepo, departurePack, user);
+
+      await queryRunner.commitTransaction();
+      return { success: true };
+    } catch (err) {
+      console.log(err);
+      await queryRunner.rollbackTransaction();
+      throw new HttpException(err, 500);
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async getDepartureDetails(id: number) {
+    const pack = await this.departurePackRepo.findOne({
+      where: { movementDeparturePackId: id }
+    });
+
+    if (!pack) throw new BadRequestException('Not found');
+
+    const manager = this.dataSource.manager;
+
+    // Fetch employee name if employeeId exists
+    let employeeName = '';
+    if (pack.employeeId) {
+    }
+    
+    // Fetch Employee
+    if (pack.employeeId) {
+        const emp = await this.dataSource.getRepository('PriEmployee').findOne({
+            where: { employeeId: pack.employeeId },
+            relations: ['person']
+        }) as any;
+        
+        if (emp && emp.person) {
+            employeeName = `${emp.person.lastName || ''} ${emp.person.firstName || ''}`.trim();
+        }
+    }
+
+    // Fetch Officer
+    let officerName = '';
+    if (pack.officerId) {
+        const officer = await this.dataSource.getRepository('PriOfficer').findOne({
+            where: { officerId: pack.officerId }
+        }) as any;
+
+        if (officer) {
+            officerName = `${officer.lastName || ''} ${officer.firstName || ''}`.trim();
+        }
+    }
+
+    // Fetch Decision
+    let decisionName = '';
+    if (pack.decisionId) {
+        const decision = await this.dataSource.getRepository('PriAdministrativeDecision').findOne({
+            where: { administrativeDecisionId: pack.decisionId }
+        }) as any;
+
+        if (decision) {
+            decisionName = decision.administrativeDecisionNumber || '';
+        }
+    }
+
+    // Fetch prisoner movements with prisoner details
+    const movements = await this.departureRepo.find({
+      where: { movementDeparturePackId: id }
+    });
+
+    const prisonersWithDetails = [];
+    for (const m of movements) {
+      // Fetch prisoner info
+      const prisonerKey = await this.prisonerKeyRepository.findOne({
+          where: { prisonerKeyId: m.prisonerKeyId }
+      });
+      
+      let prisonerCode = '';
+      let firstName = '';
+      let lastName = '';
+
+      if (prisonerKey) {
+          const prisoner = await this.dataSource.getRepository('PriPrisoner').findOne({
+              where: { prisonerId: prisonerKey.prisonerId }
+          }) as any;
+
+          if (prisoner) {
+              prisonerCode = prisoner.prisonerNumber;
+              // Fetch prisoner ttah
+              const person = await this.dataSource.getRepository('BasePerson').findOne({
+                  where: { personId: prisoner.personId }
+              }) as any;
+              
+              if (person) {
+                  firstName = person.firstName;
+                  lastName = person.lastName;
+              }
+          }
+      }
+
+      prisonersWithDetails.push({
+          _id: m.prisonerKeyId,
+          prisonerId: prisonerKey?.prisonerId,
+          prisonerCode: prisonerCode,
+          code: prisonerCode,
+          firstName: firstName,
+          lastName: lastName,
+          reasonId: m.reasonId,
+          regimenId: m.regimenId,
+          classId: m.classId,
+          description: m.description || '',
+          isSpecialAttention: false
+      });
+    }
+
+    return {
+      ...pack,
+      employeeName,
+      officerName,
+      decisionName,
+      prisoners: prisonersWithDetails
+    };
   }
 }

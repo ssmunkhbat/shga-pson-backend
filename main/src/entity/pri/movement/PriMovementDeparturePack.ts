@@ -48,6 +48,9 @@ export class PriMovementDeparturePack {
   @Column({ name: 'CREATED_EMPLOYEE_KEY_ID', nullable: true })
   createdEmployeeKeyId: number;
 
+  @Column({ name: 'PASSWORD', type: 'varchar', nullable: true })
+  password: string;
+
   @Column({ name: 'CREATED_DATE', type: 'date', default: () => 'SYSDATE' })
   createdDate: Date;
 

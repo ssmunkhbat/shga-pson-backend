@@ -12,4 +12,8 @@ export class CreateMovementArrivalDto {
   @IsString({ message: 'description утга байх ёстой.' })
   @IsOptional()
   description: string;
+
+  @IsString({ message: 'password утга байх ёстой.' })
+  @IsNotEmpty({ message: 'password утга шаардана.' })
+  password: string;
 }

@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Post, Query, Req, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, Request, UseGuards } from '@nestjs/common';
 import { MovementService } from './movement.service';
 import { JwtAuthGuard } from 'src/modules/auth/jwt.guard';
 import { CreateMovementDepartureDto } from 'src/dto/validation/pri/movement/movementDeparture.dto';
 import { CreateMovementArrivalDto } from 'src/dto/validation/pri/movement/movementArrival.dto';
+import { ChangeMovementPasswordDto } from 'src/dto/validation/pri/movement/changeMovementPassword.dto';
 
 @Controller('movement')
 export class MovementController {
@@ -30,5 +31,17 @@ export class MovementController {
   @Get('/arrival')
   async getArrivalList(@Req() req, @Query('page') page = 1, @Query('limit') limit = 10, @Query('search') search = '[]') {
     return await this.service.getArrivalList({ page, limit }, search, req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/departure/change-password')
+  async changeDeparturePassword(@Request() req, @Body() dto: ChangeMovementPasswordDto) {
+    return await this.service.changeDeparturePassword(req.user, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/departure/:id')
+  async getDepartureDetails(@Param('id') id: number) {
+    return await this.service.getDepartureDetails(id);
   }
 }
