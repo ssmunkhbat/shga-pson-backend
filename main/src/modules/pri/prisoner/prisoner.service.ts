@@ -36,6 +36,8 @@ import { PrisonerCardPersonalDetentionDto } from 'src/dto/pri/prisoner/card/dete
 import { PrisonerCardDetentionProsecutorDto } from 'src/dto/pri/prisoner/card/detention/detention.prosecutor.dto';
 import { PrisonerCardJailPlanExtentionDto } from 'src/dto/pri/prisoner/card/jailPlan/jailPlan.extension.dto';
 import { PrisonerCardDetentionHergiinHolbogdogchDto } from 'src/dto/pri/prisoner/card/detention/detention.hergiin.holbogodgch.dto';
+import { PrisonerCardDetentionInterrogationDto } from 'src/dto/pri/prisoner/card/detention/detention.interrogation.dto';
+import { PrisonerCardDetentionOfficerMeetingsDto } from 'src/dto/pri/prisoner/card/detention/detention.officer.meetings.dto';
 
 @Injectable()
 export class PrisonerService {
@@ -419,17 +421,29 @@ export class PrisonerService {
     let investigator = null
     let jailPlanExtention = []
     let hergiinHolbogdogch = []
+    let prisonerStatusYaltan = null
+    let interrogations = []
+    let postureInfo = null
+    let officerMeetings = []
 
     detention = await this.getPrisonerCardDetentionMain(prisonerKey.prisonerKeyId);
     if (detention) {
       [
+        postureInfo,
         prosecutor,
         investigator,
         jailPlanExtention,
+        prisonerStatusYaltan,
+        interrogations,
+        officerMeetings,
       ] = await Promise.all([
+        this.getPrisonerCardDetentionPostureData(detention.detentionId),
         this.getPrisonerCardProsecutor(detention.detentionId),
         this.getPrisonerCardInvestigator(detention.detentionId),
         this.getPrisonerCardJailPlanExtention(prisonerId),
+        this.getPrisonerCardStatusYaltan(detention.detentionId),
+        this.getPrisonerCardInterrogations(detention.detentionId),
+        this.getPrisonerCardOfficerMeetings(detention.detentionId),
       ]);
       if (detention.detention) {
         hergiinHolbogdogch = await this.getPrisonerCardHergiinHolbogdogch(prisonerId, detention.caseNumber);
@@ -443,6 +457,10 @@ export class PrisonerService {
       investigator,
       jailPlanExtention,
       hergiinHolbogdogch,
+      postureInfo,
+      prisonerStatusYaltan,
+      interrogations,
+      officerMeetings,
     };
   }
 
@@ -1223,6 +1241,88 @@ export class PrisonerService {
     const result = await this.dataSource.query(query);
     const data: PrisonerCardDetentionHergiinHolbogdogchDto[] = plainToClass(
       PrisonerCardDetentionHergiinHolbogdogchDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
+    return data;
+  }
+
+  async getPrisonerCardDetentionPostureData(detentionId: number) {
+    if (!detentionId) return null
+    const query = `
+      SELECT HEIGHT, WEIGHT, MV.NAME MENTALITY, USED_DRUG_OR_ALCOHOL, DRUG_OR_ALCOHOL_INFO, HAS_OPEN_WOUND, OPEN_WOUND_INFO
+      FROM PRI_PRISONER_POSTURE PPP
+      INNER JOIN PRI_PRISONER_KEY PPK ON PPP.PRISONER_KEY_ID = PPK.PRISONER_KEY_ID
+      LEFT JOIN PRI_INFO_MEDICAL_VALUE MV ON PPP.MENTALITY_VALUE_ID = MV.MEDICAL_VALUE_ID
+        WHERE PPK.DETENTION_ID = ${detentionId}
+      AND ROWNUM = 1
+        ORDER BY PPP.POSTURE_DATE, PPP.CREATED_DATE
+    `;
+    const data = await this.dataSource.query(query);
+    return data.length > 0 ? data[0] : null
+  }
+
+  async getPrisonerCardStatusYaltan(detentionId: number) {
+    if (!detentionId) return null
+    const query = `
+      SELECT WFM_STATUS_ID, STATUS_DATE
+      FROM (
+        SELECT
+          PS.WFM_STATUS_ID, MIN(PS.STATUS_DATE) STATUS_DATE
+        FROM
+          PRI_PRISONER_STATUS PS
+          LEFT JOIN PRI_PRISONER_KEY K ON PS.PRISONER_KEY_ID = K.PRISONER_KEY_ID
+        WHERE
+          K.DETENTION_ID = ${detentionId} AND PS.WFM_STATUS_ID IN (100105, 100106)
+        GROUP BY
+          PS.WFM_STATUS_ID
+        ORDER BY PS.WFM_STATUS_ID
+      )
+      WHERE ROWNUM = 1
+    `;
+    const data = await this.dataSource.query(query);
+    return data.length > 0 ? data[0] : null;
+  }
+
+  async getPrisonerCardInterrogations(detentionId: number) {
+    if (!detentionId) return null
+    const query = `
+      SELECT
+        I.*, O.LAST_NAME, O.FIRST_NAME, D.NAME DEPARTMENT_NAME
+      FROM
+        PRI_PRISONER_INTERROGATION I
+        LEFT JOIN PRI_OFFICER O ON I.OFFICER_ID = O.OFFICER_ID
+        LEFT JOIN PRI_INFO_DEPARTMENT D ON O.DEPARTMENT_ID = D.DEPARTMENT_ID
+        LEFT JOIN PRI_PRISONER_KEY K ON I.PRISONER_KEY_ID = K.PRISONER_KEY_ID
+      WHERE K.DETENTION_ID = ${detentionId}
+      ORDER BY
+        I.BOOK_DATE
+    `;
+    const result = await this.dataSource.query(query);
+    const data: PrisonerCardDetentionInterrogationDto[] = plainToClass(
+      PrisonerCardDetentionInterrogationDto,
+      result as object[],
+      { excludeExtraneousValues: true },
+    );
+    return data;
+  }
+
+  async getPrisonerCardOfficerMeetings(detentionId: number) {
+    if (!detentionId) return null
+    const query = `
+      SELECT
+        M.MEETING_DATE, K.DETENTION_ID, K.PRISONER_ID, O.LAST_NAME, O.FIRST_NAME, O.ID_NUMBER,
+        MT.NAME MEETING_TYPE_NAME, M.START_TIME, M.END_TIME
+      FROM
+      PRI_OFFICER_MEETING M
+        LEFT JOIN PRI_PRISONER_KEY K ON M.PRISONER_KEY_ID = K.PRISONER_KEY_ID
+        LEFT JOIN PRI_OFFICER O ON M.OFFICER_ID = O.OFFICER_ID
+        LEFT JOIN PRI_INFO_OFFICER_MEETING_TYPE MT ON M.OFFICER_MEETING_TYPE_ID = MT.OFFICER_MEETING_TYPE_ID
+      WHERE K.DETENTION_ID = ${detentionId}
+    `;
+    const result = await this.dataSource.query(query);
+    const data: PrisonerCardDetentionOfficerMeetingsDto[] = plainToClass(
+      PrisonerCardDetentionOfficerMeetingsDto,
       result as object[],
       { excludeExtraneousValues: true },
     );
