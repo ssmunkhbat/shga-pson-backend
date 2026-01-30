@@ -7,6 +7,7 @@ import { RefsController } from "./modules/refs/refs.controller";
 import { SettingsController } from "./modules/settings/settings.controller";
 import { TableConfigController } from "./modules/table-config/table-config.controller";
 import { NotificationController } from "./modules/pri/notification/notification.controller";
+import { PriAddressController } from "./modules/pri/address/address.controller";
 
 export const controllers = [
     TableConfigController,
@@ -18,4 +19,5 @@ export const controllers = [
     EmployeeController,
     OfficerController,
     AdministrativeDecisionController,
+    PriAddressController,
 ]

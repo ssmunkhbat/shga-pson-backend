@@ -28,6 +28,12 @@ import { ActionSettings } from "./entity/pri/settings/ActionSettings.ts"
 import { RoleActionSettings } from "./entity/pri/settings/RoleActionSettings"
 import { RoleMenuSettings } from "./entity/pri/settings/RoleMenuSettings"
 import { PriNotificationMView } from "./entity/pri/notification/priNotificationMView"
+import { PriInfoAddressType } from "./entity/info/priInfoAddressType"
+import { PriInfoAimagCity } from "./entity/info/priInfoAimagCity"
+import { PriInfoSoumDistrict } from "./entity/info/priInfoSoumDistrict"
+import { PriInfoBagKhoroo } from "./entity/info/priInfoBagKhoroo"
+import { RefCountry } from "./entity/ref/refCountry"
+import { PriAddress } from "./entity/pri/address/priAddress"
 
 const Entities = [
   MenuSettings, ActionSettings, RoleMenuSettings, RoleActionSettings,
@@ -37,8 +43,11 @@ const Entities = [
   PriPrisoner, PriPrisonerKeyView, PriPrisonerKey,
   MovementDeparture, MovementArrival,
   PriMovementDeparturePack, PriMovementDeparture, PriMovementArrivalPack,
+
   PriInfoDepartment, PriInfoDepartmentType, PriInfoPositionType, PriInfoMilitaryRank,
-  PriAdministrativeDecType, PriAdministrativeDecision,
+  PriAdministrativeDecType, PriAdministrativeDecision, PriInfoAddressType, PriInfoAimagCity, PriInfoSoumDistrict, PriInfoBagKhoroo,
+  RefCountry, PriAddress,
+
   PriOfficer,
   PriPrisonerAccountBook, PriPrisonerAccountBookView,
   PriNotificationMView, PriMovementArrival,

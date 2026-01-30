@@ -13,6 +13,7 @@ import { OfficerService } from "./modules/pri/officer/officer.service";
 import { NotificationService } from "./modules/pri/notification/notification.service";
 import { UserService } from "./modules/user/user.service";
 import { PriDetentionService } from "./modules/pri/detention/detention.service";
+import { PriAddressService } from "./modules/pri/address/address.service";
 
 
 export const services = [
@@ -31,4 +32,5 @@ export const services = [
     OfficerService,
     AdministrativeDecisionService,
     PriDetentionService,
+    PriAddressService,
 ]
