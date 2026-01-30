@@ -12,6 +12,7 @@ import { RedisService } from "./thirdparty/redis/redis.service";
 import { OfficerService } from "./modules/pri/officer/officer.service";
 import { NotificationService } from "./modules/pri/notification/notification.service";
 import { UserService } from "./modules/user/user.service";
+import { PriDetentionService } from "./modules/pri/detention/detention.service";
 
 
 export const services = [
@@ -29,4 +30,5 @@ export const services = [
     EmployeeService,
     OfficerService,
     AdministrativeDecisionService,
+    PriDetentionService,
 ]

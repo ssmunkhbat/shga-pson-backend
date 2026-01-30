@@ -2,10 +2,14 @@ import { Controller, Get, Post, Param, Query, Req, UseGuards, Body } from '@nest
 import { PrisonerService } from './prisoner.service';
 import { JwtAuthGuard } from 'src/modules/auth/jwt.guard';
 import { CreatePrisonerCardPersonalInfoDto } from 'src/dto/validation/pri/prisoner/card/personalInfo.dto';
+import { PriDetentionService } from '../detention/detention.service';
 
 @Controller('prisoner')
 export class PrisonerController {
-	constructor(private readonly service: PrisonerService) { }
+	constructor(
+    private readonly service: PrisonerService,
+    private readonly detentionService: PriDetentionService,
+  ) { }
 
   //#region [LIST]
 
@@ -38,7 +42,7 @@ export class PrisonerController {
   @UseGuards(JwtAuthGuard)
   @Get('/card/detention/:prisonerId')
   async getPrisonerDetentionCard(@Req() req, @Param('prisonerId') prisonerId: number) {
-    return await this.service.findPrisonerDetentionCard(prisonerId, req.user);
+    return await this.detentionService.findPrisonerDetentionCard(prisonerId, req.user);
   }
 
   @UseGuards(JwtAuthGuard)
