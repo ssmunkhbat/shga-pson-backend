@@ -31,7 +31,8 @@ export class UserService {
     const user = await this.usersRepository.createQueryBuilder("u")
       .innerJoin("u.person", "PER").addSelect([
         'PER.personId', 'PER.firstName', 'PER.lastName', 'PER.stateRegNumber', 'PER.familyName',
-        'PER.imageUrl'
+        'PER.imageUrl',
+        'PER.genderId', 'PER.countryId', 'PER.educationId', 'PER.nationalityId',
       ])
       .where("u.userName = :username", { username })
       .getOne();
@@ -62,7 +63,8 @@ export class UserService {
     const user = await this.usersRepository.createQueryBuilder("u")
       .innerJoin("u.person", "PER").addSelect([
         'PER.personId', 'PER.firstName', 'PER.lastName', 'PER.stateRegNumber', 'PER.familyName',
-        'PER.imageUrl'
+        'PER.imageUrl',
+        'PER.genderId', 'PER.countryId', 'PER.educationId', 'PER.nationalityId',
       ])
       .where("u.userId = :userId", { userId })
       .getOne();

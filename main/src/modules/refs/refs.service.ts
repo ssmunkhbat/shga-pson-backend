@@ -17,6 +17,7 @@ const mapRef = {
   'aimagCityList': 'PRI_INFO_AIMAG_CITY',
   'soumDistrictList': 'PRI_INFO_SOUM_DISTRICT',
   'educationList': 'PRI_INFO_EDUCATION',
+  'addressTypeList': 'PRI_INFO_ADDRESS_TYPE',
 };
 
 @Injectable()
