@@ -16,6 +16,7 @@ const mapRef = {
   'nationalityList': 'PRI_INFO_NATIONALITY',
   'aimagCityList': 'PRI_INFO_AIMAG_CITY',
   'soumDistrictList': 'PRI_INFO_SOUM_DISTRICT',
+  'bagKhorooList': 'PRI_INFO_BAG_KHOROO',
   'educationList': 'PRI_INFO_EDUCATION',
   'addressTypeList': 'PRI_INFO_ADDRESS_TYPE',
 };

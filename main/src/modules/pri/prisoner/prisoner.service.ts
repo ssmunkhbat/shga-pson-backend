@@ -49,37 +49,53 @@ export class PrisonerService {
 
   //#region [LIST]
 
-  async listAll(options: IPaginationOptions, searchParam) {
+  async listAll(options: IPaginationOptions, searchParam, user: any) {
     let filterVals = JSON.parse(searchParam)
-    console.log('-------filterVals---------', filterVals)
     let filter = null
     if (filterVals) {
       filter = getFilter('su', filterVals)
     }
-    console.log('-------filter---------', filter)
 
     const queryBuilder = this.prisonerKeyViewRepo.createQueryBuilder('su')
       .where('su.endDate IS NULL')
     
     if (filter) queryBuilder.andWhere(filter)
+
+    if (user.userId !== 1) {
+      if (user.employeeKey?.departmentId) {
+        queryBuilder[!!filter ? "andWhere" : "where"](
+          "su.departmentId = :departmentId",
+          { departmentId: user.employeeKey.departmentId }
+        );
+      }
+    }
+
     queryBuilder.orderBy('su.createdDate', 'DESC')
     const data = await paginate<PriPrisonerKeyView>(queryBuilder, options);
     return { rows: data.items, total: data.meta.totalItems }
   }
 
-  async listArrested(options: IPaginationOptions, searchParam) {
+  async listArrested(options: IPaginationOptions, searchParam, user: any) {
     let filterVals = JSON.parse(searchParam)
-    console.log('-------filterVals---------', filterVals)
     let filter = null
     if (filterVals) {
       filter = getFilter('su', filterVals)
     }
-    console.log('-------filter---------', filter)
 
     const queryBuilder = this.prisonerKeyViewRepo.createQueryBuilder('su')
       .where('su.endDate IS NULL AND su.wfmStatusId = 100101')
     
     if (filter) queryBuilder.andWhere(filter)
+
+    if (user.userId !== 1) {
+      if (user.employeeKey?.departmentId) {
+        queryBuilder[!!filter ? "andWhere" : "where"](
+          "su.departmentId = :departmentId",
+          { departmentId: user.employeeKey.departmentId }
+        );
+      }
+    }
+
     queryBuilder.orderBy('su.createdDate', 'DESC')
     const data = await paginate<PriPrisonerKeyView>(queryBuilder, options);
     return { rows: data.items, total: data.meta.totalItems }

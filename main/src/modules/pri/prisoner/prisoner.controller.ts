@@ -15,14 +15,14 @@ export class PrisonerController {
 
 	@UseGuards(JwtAuthGuard)
 	@Get('all')
-  async listAll(@Query('limit') limit, @Query('page') page, @Query('search') search) {
-    return await this.service.listAll({ limit, page }, search);
+  async listAll(@Req() req, @Query('limit') limit, @Query('page') page, @Query('search') search) {
+    return await this.service.listAll({ limit, page }, search, req.user);
   }
 
 	@UseGuards(JwtAuthGuard)
 	@Get('arrested')
-  async listArrested(@Query('limit') limit, @Query('page') page, @Query('search') search) {
-    return await this.service.listArrested({ limit, page }, search);
+  async listArrested(@Req() req, @Query('limit') limit, @Query('page') page, @Query('search') search) {
+    return await this.service.listArrested({ limit, page }, search, req.user);
   }
 
   //#endregion

@@ -70,6 +70,20 @@ export class DynamicService {
       else return await repo.save(saved)
     }
 
+    /**
+     * 
+     * @param queryRunner 
+     * @param repo Repository
+     * @param id number
+     * @returns repo.delete
+     */
+    async deleteHardTableData(queryRunner = null, repo, id: number) {
+      if (queryRunner) {
+        return await queryRunner.manager.delete(repo.target, id);
+      }
+      return await repo.delete(id);
+    }
+
     //#endregion
 
 }

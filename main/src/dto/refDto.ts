@@ -15,6 +15,7 @@ export class RefDto {
     // )
     @Transform(({ obj }) =>
         [
+            'BAG_ID',
             'SOUM_ID',
             'AIMAG_ID',
             'ROLE_ID',
