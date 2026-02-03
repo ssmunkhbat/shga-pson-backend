@@ -19,7 +19,13 @@ const mapRef = {
   'bagKhorooList': 'PRI_INFO_BAG_KHOROO',
   'educationList': 'PRI_INFO_EDUCATION',
   'addressTypeList': 'PRI_INFO_ADDRESS_TYPE',
+  'transactionTypeList': 'PRI_INFO_TRANSACTION_TYPE',
+  'bookTypeList': 'PRI_INFO_BOOK_TYPE',
 };
+
+const notCheckIsActive = {
+  'transactionTypeList': 'PRI_INFO_TRANSACTION_TYPE',
+}
 
 @Injectable()
 export class RefsService {
@@ -59,11 +65,11 @@ export class RefsService {
       });
     }
 
-    let query = `
-      SELECT *
-      FROM ${mapRef[refName]}
-      WHERE is_active = 1 ${customFilter}
-    `;
+    if (!notCheckIsActive[refName]) customFilter += 'is_active = 1 '
+
+    let query = `SELECT * FROM ${mapRef[refName]}`;
+
+    if (customFilter !== '') query += ` where ${customFilter}`
 
     if (refName === 'departmentList') {
        query = `
@@ -72,6 +78,7 @@ export class RefsService {
       WHERE is_active = 1 ${customFilter} AND (DEPARTMENT_TYPE_ID IN (2, 3) OR (DEPARTMENT_REGIME_ID = 3 AND SHOW_ON_INQUIRY = 0))
     `;
     }
+    console.log('--------query--------', query)
 
     const result = await this.dataSource.query(query);
 

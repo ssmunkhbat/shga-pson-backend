@@ -1,19 +1,22 @@
 import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
-import { PriAddressValidationDto } from 'src/dto/validation/pri/address.dto';
-import { PriAddress } from 'src/entity/pri/address/priAddress';
+import { PriPrisonerAccountBookValidationDto } from 'src/dto/validation/pri/prisoner/account.book.dto';
+import { PriPrisonerAccountBook } from 'src/entity/pri/prisoner/priPrisonerAccountBook';
+import { PriPrisonerAccountBookView } from 'src/entity/pri/prisoner/priPrisonerAccountBookView';
 import { DynamicService } from 'src/modules/dynamic/dynamic.service';
 import { getFilter } from 'src/utils/helper';
 import { getId } from 'src/utils/unique';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
-export class PriAddressService {
+export class PriPrisonerAccountBookService {
   constructor(
     @InjectDataSource() private dataSource: DataSource,
-    @InjectRepository(PriAddress)
-    private addressRepo: Repository<PriAddress>,
+    @InjectRepository(PriPrisonerAccountBook)
+    private accountBookRepo: Repository<PriPrisonerAccountBook>,
+    @InjectRepository(PriPrisonerAccountBookView)
+    private accountBookViewRepo: Repository<PriPrisonerAccountBookView>,
     private readonly dynamicService: DynamicService,
   ) {}
 
@@ -23,19 +26,14 @@ export class PriAddressService {
     const filterVals = JSON.parse(searchParam)
     let filter = null
     if (filterVals) {
-      filter = getFilter('addr', filterVals)
+      filter = getFilter('ab', filterVals)
     }
 
-    const queryBuilder = this.addressRepo.createQueryBuilder('addr')
-      .leftJoinAndSelect("addr.addressType", "addressType")
-      .leftJoinAndSelect("addr.aimag", "aimag")
-      .leftJoinAndSelect("addr.soum", "soum")
-      .leftJoinAndSelect("addr.bag", "bag")
-      .leftJoinAndSelect("addr.country", "country")
+    const queryBuilder = this.accountBookViewRepo.createQueryBuilder('ab')
     
     if (filter) queryBuilder.andWhere(filter)
-    // queryBuilder.orderBy('addr.createdDate', 'DESC')
-    const data = await paginate<PriAddress>(queryBuilder, options);
+    queryBuilder.orderBy('ab.createdDate', 'DESC')
+    const data = await paginate<PriPrisonerAccountBookView>(queryBuilder, options);
     return { rows: data.items, total: data.meta.totalItems }
   }
 
@@ -43,21 +41,25 @@ export class PriAddressService {
 
   //#region [CRUD]
   
-  async createAndUpdate(dto: PriAddressValidationDto, user: any) {
-    return dto.addressId
+  async createAndUpdate(dto: PriPrisonerAccountBookValidationDto, user: any) {
+    return dto.bookId
       ? this.update(dto, user)
       : this.create(dto, user);
   }
 
-  async create(dto: PriAddressValidationDto, user: any) {
+  async create(dto: PriPrisonerAccountBookValidationDto, user: any) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       const newData = Object.assign(dto, {
-        addressId: await getId(),
+        bookId: await getId(),
+        debitAmount: dto.debitAmount ? dto.debitAmount : 0,
+        creditAmount: dto.creditAmount ? dto.creditAmount : 0,
+        createdDate: new Date(),
+        createdEmployeeKeyId: user.employeeKey.employeeKeyId,
       });
-      await this.dynamicService.createTableData(queryRunner, PriAddress, this.addressRepo, newData, user)
+      await this.dynamicService.createTableData(queryRunner, PriPrisonerAccountBook, this.accountBookRepo, newData, user)
       await queryRunner.commitTransaction();
     } catch (err) {
       console.log(err)
@@ -68,19 +70,19 @@ export class PriAddressService {
     }
   }
 
-  async update(dto: PriAddressValidationDto, user: any) {
+  async update(dto: PriPrisonerAccountBookValidationDto, user: any) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const found = await queryRunner.manager.findOne(PriAddress, {
-        where: { addressId: dto.addressId },
+      const found = await queryRunner.manager.findOne(PriPrisonerAccountBook, {
+        where: { bookId: dto.bookId },
       });
       if (!found) {
         throw new BadRequestException(`Бүртгэл олдсонгүй!`)
       }
       const updateData = dto;
-      await this.dynamicService.updateTableData(queryRunner, PriAddress, this.addressRepo, updateData, user)
+      await this.dynamicService.updateTableData(queryRunner, PriPrisonerAccountBook, this.accountBookRepo, updateData, user)
       await queryRunner.commitTransaction();
     } catch (err) {
       console.log(err)
@@ -96,7 +98,7 @@ export class PriAddressService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      await this.dynamicService.deleteHardTableData(queryRunner, this.addressRepo, id)
+      await this.dynamicService.deleteHardTableData(queryRunner, this.accountBookRepo, id)
       await queryRunner.commitTransaction();
     } catch (err) {
       console.log(err)

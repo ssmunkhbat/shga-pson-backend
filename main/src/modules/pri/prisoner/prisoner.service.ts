@@ -140,7 +140,6 @@ export class PrisonerService {
     await queryRunner.startTransaction();
     try {
       const body = await this.getBasePersonDataFromDTO(dto)
-      console.log('---------saveCardPersonalInfo----------', body)
 		  await this.dynamicService.updateTableData(queryRunner, BasePerson, this.basePersonRepo, body, user)
 
       await queryRunner.commitTransaction();

@@ -1,9 +1,9 @@
-import { Column, ViewEntity } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@ViewEntity('PRI_PRISONER_ACCOUNT_BOOK')
+@Entity('PRI_PRISONER_ACCOUNT_BOOK')
 export class PriPrisonerAccountBook {
 
-  @Column({ name: "BOOK_ID" })
+  @PrimaryGeneratedColumn({ name: "BOOK_ID" })
   bookId: number;
 
   @Column({ name: "PRISONER_ID" })

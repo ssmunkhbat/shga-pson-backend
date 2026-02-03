@@ -13,6 +13,7 @@ import { PriPrisonerAccountBookView } from 'src/entity/pri/prisoner/priPrisonerA
 import { ActionSettingsDto } from 'src/dto/settings/action.dto';
 import { plainToClass } from '@nestjs/class-transformer';
 import { PriAddress } from 'src/entity/pri/address/priAddress';
+import { PriInfoTransactionType } from 'src/entity/info/priInfoTransactionType';
 
 interface TableFieldMeta {
   header: string;

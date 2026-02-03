@@ -34,6 +34,8 @@ import { PriInfoSoumDistrict } from "./entity/info/priInfoSoumDistrict"
 import { PriInfoBagKhoroo } from "./entity/info/priInfoBagKhoroo"
 import { RefCountry } from "./entity/ref/refCountry"
 import { PriAddress } from "./entity/pri/address/priAddress"
+import { PriInfoTransactionType } from "./entity/info/priInfoTransactionType"
+import { PriInfoBookType } from "./entity/info/priInfoBookType"
 
 const Entities = [
   MenuSettings, ActionSettings, RoleMenuSettings, RoleActionSettings,
@@ -46,7 +48,7 @@ const Entities = [
 
   PriInfoDepartment, PriInfoDepartmentType, PriInfoPositionType, PriInfoMilitaryRank,
   PriAdministrativeDecType, PriAdministrativeDecision, PriInfoAddressType, PriInfoAimagCity, PriInfoSoumDistrict, PriInfoBagKhoroo,
-  RefCountry, PriAddress,
+  RefCountry, PriAddress, PriInfoTransactionType, PriInfoBookType,
 
   PriOfficer,
   PriPrisonerAccountBook, PriPrisonerAccountBookView,

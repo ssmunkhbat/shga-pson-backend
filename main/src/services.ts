@@ -14,6 +14,7 @@ import { NotificationService } from "./modules/pri/notification/notification.ser
 import { UserService } from "./modules/user/user.service";
 import { PriDetentionService } from "./modules/pri/detention/detention.service";
 import { PriAddressService } from "./modules/pri/address/address.service";
+import { PriPrisonerAccountBookService } from "./modules/pri/prisoner/account.book.service";
 
 
 export const services = [
@@ -33,4 +34,5 @@ export const services = [
     AdministrativeDecisionService,
     PriDetentionService,
     PriAddressService,
+    PriPrisonerAccountBookService,
 ]

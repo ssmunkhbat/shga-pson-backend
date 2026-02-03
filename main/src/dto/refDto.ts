@@ -26,6 +26,8 @@ export class RefDto {
             'NATIONALITY_ID',
             'EDUCATION_ID',
             'ADDRESS_TYPE_ID',
+            'BOOK_TYPE_ID',
+            'TRANSACTION_TYPE_ID',
         ].map(k => obj[k]).find(v => v !== undefined && v !== null)
     )
     id: number;
