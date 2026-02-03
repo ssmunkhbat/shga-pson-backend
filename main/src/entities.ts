@@ -36,6 +36,7 @@ import { RefCountry } from "./entity/ref/refCountry"
 import { PriAddress } from "./entity/pri/address/priAddress"
 import { PriInfoTransactionType } from "./entity/info/priInfoTransactionType"
 import { PriInfoBookType } from "./entity/info/priInfoBookType"
+import { LeaveView } from "./entity/pri/leave/leaveView.entity"
 
 const Entities = [
   MenuSettings, ActionSettings, RoleMenuSettings, RoleActionSettings,
@@ -53,5 +54,7 @@ const Entities = [
   PriOfficer,
   PriPrisonerAccountBook, PriPrisonerAccountBookView,
   PriNotificationMView, PriMovementArrival,
+
+  LeaveView
 ]
 export default Entities

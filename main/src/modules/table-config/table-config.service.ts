@@ -14,6 +14,7 @@ import { ActionSettingsDto } from 'src/dto/settings/action.dto';
 import { plainToClass } from '@nestjs/class-transformer';
 import { PriAddress } from 'src/entity/pri/address/priAddress';
 import { PriInfoTransactionType } from 'src/entity/info/priInfoTransactionType';
+import { LeaveView } from 'src/entity/pri/leave/leaveView.entity';
 
 interface TableFieldMeta {
   header: string;
@@ -37,6 +38,7 @@ const dynamicTables: Record<string, DynamicTable> = {
   'account-book': PriPrisonerAccountBook as unknown as DynamicTable,
   'account-book-view': PriPrisonerAccountBookView as unknown as DynamicTable,
   'address': PriAddress as unknown as DynamicTable,
+  'leave-view': LeaveView as unknown as DynamicTable
 };
 
 @Injectable()
