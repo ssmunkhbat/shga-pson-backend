@@ -9,6 +9,7 @@ import { TableConfigController } from "./modules/table-config/table-config.contr
 import { NotificationController } from "./modules/pri/notification/notification.controller";
 import { PriAddressController } from "./modules/pri/address/address.controller";
 import { LeaveController } from './modules/pri/leave/leave.controller';
+import { PriDecisionController } from "./modules/pri/decision/decision.controller";
 export const controllers = [
     TableConfigController,
     SettingsController,
@@ -20,5 +21,6 @@ export const controllers = [
     OfficerController,
     AdministrativeDecisionController,
     PriAddressController,
-    LeaveController
+    LeaveController,
+    PriDecisionController,
 ]

@@ -17,6 +17,7 @@ import { PriAddressService } from "./modules/pri/address/address.service";
 import { PriPrisonerAccountBookService } from "./modules/pri/prisoner/account.book.service";
 
 import { LeaveService } from './modules/pri/leave/leave.service';
+import { PriDecisionService } from "./modules/pri/decision/decision.service";
 
 export const services = [
     UserService,
@@ -36,5 +37,6 @@ export const services = [
     PriDetentionService,
     PriAddressService,
     PriPrisonerAccountBookService,
-    LeaveService
+    LeaveService,
+    PriDecisionService,
 ]
