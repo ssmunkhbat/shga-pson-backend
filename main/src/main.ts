@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { HttpExceptionsFilter } from './utils/http-exception';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -38,6 +39,7 @@ async function bootstrap() {
       },
     }),
   );
+  app.useGlobalFilters(new HttpExceptionsFilter());
 
   console.log('process.env.PORT', process.env.PORT);
   await app.listen(process.env.PORT);
