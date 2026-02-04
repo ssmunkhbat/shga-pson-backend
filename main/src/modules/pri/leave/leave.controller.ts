@@ -9,7 +9,7 @@ export class LeaveController {
     return this.service.getHello()
   }
   @Get('list')
-  getList (@Req() req, @Query('page') page = 1, @Query('limit') limit = 10, @Query('search') search = '[]') {
-    return this.service.getList({ page, limit }, search, req.user)
+  getList (@Req() req, @Query('page') page = 1, @Query('limit') limit = 10, @Query('search') search = '[]', @Query('sort') sort = '{}') {
+    return this.service.getList({ page, limit }, search, sort, req.user)
   }
 }
