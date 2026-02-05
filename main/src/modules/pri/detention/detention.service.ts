@@ -11,6 +11,9 @@ import { PrisonerCardJailPlanExtentionDto } from 'src/dto/pri/prisoner/card/jail
 import { PrisonerCardDetentionHergiinHolbogdogchDto } from 'src/dto/pri/prisoner/card/detention/detention.hergiin.holbogodgch.dto';
 import { PrisonerCardDetentionInterrogationDto } from 'src/dto/pri/prisoner/card/detention/detention.interrogation.dto';
 import { PrisonerCardDetentionOfficerMeetingsDto } from 'src/dto/pri/prisoner/card/detention/detention.officer.meetings.dto';
+import { PriTsagdanTimeView } from 'src/entity/pri/detention/PriTsagdanTimeView';
+import { getFilter } from 'src/utils/helper';
+import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class PriDetentionService {
@@ -19,10 +22,40 @@ export class PriDetentionService {
     @InjectRepository(PriPrisoner)
     private prisonerRepo: Repository<PriPrisoner>,
     @InjectRepository(PriPrisonerKey)
+    @InjectRepository(PriPrisonerKey)
     private prisonerKeyRepo: Repository<PriPrisonerKey>,
+    @InjectRepository(PriTsagdanTimeView)
+    private tsagdanTimeRepo: Repository<PriTsagdanTimeView>,
   ) {}
 
   //#region [LIST]
+
+  async getTsagdanTimeList(options: IPaginationOptions, searchParam: string, user: any) {
+      let filterVals = JSON.parse(searchParam);
+      let filter = null;
+      if (filterVals && filterVals.length > 0) {
+        filter = getFilter('d', filterVals);
+      }
+  
+      const queryBuilder = this.tsagdanTimeRepo.createQueryBuilder('d');
+  
+      if (filter) queryBuilder.andWhere(filter);
+
+      if (user.userId !== 1) {
+        if (user.employeeKey?.departmentId) {
+          queryBuilder[!!filter ? "andWhere" : "where"](
+            "d.departmentId = :departmentId",
+            { departmentId: user.employeeKey.departmentId }
+          );
+        }
+      }
+
+      queryBuilder.orderBy('d.jailBeginDate', 'DESC');
+  
+      const data = await paginate<PriTsagdanTimeView>(queryBuilder, options);
+  
+      return { rows: data.items, total: data.meta.totalItems };
+  }
 
   //#endregion
 

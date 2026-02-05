@@ -39,6 +39,7 @@ import { PriInfoBookType } from "./entity/info/priInfoBookType"
 import { LeaveView } from "./entity/pri/leave/leaveView.entity"
 import { PriDecisionView } from "./entity/pri/decision/priDecisionView"
 import { PriDecision } from "./entity/pri/decision/priDecision"
+import { PriTsagdanTimeView } from "./entity/pri/detention/PriTsagdanTimeView"
 
 const Entities = [
   MenuSettings, ActionSettings, RoleMenuSettings, RoleActionSettings,
@@ -60,5 +61,6 @@ const Entities = [
   LeaveView,
 
   PriDecision, PriDecisionView,
+  PriTsagdanTimeView,
 ]
 export default Entities
