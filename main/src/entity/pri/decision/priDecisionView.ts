@@ -51,13 +51,13 @@ export class PriDecisionView {
   */
   static getTableFields() {
     return {
-      decisionId: { header: 'Системийн дугаар', type: 'number', sortable: false, filterable: false, width: 'w-16' },
-      decisionDate: { header: 'Огноо', type: 'date', sortable: false, filterable: true, width: 'w-40' },
+      decisionId: { header: 'Системийн дугаар', type: 'string', sortable: false, filterable: true, width: 'w-16' },
+      decisionDate: { header: 'Огноо', type: 'daterange', sortable: true, filterable: true, width: 'w-48' },
       decisionNumber: { header: 'Дугаар', type: 'string', sortable: false, filterable: true, width: 'w-48' },
       decisionTypeName: { header: 'Төрөл', type: 'string', sortable: false, filterable: true, width: 'w-48' },
       departmentName: { header: 'Алба хэлтэс', type: 'string', sortable: false, filterable: true, width: 'w-48' },
       employeeName: { header: 'Албан хаагч', type: 'string', sortable: false, filterable: true, width: 'w-48' },
-      createdDate: { header: 'Бүртгэсэн Огноо', type: 'date', sortable: false, filterable: true, width: 'w-40' },
+      createdDate: { header: 'Бүртгэсэн Огноо', type: 'daterange', sortable: false, filterable: true, width: 'w-48' },
       createdEmployeeName: { header: 'Бүртгэсэн ажилтан', type: 'string', sortable: false, filterable: true, width: 'w-48' },
       createdEmployeeCode: { header: 'Бүртгэсэн ажилтны код', type: 'string', sortable: false, filterable: true, width: 'w-48' },
     };

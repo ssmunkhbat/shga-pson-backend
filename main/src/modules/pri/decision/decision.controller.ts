@@ -13,8 +13,8 @@ export class PriDecisionController {
 
 	@UseGuards(JwtAuthGuard)
 	@Get()
-  async list(@Query('limit') limit, @Query('page') page, @Query('search') search) {
-    return await this.service.list({ limit, page }, search);
+  async list(@Req() req, @Query('page') page = 1, @Query('limit') limit = 10, @Query('search') search = '[]', @Query('sort') sort = '{}') {
+    return this.service.getList({ page, limit }, search, sort, req.user)
   }
 
   //#endregion

@@ -22,7 +22,7 @@ export function getFilterAndParameters (mainAlias, searchParam: string) {
     if (type === 'string') {
       whereStrs.push(`UPPER(${field}) LIKE :${field}`)
       parameters[field] = `%${val.trim().toUpperCase()}%`
-    } else if (['date', 'datetime'].includes(type)) {
+    } else if (['date', 'datetime', 'daterange'].includes(type)) {
       if (Array.isArray(val)) {
         const startDate = moment(val[0]).format('YYYY-MM-DD')
         const endDate = moment(val[1]).format('YYYY-MM-DD')

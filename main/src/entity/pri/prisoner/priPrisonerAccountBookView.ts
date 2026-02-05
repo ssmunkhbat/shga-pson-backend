@@ -56,7 +56,7 @@ export class PriPrisonerAccountBookView {
     return {
       // bookId: { header: 'Хоригдогчийн дугаар', type: 'string', sortable: false, filterable: true, width: 'w-24' },
       bookTypeName: { header: 'Төрөл', type: 'string', sortable: false, filterable: true, width: 'w-24' },
-      bookDate: { header: 'Огноо', type: 'date', sortable: false, filterable: true, width: 'w-24' },
+      bookDate: { header: 'Огноо', type: 'daterange', sortable: false, filterable: true, width: 'w-48' },
       debitAmount: { header: 'Орлогын дүн', type: 'number', sortable: false, filterable: true, width: 'w-24' },
       creditAmount: { header: 'Зарлагын дүн', type: 'number', sortable: false, filterable: true, width: 'w-24' },
       description: { header: 'Гүйлгээний утга', type: 'string', sortable: false, filterable: true, width: 'w-24' },

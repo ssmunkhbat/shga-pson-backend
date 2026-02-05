@@ -40,6 +40,7 @@ import { LeaveView } from "./entity/pri/leave/leaveView.entity"
 import { PriDecisionView } from "./entity/pri/decision/priDecisionView"
 import { PriDecision } from "./entity/pri/decision/priDecision"
 import { PriTsagdanTimeView } from "./entity/pri/detention/PriTsagdanTimeView"
+import { PriInfoDecisionType } from "./entity/info/priInfoDecisionType"
 
 const Entities = [
   MenuSettings, ActionSettings, RoleMenuSettings, RoleActionSettings,
@@ -52,7 +53,7 @@ const Entities = [
 
   PriInfoDepartment, PriInfoDepartmentType, PriInfoPositionType, PriInfoMilitaryRank,
   PriAdministrativeDecType, PriAdministrativeDecision, PriInfoAddressType, PriInfoAimagCity, PriInfoSoumDistrict, PriInfoBagKhoroo,
-  RefCountry, PriAddress, PriInfoTransactionType, PriInfoBookType,
+  RefCountry, PriAddress, PriInfoTransactionType, PriInfoBookType, PriInfoDecisionType,
 
   PriOfficer,
   PriPrisonerAccountBook, PriPrisonerAccountBookView,

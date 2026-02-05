@@ -5,7 +5,7 @@ import { PriDecisionValidationDto } from 'src/dto/validation/pri/decision.dto';
 import { PriDecision } from 'src/entity/pri/decision/priDecision';
 import { PriDecisionView } from 'src/entity/pri/decision/priDecisionView';
 import { DynamicService } from 'src/modules/dynamic/dynamic.service';
-import { getFilter } from 'src/utils/helper';
+import { getFilter, getFilterAndParameters, getSortFieldAndOrder } from 'src/utils/helper';
 import { getId } from 'src/utils/unique';
 import { DataSource, Repository } from 'typeorm';
 
@@ -20,17 +20,19 @@ export class PriDecisionService {
 
   //#region [LIST]
   
-  async list(options: IPaginationOptions, searchParam) {
-    const filterVals = JSON.parse(searchParam)
-    let filter = null
-    if (filterVals) {
-      filter = getFilter('dec', filterVals)
+  async getList (options: IPaginationOptions, searchParam: string, sortParam: string, user: any) {
+    const queryBuilder = this.decisionViewRepo.createQueryBuilder('dec')
+    const { filter, parameters } = getFilterAndParameters('dec', searchParam)
+    console.log('-------filter-------', filter)
+    if (filter) {
+      queryBuilder.where(filter, parameters)
+    }
+    const { field, order } = getSortFieldAndOrder('dec', sortParam)
+    if (field) {
+      queryBuilder.orderBy(field, order)
     }
 
-    const queryBuilder = this.decisionViewRepo.createQueryBuilder('dec')
     
-    if (filter) queryBuilder.andWhere(filter)
-    queryBuilder.orderBy('dec.createdDate', 'DESC')
     const data = await paginate<PriDecisionView>(queryBuilder, options);
     return { rows: data.items, total: data.meta.totalItems }
   }
@@ -52,6 +54,8 @@ export class PriDecisionService {
     try {
       const newData = Object.assign(dto, {
         decisionId: await getId(),
+        createdDate: new Date(),
+        createdEmployeeKeyId: user.employeeKey.employeeKeyId
       });
       await this.dynamicService.createTableData(queryRunner, PriDecision, this.decisionViewRepo, newData, user)
       await queryRunner.commitTransaction();

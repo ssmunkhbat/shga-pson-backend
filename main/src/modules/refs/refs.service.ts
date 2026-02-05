@@ -10,6 +10,7 @@ const mapRef = {
   'role': 'UM_ROLE',
   'mt-prisoner': 'PRI_MOVEMENT_TYPE_PRISONER',
   'departmentList': 'PRI_INFO_DEPARTMENT',
+  'departmentListMove': 'PRI_INFO_DEPARTMENT',
   'regimen': 'PRI_INFO_DEPARTMENT_REGIME',
   'regimenClass': 'PRI_INFO_DEP_REGIME_CLASS',
   'countryList': 'REF_COUNTRY',
@@ -21,6 +22,7 @@ const mapRef = {
   'addressTypeList': 'PRI_INFO_ADDRESS_TYPE',
   'transactionTypeList': 'PRI_INFO_TRANSACTION_TYPE',
   'bookTypeList': 'PRI_INFO_BOOK_TYPE',
+  'decisionTypeList': 'PRI_INFO_DECISION_TYPE',
 };
 
 const notCheckIsActive = {
@@ -71,11 +73,11 @@ export class RefsService {
 
     if (customFilter !== '') query += ` where ${customFilter}`
 
-    if (refName === 'departmentList') {
+    if (refName === 'departmentListMove') {
        query = `
       SELECT *
       FROM ${mapRef[refName]}
-      WHERE is_active = 1 ${customFilter} AND (DEPARTMENT_TYPE_ID IN (2, 3) OR (DEPARTMENT_REGIME_ID = 3 AND SHOW_ON_INQUIRY = 0))
+      WHERE ${customFilter} AND (DEPARTMENT_TYPE_ID IN (2, 3) OR (DEPARTMENT_REGIME_ID = 3 AND SHOW_ON_INQUIRY = 0))
     `;
     }
     console.log('--------query--------', query)
