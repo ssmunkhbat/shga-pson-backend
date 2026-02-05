@@ -7,7 +7,7 @@ import { PriDecisionView } from 'src/entity/pri/decision/priDecisionView';
 import { DynamicService } from 'src/modules/dynamic/dynamic.service';
 import { getFilter, getFilterAndParameters, getSortFieldAndOrder } from 'src/utils/helper';
 import { getId } from 'src/utils/unique';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Not, Repository } from 'typeorm';
 
 @Injectable()
 export class PriDecisionService {
@@ -52,6 +52,12 @@ export class PriDecisionService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
+      const exist = await queryRunner.manager.findOne(PriDecision, {
+        where: { decisionNumber: dto.decisionNumber },
+      });
+      if (exist) {
+        throw new BadRequestException(`${dto.decisionNumber} шийдвэрийн дугаар давхардаж байна!`)
+      }
       const newData = Object.assign(dto, {
         decisionId: await getId(),
         createdDate: new Date(),
@@ -73,6 +79,12 @@ export class PriDecisionService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
+      const count = await queryRunner.manager.count(PriDecision, {
+        where: { decisionNumber: dto.decisionNumber, decisionId: Not(dto.decisionId) },
+      });
+      if (count > 0) {
+        throw new BadRequestException(`${dto.decisionNumber} шийдвэрийн дугаар давхардаж байна!`);
+      }
       const found = await queryRunner.manager.findOne(PriDecision, {
         where: { decisionId: dto.decisionId },
       });
