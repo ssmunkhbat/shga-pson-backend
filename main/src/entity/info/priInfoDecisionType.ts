@@ -4,7 +4,7 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 export class PriInfoDecisionType{
 
   @PrimaryGeneratedColumn({ name: "DECISION_TYPE_ID" })
-  addressTypeId: number;
+  decisionTypeId: number;
 
   @Column({ name: "CODE" })
   code: string;

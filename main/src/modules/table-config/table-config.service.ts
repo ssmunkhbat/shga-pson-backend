@@ -24,6 +24,7 @@ interface TableFieldMeta {
   sortable?: boolean;
   filterable?: boolean;
   width?: number;
+  ref?: string;
 }
 
 type TableFields = Record<string, TableFieldMeta>;
@@ -59,14 +60,17 @@ export class TableConfigService {
     if (!fields) {
       throw new Error('Not found');
     }
-    const columns = Object.entries(fields).map(([key, meta]) => ({
-      key,
-      header: meta.header,
-      type: meta.type,
-      sortable: meta.sortable,
-      filterable: meta.filterable,
-      width: meta.width,
-    }));
+    const columns = Object.entries(fields).map(([key, meta]) => {
+      return {
+        key,
+        header: meta.header,
+        type: meta.type,
+        sortable: meta.sortable,
+        filterable: meta.filterable,
+        width: meta.width,
+        ref: meta.ref,
+      }
+    });
     return columns;
   }
 

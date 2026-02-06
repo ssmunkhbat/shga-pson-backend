@@ -1,4 +1,5 @@
-import { Column, PrimaryGeneratedColumn, ViewEntity } from 'typeorm';
+import { PriInfoDecisionType } from 'src/entity/info/priInfoDecisionType';
+import { Column, JoinColumn, OneToOne, PrimaryGeneratedColumn, ViewEntity } from 'typeorm';
 
 @ViewEntity('PRI_DECISION_VIEW')
 export class PriDecisionView {
@@ -14,6 +15,10 @@ export class PriDecisionView {
 
   @Column({ name: "DECISION_TYPE_ID" })
   decisionTypeId: number;
+  
+  @OneToOne(() => PriInfoDecisionType, (dt) => dt.decisionTypeId)
+  @JoinColumn({name: 'DECISION_TYPE_ID'})
+  decisionType: PriInfoDecisionType;
 
   @Column({ name: "DECISION_TYPE_NAME" })
   decisionTypeName: string;
@@ -54,7 +59,8 @@ export class PriDecisionView {
       decisionId: { header: 'Системийн дугаар', type: 'string', sortable: false, filterable: true, width: 'w-16' },
       decisionDate: { header: 'Огноо', type: 'daterange', sortable: true, filterable: true, width: 'w-48' },
       decisionNumber: { header: 'Дугаар', type: 'string', sortable: false, filterable: true, width: 'w-48' },
-      decisionTypeName: { header: 'Төрөл', type: 'string', sortable: false, filterable: true, width: 'w-48' },
+      decisionTypeId: { header: 'Төрөл', type: 'ref', ref: 'decisionType.name', sortable: false, filterable: true, width: 'w-54' },
+      // decisionTypeName: { header: 'Төрөл', type: 'string', sortable: false, filterable: true, width: 'w-48' },
       departmentName: { header: 'Алба хэлтэс', type: 'string', sortable: false, filterable: true, width: 'w-48' },
       employeeName: { header: 'Албан хаагч', type: 'string', sortable: false, filterable: true, width: 'w-48' },
       createdDate: { header: 'Бүртгэсэн Огноо', type: 'daterange', sortable: false, filterable: true, width: 'w-48' },

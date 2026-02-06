@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { PriInfoDecisionType } from 'src/entity/info/priInfoDecisionType';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
 
 @Entity('PRI_DECISION')
 export class PriDecision {
@@ -14,6 +15,10 @@ export class PriDecision {
 
   @Column({ name: "DECISION_TYPE_ID" })
   decisionTypeId: number;
+    
+  @OneToOne(() => PriInfoDecisionType, (dt) => dt.decisionTypeId)
+  @JoinColumn({name: 'DECISION_TYPE_ID'})
+  decisionType: PriInfoDecisionType;
 
   @Column({ name: "DEPARTMENT_ID" })
   departmentId: number;

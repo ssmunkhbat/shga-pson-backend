@@ -22,16 +22,19 @@ export class PriDecisionService {
   
   async getList (options: IPaginationOptions, searchParam: string, sortParam: string, user: any) {
     const queryBuilder = this.decisionViewRepo.createQueryBuilder('dec')
+      .leftJoin("dec.decisionType", "DT").addSelect(['DT.decisionTypeId', 'DT.code', 'DT.name'])
     const { filter, parameters } = getFilterAndParameters('dec', searchParam)
-    console.log('-------filter-------', filter)
+    console.log('-------filter-------', filter);
     if (filter) {
       queryBuilder.where(filter, parameters)
     }
     const { field, order } = getSortFieldAndOrder('dec', sortParam)
     if (field) {
       queryBuilder.orderBy(field, order)
+    } else {
+      queryBuilder.orderBy('dec.createdDate', 'DESC')
     }
-
+    console.log('-------field, order-------', field, order)
     
     const data = await paginate<PriDecisionView>(queryBuilder, options);
     return { rows: data.items, total: data.meta.totalItems }
