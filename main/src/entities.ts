@@ -41,6 +41,8 @@ import { PriDecisionView } from "./entity/pri/decision/priDecisionView"
 import { PriDecision } from "./entity/pri/decision/priDecision"
 import { PriTsagdanTimeView } from "./entity/pri/detention/PriTsagdanTimeView"
 import { PriInfoDecisionType } from "./entity/info/priInfoDecisionType"
+import { PriLeave } from "./entity/pri/leave/priLeave.entity"
+import { PriInfoLeaveType } from "./entity/info/priInfoLeaveType.entity"
 
 const Entities = [
   MenuSettings, ActionSettings, RoleMenuSettings, RoleActionSettings,
@@ -59,7 +61,7 @@ const Entities = [
   PriPrisonerAccountBook, PriPrisonerAccountBookView,
   PriNotificationMView, PriMovementArrival,
 
-  LeaveView,
+  LeaveView, PriLeave, PriInfoLeaveType,
 
   PriDecision, PriDecisionView,
   PriTsagdanTimeView,
