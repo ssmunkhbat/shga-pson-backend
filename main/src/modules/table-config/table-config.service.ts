@@ -17,6 +17,7 @@ import { PriInfoTransactionType } from 'src/entity/info/priInfoTransactionType';
 import { LeaveView } from 'src/entity/pri/leave/leaveView.entity';
 import { PriDecisionView } from 'src/entity/pri/decision/priDecisionView';
 import { PriTsagdanTimeView } from 'src/entity/pri/detention/PriTsagdanTimeView';
+import { MenuSettings } from 'src/entity/pri/settings/MenuSettings';
 
 interface TableFieldMeta {
   header: string;
@@ -45,6 +46,7 @@ const dynamicTables: Record<string, DynamicTable> = {
   'leave-view': LeaveView as unknown as DynamicTable,
   'decision-view': PriDecisionView as unknown as DynamicTable,
   'tsagdan-time-list': PriTsagdanTimeView as unknown as DynamicTable,
+  'psMenuList': MenuSettings as unknown as DynamicTable,
 };
 
 @Injectable()

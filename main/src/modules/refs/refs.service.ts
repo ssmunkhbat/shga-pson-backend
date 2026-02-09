@@ -5,6 +5,8 @@ import { DataSource } from 'typeorm';
 import { plainToClass } from '@nestjs/class-transformer';
 import { getId } from 'src/utils/unique';
 import { CacheService } from '../cache/cache.service';
+import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
+import { getFilterAndParameters, getSortFieldAndOrder } from 'src/utils/helper';
 
 const mapRef = {
   'role': 'UM_ROLE',
@@ -23,11 +25,16 @@ const mapRef = {
   'transactionTypeList': 'PRI_INFO_TRANSACTION_TYPE',
   'bookTypeList': 'PRI_INFO_BOOK_TYPE',
   'decisionTypeList': 'PRI_INFO_DECISION_TYPE',
+  'psMenuList': 'PRI_SETTINGS_MENU',
 };
 
 const notCheckIsActive = {
   'transactionTypeList': 'PRI_INFO_TRANSACTION_TYPE',
 }
+
+export const refList = [
+  { key: 'psMenuList', name: 'Цэс', entity: 'PRI_SETTINGS_MENU', tableIdField: 'id', tableColumnService: '/table-config/columns/psMenuList', listService: '/refs/column-list/data/psMenuList' },
+];
 
 @Injectable()
 export class RefsService {
@@ -35,6 +42,8 @@ export class RefsService {
     @InjectDataSource() private dataSource: DataSource,
     private readonly cacheService: CacheService,
   ) {}
+
+  //#region [MAIN]
 
   async getList(refName: string, rawFilters: string) {
     if (!mapRef[refName]) {
@@ -80,7 +89,6 @@ export class RefsService {
       WHERE ${customFilter} AND (DEPARTMENT_TYPE_ID IN (2, 3) OR (DEPARTMENT_REGIME_ID = 3 AND SHOW_ON_INQUIRY = 0))
     `;
     }
-    console.log('--------query--------', query)
 
     const result = await this.dataSource.query(query);
 
@@ -143,4 +151,45 @@ export class RefsService {
     });
     return []
   }
+
+  //#endregion
+
+  //#region [/admin/ref/page]
+
+  async getRefColumnList(refName: string, rawFilters: string) {
+    return refList;
+  }
+    
+  async getRefColumnListData (options: IPaginationOptions, searchParam: string, sortParam: string, user: any, refName) {
+    console.log("getRefColumnList -> refName:", refName);
+    if (!mapRef[refName]) {
+      throw new NotFoundException('Reference not found');
+    }
+    const entityName = mapRef[refName]
+    console.log("getRefColumnList -> entityName:", entityName);
+    const repository = this.dataSource.getRepository(entityName);
+    const queryBuilder = repository.createQueryBuilder(entityName.toLowerCase());
+
+    // if (entityName === 'PriDecisionView') {
+    //   queryBuilder.leftJoin("dec.decisionType", "DT").addSelect(['DT.decisionTypeId', 'DT.code', 'DT.name']);
+    // }
+
+    const { filter, parameters } = getFilterAndParameters(entityName.toLowerCase(), searchParam);
+    if (filter) {
+      queryBuilder.where(filter, parameters);
+    }
+
+    const { field, order } = getSortFieldAndOrder(entityName.toLowerCase(), sortParam);
+    if (field) {
+      queryBuilder.orderBy(field, order);
+    } else {
+      queryBuilder.orderBy(`${entityName.toLowerCase()}.createdDate`, 'DESC');
+    }
+
+    const data = await paginate(queryBuilder, options);
+    return { rows: data.items, total: data.meta.totalItems };
+  }
+
+  //#endregion
+
 }

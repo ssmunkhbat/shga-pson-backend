@@ -43,4 +43,18 @@ export class MenuSettings {
 
   @Column({ name: 'MODIFIED_USER_ID', nullable: true })
   modifiedUserId: number;
+
+  /*
+    * Table-ын талбаруудын мэдээлэл
+  */
+  static getTableFields() {
+    return {
+      countryId: { header: 'ID', type: 'number', sortable: false, filterable: false, width: 'w-16' },
+      code: { header: 'Код', type: 'string', sortable: false, filterable: true, width: 'w-48' },
+      type: { header: 'Төрөл', type: 'string', sortable: false, filterable: true, width: 'w-48' },
+      name: { header: 'Нэр', type: 'string', sortable: false, filterable: true, width: 'w-48' },
+      path: { header: 'Path', type: 'string', sortable: false, filterable: true, width: 'w-48' },
+      orderNum: { header: 'orderNum', type: 'number', sortable: false, filterable: false, width: 'w-16' },
+    };
+  }
 }
