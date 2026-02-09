@@ -24,7 +24,8 @@ interface TableFieldMeta {
   sortable?: boolean;
   filterable?: boolean;
   width?: number;
-  ref?: string;
+  refField?: string;
+  refListName?: string;
 }
 
 type TableFields = Record<string, TableFieldMeta>;
@@ -68,7 +69,8 @@ export class TableConfigService {
         sortable: meta.sortable,
         filterable: meta.filterable,
         width: meta.width,
-        ref: meta.ref,
+        refField: meta.refField,
+        refListName: meta.refListName,
       }
     });
     return columns;

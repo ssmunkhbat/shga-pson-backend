@@ -59,7 +59,7 @@ export class PriDecisionView {
       decisionId: { header: 'Системийн дугаар', type: 'string', sortable: false, filterable: true, width: 'w-16' },
       decisionDate: { header: 'Огноо', type: 'daterange', sortable: true, filterable: true, width: 'w-48' },
       decisionNumber: { header: 'Дугаар', type: 'string', sortable: false, filterable: true, width: 'w-48' },
-      decisionTypeId: { header: 'Төрөл', type: 'ref', ref: 'decisionType.name', sortable: false, filterable: true, width: 'w-54' },
+      decisionTypeId: { header: 'Төрөл', type: 'ref', refField: 'decisionType.name', refListName: 'decisionTypeList', sortable: false, filterable: true, width: 'w-54' },
       // decisionTypeName: { header: 'Төрөл', type: 'string', sortable: false, filterable: true, width: 'w-48' },
       departmentName: { header: 'Алба хэлтэс', type: 'string', sortable: false, filterable: true, width: 'w-48' },
       employeeName: { header: 'Албан хаагч', type: 'string', sortable: false, filterable: true, width: 'w-48' },
