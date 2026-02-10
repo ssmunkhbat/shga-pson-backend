@@ -28,8 +28,8 @@ const mapRef = {
   'psMenuList': 'PRI_SETTINGS_MENU',
   'psActionList': 'PRI_SETTINGS_ACTION',
   'leaveTypeList': 'PRI_INFO_LEAVE_TYPE',
-  'labor-type': 'PRI_INFO_LABOR_TYPE',
-  'labor-result-type': 'PRI_INFO_LABOR_RESULT_TYPE',
+  'laborTypeList': 'PRI_INFO_LABOR_TYPE',
+  'laborResultTypeList': 'PRI_INFO_LABOR_RESULT_TYPE',
   'wfmStatusList': 'WFM_STATUS',
 };
 

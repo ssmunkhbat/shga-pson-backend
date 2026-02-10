@@ -67,7 +67,7 @@ export class PriLaborService {
       labor.beginDate = data.beginDate;
       labor.endDate = data.endDate;
       labor.description = data.description;
-      labor.createdEmployeeKeyId = user.employeeKey?.id;
+      labor.createdEmployeeKeyId = user.employeeKey?.employeeKeyId;
       labor.createdDate = new Date();
 
       const savedLabor = await queryRunner.manager.save(labor);
@@ -117,16 +117,24 @@ export class PriLaborService {
       labor.beginDate = data.beginDate;
       labor.endDate = data.endDate;
       labor.description = data.description;
-      // Department usually doesn't change, or restricted. keeping as is.
 
       await queryRunner.manager.save(labor);
-      
-      // Update prisoners? Usually we might add/remove. 
-      // For now, let's assume implementation for prisoners update is separate or not required yet based on current tasks.
-      // But based on user request "code zagbar adilhan baina uu", we should match structure.
-      // Decision service update uses dynamicService.updateTableData.
-      // But Labor has complex child relations (minors). Decision is single table (mostly).
-      // So manual update here is fine.
+        if (data.prisoners && data.prisoners.length > 0) {
+        for (const p of data.prisoners) {
+          const prisonerLaborId = p.prisonerLaborId || p.prisonerId;
+          if (prisonerLaborId) {
+            const existing = await queryRunner.manager.findOne(PriPrisonerLabor, {
+              where: { laborId: data.laborId, prisonerKeyId: p.prisonerKeyId || p.prisonerId }
+            });
+            if (existing) {
+              existing.isSalary = p.isSalary ? 1 : 0;
+              existing.beginDate = data.beginDate;
+              existing.laborTypeId = Number(data.laborTypeId);
+              await queryRunner.manager.save(existing);
+            }
+          }
+        }
+      }
 
       await queryRunner.commitTransaction();
       return labor;
@@ -193,76 +201,4 @@ export class PriLaborService {
     const data = await paginate<PriPrisonerLaborView>(queryBuilder, options);
     return { rows: data.items, total: data.meta.totalItems }
   }
-  // async getPrisonerList(options: IPaginationOptions, searchParam: string, user: any) {
-  //   try {
-  //     const filter = searchParam && searchParam !== '[]' ? JSON.parse(searchParam) : null;
-  //     const queryBuilder = this.dataSource.createQueryBuilder(PriPrisonerLabor, 'pl');
-
-  //     queryBuilder
-  //       .select([
-  //         'pl.prisonerLaborId AS "prisonerLaborId"',
-  //         'pl.laborId AS "laborId"',
-  //         'pl.prisonerKeyId AS "prisonerKeyId"',
-  //         'pl.laborTypeId AS "laborTypeId"',
-  //         'pl.beginDate AS "beginDate"',
-  //         'pl.endDate AS "endDate"',
-  //         'pl.description AS "description"',
-  //         'pl.wfmStatusId AS "wfmStatusId"',
-  //         'pl.isSalary AS "isSalary"',
-  //         'pl.laborResultTypeId AS "laborResultTypeId"',
-  //         'pl.createdDate AS "createdDate"',
-          
-  //         // Joined columns with UPPERCASE aliases and quoted output aliases
-  //         "BP.LAST_NAME || ' ' || BP.FIRST_NAME AS \"prisonerName\"",
-  //         'P.PRISONER_NUMBER AS "registerNo"',
-  //         'LT.NAME AS "laborTypeName"',
-  //         'WS.WFM_STATUS_NAME AS "statusName"',
-  //         'NVL(D.NAME, PD.NAME) AS "departmentName"', // Fallback to Prisoner Department
-  //         'LRT.NAME AS "laborResultTypeName"'
-  //       ])
-  //       .leftJoin('PRI_PRISONER_KEY', 'K', 'pl.prisonerKeyId = K.PRISONER_KEY_ID')
-  //       .leftJoin('PRI_PRISONER', 'P', 'K.PRISONER_ID = P.PRISONER_ID')
-  //       .leftJoin('BASE_PERSON', 'BP', 'P.PERSON_ID = BP.PERSON_ID')
-  //       .leftJoin('PRI_LABOR', 'L', 'pl.laborId = L.LABOR_ID')
-  //       .leftJoin('PRI_INFO_DEPARTMENT', 'D', 'L.DEPARTMENT_ID = D.DEPARTMENT_ID')
-  //       .leftJoin('PRI_INFO_DEPARTMENT', 'PD', 'P.DEPARTMENT_ID = PD.DEPARTMENT_ID') // Join Prisoner Department
-  //       .leftJoin('PRI_INFO_LABOR_TYPE', 'LT', 'pl.laborTypeId = LT.LABOR_TYPE_ID')
-  //       .leftJoin('WFM_STATUS', 'WS', 'pl.wfmStatusId = WS.WFM_STATUS_ID')
-  //       .leftJoin('PRI_INFO_LABOR_RESULT_TYPE', 'LRT', 'pl.laborResultTypeId = LRT.LABOR_RESULT_TYPE_ID');
-
-  //     if (filter) {
-  //         if (filter.prisonerLaborId) {
-  //             queryBuilder.andWhere('pl.prisonerLaborId = :prisonerLaborId', { prisonerLaborId: filter.prisonerLaborId });
-  //         }
-  //     }
-
-  //     queryBuilder.orderBy('pl.createdDate', 'DESC');
-
-  //     const limit = Number(options.limit) || 10;
-  //     const page = Number(options.page) || 1;
-  //     const skip = (page - 1) * limit;
-
-  //     const total = await queryBuilder.getCount();
-  //     const rows = await queryBuilder.offset(skip).limit(limit).getRawMany();
-
-  //     return {
-  //       items: rows,
-  //       meta: {
-  //         totalItems: total,
-  //         itemCount: rows.length,
-  //         itemsPerPage: limit,
-  //         totalPages: Math.ceil(total / limit),
-  //         currentPage: page,
-  //       },
-  //       rows: rows, 
-  //       total,
-  //       page,
-  //       limit,
-  //       totalPages: Math.ceil(total / limit),
-  //     };
-  //   } catch (error) {
-  //     console.error('Error in LaborService.getPrisonerList:', error);
-  //     throw error;
-  //   }
-  // }
 }

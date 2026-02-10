@@ -61,21 +61,24 @@ export class PriPrisonerLaborView {
   @ViewColumn({ name: 'DEPARTMENT_NAME' })
   departmentName: string;
 
+  @ViewColumn({ name: 'CREATED_EMPLOYEE_NAME' })
+  createdEmployeeName: string;
+  
   static getTableFields() {
     return {
       prisonerName: { header: 'Хоригдогч', type: 'string', width: 200, sortable: false, filterable: true },
-      registerNo: { header: 'Регистр', type: 'string', width: 100, sortable: true, filterable: true },
       laborTypeName: { header: 'Ажлын төрөл', type: 'string', width: 150, sortable: false, filterable: true },
-      departmentName: { header: 'Алба хэлтэс', type: 'string', width: 150, sortable: false, filterable: true },
       beginDate: { header: 'Эхэлсэн', type: 'date', width: 120, sortable: false, filterable: true },
-      endDate: { header: 'Дуусах', type: 'date', width: 120, sortable: false, filterable: true },
       wfmStatus: {
         header: 'Төлөв',
         type: 'refstatus',
         refField: 'wfmStatus.wfmStatusName', refListName: 'wfmStatusList', refListFilter: 'filters=[{"field":"WFM_STATUS_GROUP_ID","value":17860}]', refColorField: 'wfmStatus.wfmStatusColor', refBgColorField: 'wfmStatus.wfmStatusBgColor',
         sortable: false, filterable: true, width: 'w-16'
       },
+      endDate: { header: 'Дуусах', type: 'date', width: 120, sortable: false, filterable: true },
+      description: { header: 'Тайлбар', type: 'string', width: 200, sortable: true, filterable: true },
       createdDate: { header: 'Үүсгэсэн', type: 'date', width: 120, sortable: false, filterable: true },
+      createdEmployeeName: { header: 'Бүртгэсэн ажилтан', type: 'string', width: 150, sortable: true, filterable: true },
       isSalary: { header: 'Цалинтай', type: 'boolean', width: 80, sortable: false, filterable: true },
     };
   }
