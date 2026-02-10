@@ -236,6 +236,7 @@ export class TableConfigService {
       INNER JOIN PRI_SETTINGS_ROLE_ACTION RA ON SA.ID = RA.ACTION_ID
       WHERE SA.MENU_ID = ${menuId} 
        AND RA.ROLE_ID = ${user.userRole.roleId}
+      ORDER BY SA.ORDER_NUM NULLS FIRST
     `;
     const result = await this.dataSource.query(queryAction);
     const rows: ActionSettingsDto[] = plainToClass(
