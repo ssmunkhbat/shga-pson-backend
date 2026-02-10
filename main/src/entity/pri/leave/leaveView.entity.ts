@@ -1,4 +1,5 @@
-import { ViewColumn, ViewEntity } from "typeorm";
+import { WfmStatus } from "src/entity/wfmStatus.entity";
+import { JoinColumn, OneToOne, ViewColumn, ViewEntity } from "typeorm";
 
 @ViewEntity('PRI_LEAVE_VIEW')
 export class LeaveView {
@@ -26,6 +27,10 @@ export class LeaveView {
 
   @ViewColumn({ name: 'WFM_STATUS_ID' })
   wfmStatusId: number;
+
+  @OneToOne(() => WfmStatus, (ws) => ws.wfmStatusId)
+  @JoinColumn({name: 'WFM_STATUS_ID'})
+  wfmStatus: WfmStatus;
 
   @ViewColumn({ name: 'WFM_STATUS_NAME' })
   wfmStatusName: string;
@@ -75,7 +80,13 @@ export class LeaveView {
       firstName: { header: 'Өөрийн нэр', type: 'string', sortable: true, filterable: true, width: 'w-72' },
       lastName: { header: 'Эцэг/эх-ийн нэр', type: 'string', sortable: true, filterable: true, width: 'w-72' },
       leaveTypeName: { header: 'Төрөл', type: 'string', sortable: true, filterable: true, width: 'w-72' },
-      wfmStatusName: { header: 'Төлөв', type: 'string', sortable: true, filterable: true, width: 'w-72' },
+      wfmStatus: {
+        header: 'Төлөв',
+        type: 'refstatus',
+        refField: 'wfmStatus.wfmStatusName', refListName: 'wfmStatusList', refListFilter: 'filters=[{"field":"WFM_STATUS_GROUP_ID","value":100500}]',
+        refColorField: 'wfmStatus.wfmStatusColor', refBgColorField: 'wfmStatus.wfmStatusBgColor',
+        sortable: false, filterable: true, width: 'w-16'
+      },
       decisionNumber: { header: 'Шийдвэрийн дугаар', type: 'string', sortable: true, filterable: true, width: 'w-72' },
       decisionTypeName: { header: 'Шийдвэрийн төрөл', type: 'string', sortable: true, filterable: true, width: 'w-72' },
       leaveDate: { header: 'Явсан огноо', type: 'datetime', sortable: true, filterable: true, width: 'w-72' },

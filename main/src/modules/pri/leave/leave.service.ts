@@ -24,6 +24,7 @@ export class LeaveService {
   }
   async getList (options: IPaginationOptions, searchParam: string, sortParam: string, user: any) {
     const queryBuilder = this.leaveViewRepository.createQueryBuilder('md')
+      .leftJoin("md.wfmStatus", "WS").addSelect(['WS.wfmStatusId', 'WS.wfmStatusCode', 'WS.wfmStatusName', 'WS.wfmStatusColor', 'WS.wfmStatusBgColor']);
     const { filter, parameters } = getFilterAndParameters('md', searchParam)
     if (filter) {
       queryBuilder.where(filter, parameters)

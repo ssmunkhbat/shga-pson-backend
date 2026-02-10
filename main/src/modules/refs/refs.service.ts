@@ -81,29 +81,33 @@ export class RefsService {
       const filters = JSON.parse(rawFilters);
       filters.forEach(({ field, value }) => {
         if (value !== undefined && value !== null) {
-          customFilter += ` AND ${field} = ${
+          customFilter += `${customFilter ? ' AND ' : ''}${field} = ${
             typeof value === 'string' ? `'${value}'` : value
           }`;
         }
       });
     }
 
-    if (!notCheckIsActive[refName]) customFilter += 'is_active = 1 '
+    if (!notCheckIsActive[refName]) {
+      customFilter += `${customFilter ? ' AND ' : ''}is_active = 1`;
+    }
 
     let query = `SELECT * FROM ${mapRef[refName]}`;
-
-    if (customFilter !== '') query += ` where ${customFilter}`
+    if (customFilter) {
+      query += ` WHERE ${customFilter}`;
+    }
 
     if (refName === 'departmentListMove') {
-       query = `
-      SELECT *
-      FROM ${mapRef[refName]}
-      WHERE ${customFilter} AND (DEPARTMENT_TYPE_ID IN (2, 3) OR (DEPARTMENT_REGIME_ID = 3 AND SHOW_ON_INQUIRY = 0))
-    `;
+      query = `
+        SELECT *
+        FROM ${mapRef[refName]}
+        WHERE ${customFilter}
+          AND (DEPARTMENT_TYPE_ID IN (2, 3)
+          OR (DEPARTMENT_REGIME_ID = 3 AND SHOW_ON_INQUIRY = 0))
+      `;
     }
 
     const result = await this.dataSource.query(query);
-
     await this.cacheService.setCache(refName, result);
 
     return plainToClass(RefDto, result, {

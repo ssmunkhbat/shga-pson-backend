@@ -71,7 +71,8 @@ export class PriPrisonerLaborView {
       endDate: { header: 'Дуусах', type: 'date', width: 120, sortable: false, filterable: true },
       wfmStatus: {
         header: 'Төлөв',
-        type: 'refstatus', refField: 'wfmStatus.wfmStatusName', refListName: 'wfmStatusList', refColorField: 'wfmStatus.wfmStatusColor', refBgColorField: 'wfmStatus.wfmStatusBgColor',
+        type: 'refstatus',
+        refField: 'wfmStatus.wfmStatusName', refListName: 'wfmStatusList', refListFilter: 'filters=[{"field":"WFM_STATUS_GROUP_ID","value":17860}]', refColorField: 'wfmStatus.wfmStatusColor', refBgColorField: 'wfmStatus.wfmStatusBgColor',
         sortable: false, filterable: true, width: 'w-16'
       },
       createdDate: { header: 'Үүсгэсэн', type: 'date', width: 120, sortable: false, filterable: true },

@@ -32,6 +32,7 @@ interface TableFieldMeta {
   width?: number;
   refField?: string;
   refListName?: string;
+  refListFilter?: string;
   refColorField?: string;
   refBgColorField?: string;
 }
@@ -110,6 +111,7 @@ export class TableConfigService {
         refListName: meta.refListName,
         refColorField: meta.refColorField,
         refBgColorField: meta.refBgColorField,
+        refListFilter: meta.refListFilter,
       }
     });
     return columns;
