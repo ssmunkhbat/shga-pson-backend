@@ -30,6 +30,9 @@ export class LeaveService {
     if (filter) {
       queryBuilder.where(filter, parameters)
     }
+    if (user.userRole.roleId !== 100) {
+      queryBuilder.andWhere('md.departmentId = :departmentId', { departmentId: user.employeeKey.departmentId })
+    }
     const { field, order } = getSortFieldAndOrder('md', sortParam)
     if (field) {
       queryBuilder.orderBy(field, order)

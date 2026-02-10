@@ -11,6 +11,7 @@ export class LeaveController {
   getHello () : string {
     return this.service.getHello()
   }
+  @UseGuards(JwtAuthGuard)
   @Get('list')
   getList (@Req() req, @Query('page') page = 1, @Query('limit') limit = 10, @Query('search') search = '[]', @Query('sort') sort = '{}') {
     return this.service.getList({ page, limit }, search, sort, req.user)

@@ -55,6 +55,9 @@ export class LeaveView {
 
   @ViewColumn({ name: 'OFFICER_ID' })
   officerId: number;
+
+  @ViewColumn({ name: 'DEPARTMENT_ID' })
+  departmentId: number;
   
   @ViewColumn({ name: 'OFFICER_NAME' })
   officerName: string;
