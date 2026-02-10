@@ -1,38 +1,9 @@
 
-import { ViewEntity, ViewColumn } from 'typeorm';
-
+import { WfmStatus } from 'src/entity/wfmStatus.entity';
+import { ViewEntity, ViewColumn, OneToOne, JoinColumn } from 'typeorm';
 @ViewEntity({
-  expression: `
-    SELECT 
-        PL.PRISONER_LABOR_ID,
-        PL.LABOR_ID,
-        PL.PRISONER_KEY_ID,
-        BP.LAST_NAME || ' ' || BP.FIRST_NAME AS PRISONER_NAME,
-        P.PRISONER_NUMBER AS REGISTER_NO,
-        PL.LABOR_TYPE_ID,
-        LT.NAME AS LABOR_TYPE_NAME,
-        PL.BEGIN_DATE,
-        PL.END_DATE,
-        PL.WFM_STATUS_ID,
-        WS.WFM_STATUS_NAME AS STATUS_NAME,
-        PL.IS_SALARY,
-        PL.LABOR_RESULT_TYPE_ID,
-        LRT.NAME AS LABOR_RESULT_TYPE_NAME,
-        PL.DESCRIPTION,
-        PL.CREATED_DATE,
-        D.NAME AS DEPARTMENT_NAME
-    FROM PRI_PRISONER_LABOR PL
-    LEFT JOIN PRI_PRISONER_KEY K ON PL.PRISONER_KEY_ID = K.PRISONER_KEY_ID
-    LEFT JOIN PRI_PRISONER P ON K.PRISONER_ID = P.PRISONER_ID
-    LEFT JOIN BASE_PERSON BP ON P.PERSON_ID = BP.PERSON_ID
-    LEFT JOIN PRI_LABOR L ON PL.LABOR_ID = L.LABOR_ID
-    LEFT JOIN PRI_INFO_DEPARTMENT D ON L.DEPARTMENT_ID = D.DEPARTMENT_ID
-    LEFT JOIN PRI_INFO_LABOR_TYPE LT ON PL.LABOR_TYPE_ID = LT.LABOR_TYPE_ID
-    LEFT JOIN WFM_STATUS WS ON PL.WFM_STATUS_ID = WS.WFM_STATUS_ID
-    LEFT JOIN PRI_INFO_LABOR_RESULT_TYPE LRT ON PL.LABOR_RESULT_TYPE_ID = LRT.LABOR_RESULT_TYPE_ID
-  `,
   name: 'PRI_PRISONER_LABOR_VIEW',
-  schema: 'KHORIGDOL_VT',
+  synchronize: false,
 })
 export class PriPrisonerLaborView {
   @ViewColumn({ name: 'PRISONER_LABOR_ID' })
@@ -65,6 +36,10 @@ export class PriPrisonerLaborView {
   @ViewColumn({ name: 'WFM_STATUS_ID' })
   wfmStatusId: number;
 
+  @OneToOne(() => WfmStatus, (ws) => ws.wfmStatusId)
+  @JoinColumn({name: 'WFM_STATUS_ID'})
+  wfmStatus: WfmStatus;
+
   @ViewColumn({ name: 'STATUS_NAME' })
   statusName: string;
 
@@ -94,9 +69,10 @@ export class PriPrisonerLaborView {
       departmentName: { header: 'Алба хэлтэс', type: 'string', width: 150, sortable: true, filterable: true },
       beginDate: { header: 'Эхэлсэн', type: 'date', width: 120, sortable: true, filterable: true },
       endDate: { header: 'Дуусах', type: 'date', width: 120, sortable: true, filterable: true },
-      statusName: { header: 'Төлөв', type: 'string', width: 120, sortable: true, filterable: true },
+      // statusName: { header: 'Төлөв', type: 'string', width: 120, sortable: true, filterable: true },
+      statusName: { header: 'Төлөв', type: 'refstatus', refField: 'wfmStatus.wfmStatusName', sortable: false, filterable: true, width: 'w-16' },
       createdDate: { header: 'Үүсгэсэн', type: 'date', width: 120, sortable: true, filterable: true },
-      isSalary: { header: 'Цалинтай', type: 'number', width: 80, sortable: true, filterable: false }, // Could be mapped to Yes/No in frontend
+      isSalary: { header: 'Цалинтай', type: 'boolean', width: 80, sortable: true, filterable: false }, // Could be mapped to Yes/No in frontend
     };
   }
 }

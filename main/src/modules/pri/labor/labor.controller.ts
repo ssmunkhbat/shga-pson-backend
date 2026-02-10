@@ -28,10 +28,15 @@ export class PriLaborController {
     return { success: true };
   }
 
+  // @Get('/prisoner-list')
+  // async getPrisonerList(@Query() query: any, @Req() req: any) {
+  //   const { page, limit, search } = query;
+  //   return this.service.getPrisonerList({ page, limit }, search, req.user); 
+  // }
+
   @Get('/prisoner-list')
-  async getPrisonerList(@Query() query: any, @Req() req: any) {
-    const { page, limit, search } = query;
-    return this.service.getPrisonerList({ page, limit }, search, req.user); 
+  async getPrisonerList(@Req() req, @Query('page') page = 1, @Query('limit') limit = 10, @Query('search') search = '[]', @Query('sort') sort = '{}') {
+    return this.service.getPrisonerList({ page, limit }, search, sort, req.user)
   }
 
   @Post('/finish')

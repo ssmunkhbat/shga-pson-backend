@@ -26,6 +26,7 @@ const mapRef = {
   'bookTypeList': 'PRI_INFO_BOOK_TYPE',
   'decisionTypeList': 'PRI_INFO_DECISION_TYPE',
   'psMenuList': 'PRI_SETTINGS_MENU',
+  'psActionList': 'PRI_SETTINGS_ACTION',
   'leaveTypeList': 'PRI_INFO_LEAVE_TYPE',
   'labor-type': 'PRI_INFO_LABOR_TYPE',
   'labor-result-type': 'PRI_INFO_LABOR_RESULT_TYPE',
@@ -36,7 +37,14 @@ const notCheckIsActive = {
 }
 
 export const refList = [
-  { key: 'psMenuList', name: 'Цэс', entity: 'PRI_SETTINGS_MENU', tableIdField: 'id', tableColumnService: '/table-config/columns/psMenuList', listService: '/refs/column-list/data/psMenuList' },
+  {
+    key: 'psMenuList', name: 'Цэс', entity: 'PRI_SETTINGS_MENU',
+    tableIdField: 'id', tableColumnService: '/table-config/columns/psMenuList', listService: '/refs/column-list/data/psMenuList'
+  },
+  {
+    key: 'psActionList', name: 'Цэсний үйлдэл', entity: 'PRI_SETTINGS_ACTION',
+    tableIdField: 'id', tableColumnService: '/table-config/columns/psActionList', listService: '/refs/column-list/data/psActionList'
+  },
 ];
 
 @Injectable()

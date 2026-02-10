@@ -47,8 +47,11 @@ import { PriLaborView } from "./entity/pri/labor/PriLaborView"
 import { PriLabor } from "./entity/pri/labor/PriLabor"
 import { PriPrisonerLabor } from "./entity/pri/labor/PriPrisonerLabor"
 import { PriInfoLaborType } from "./entity/info/priInfoLaborType"
+import { WfmStatus } from "./entity/wfmStatus.entity"
+import { PriPrisonerLaborView } from "./entity/pri/labor/PriPrisonerLaborView"
 
 const Entities = [
+  WfmStatus,
   MenuSettings, ActionSettings, RoleMenuSettings, RoleActionSettings,
   UmSystemUser, UmUserRole, UmRole,
   BasePerson,
@@ -69,6 +72,6 @@ const Entities = [
 
   PriDecision, PriDecisionView,
   PriTsagdanTimeView,PriLaborView,
-  PriLabor, PriPrisonerLabor, PriInfoLaborType,
+  PriLabor, PriPrisonerLabor, PriPrisonerLaborView, PriInfoLaborType,
 ]
 export default Entities

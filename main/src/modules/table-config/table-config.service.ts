@@ -1,3 +1,5 @@
+
+
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PriPrisonerKeyView } from 'src/entity/pri/prisoner/priPrisonerKeyView';
 import { UmSystemUser } from 'src/entity/um/um-system-user.entity';
@@ -18,6 +20,7 @@ import { LeaveView } from 'src/entity/pri/leave/leaveView.entity';
 import { PriDecisionView } from 'src/entity/pri/decision/priDecisionView';
 import { PriTsagdanTimeView } from 'src/entity/pri/detention/PriTsagdanTimeView';
 import { MenuSettings } from 'src/entity/pri/settings/MenuSettings';
+import { ActionSettings } from 'src/entity/pri/settings/ActionSettings.ts';
 import { PriLaborView } from 'src/entity/pri/labor/PriLaborView';
 import { PriPrisonerLaborView } from 'src/entity/pri/labor/PriPrisonerLaborView';
 
@@ -30,10 +33,8 @@ interface TableFieldMeta {
   refField?: string;
   refListName?: string;
 }
-
 type TableFields = Record<string, TableFieldMeta>;
 type DynamicTable = { getTableFields(): TableFields };
-
 const dynamicTables: Record<string, DynamicTable> = {
   'role': UmRole as unknown as DynamicTable,
   'user': UmSystemUser as unknown as DynamicTable,
@@ -49,8 +50,34 @@ const dynamicTables: Record<string, DynamicTable> = {
   'decision-view': PriDecisionView as unknown as DynamicTable,
   'tsagdan-time-list': PriTsagdanTimeView as unknown as DynamicTable,
   'psMenuList': MenuSettings as unknown as DynamicTable,
+  'psActionList': ActionSettings as unknown as DynamicTable,
   'labor-list': PriLaborView as unknown as DynamicTable,
   'prisoner-labor-list': PriPrisonerLaborView as unknown as DynamicTable,
+};
+
+interface FormFieldMeta {
+  label: string;
+  type: string;
+  isRequired?: boolean;
+}
+type FormFields = Record<string, FormFieldMeta>;
+type DynamicForm = { getFormFields(): FormFields };
+const dynamicForms: Record<string, DynamicForm> = {
+  'role': UmRole as unknown as DynamicForm,
+  'user': UmSystemUser as unknown as DynamicForm,
+  'pkw': PriPrisonerKeyView as unknown as DynamicForm,
+  'employeeKey': PriEmployeeKey as unknown as DynamicForm,
+  'movement-departure': MovementDeparture as unknown as DynamicForm,
+  'movement-arrival': MovementArrival as unknown as DynamicForm,
+  'decision': PriAdministrativeDecision as unknown as DynamicForm,
+  'account-book': PriPrisonerAccountBook as unknown as DynamicForm,
+  'account-book-view': PriPrisonerAccountBookView as unknown as DynamicForm,
+  'address': PriAddress as unknown as DynamicForm,
+  'leave-view': LeaveView as unknown as DynamicForm,
+  'decision-view': PriDecisionView as unknown as DynamicForm,
+  'tsagdan-time-list': PriTsagdanTimeView as unknown as DynamicForm,
+  'psMenuList': MenuSettings as unknown as DynamicForm,
+  'psActionList': ActionSettings as unknown as DynamicForm,
 };
 
 @Injectable()
@@ -58,6 +85,8 @@ export class TableConfigService {
   constructor(
     @InjectDataSource() private dataSource: DataSource,
   ) { }
+
+  //#region [MAIN]
 
   getColumns(entityName: string) {
     if (!dynamicTables[entityName]) {
@@ -80,6 +109,25 @@ export class TableConfigService {
       }
     });
     return columns;
+  }
+
+  getFormFields(entityName: string) {
+    if (!dynamicForms[entityName]) {
+      throw new Error('Not found');
+    }
+    const fields = dynamicForms[entityName].getFormFields();
+    if (!fields) {
+      throw new Error('Not found');
+    }
+    const parsedFields = Object.entries(fields).map(([key, meta]) => {
+      return {
+        key,
+        label: meta.label,
+        type: meta.type,
+        isRequired: meta.isRequired,
+      }
+    });
+    return parsedFields;
   }
 
   async getList(
@@ -132,6 +180,8 @@ export class TableConfigService {
       totalPages: Math.ceil(total / limit),
     };
   }
+
+  //#endregion
 
   //#region [MENU]
 

@@ -1,25 +1,28 @@
 
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, IsNull, Not, Repository } from 'typeorm';
 import { paginate, IPaginationOptions } from 'nestjs-typeorm-paginate';
 import { PriLaborView } from 'src/entity/pri/labor/PriLaborView';
 import { PriLabor } from 'src/entity/pri/labor/PriLabor';
 import { PriPrisonerLabor } from 'src/entity/pri/labor/PriPrisonerLabor';
 import { getId } from 'src/utils/unique';
 import { getFilterAndParameters, getSortFieldAndOrder } from 'src/utils/helper';
+import { PriPrisonerLaborView } from 'src/entity/pri/labor/PriPrisonerLaborView';
 
 
 @Injectable()
 export class PriLaborService {
   constructor(
     @InjectRepository(PriLaborView)
-    private repo: Repository<PriLaborView>,
+    private laborViewRepo: Repository<PriLaborView>,
+    @InjectRepository(PriPrisonerLaborView)
+    private prisonerLaborViewRepo: Repository<PriPrisonerLaborView>,
     @InjectDataSource() private dataSource: DataSource,
   ) {}
 
   async getList(options: IPaginationOptions, searchParam: string, sortParam: string, user: any) {
-    const queryBuilder = this.repo.createQueryBuilder('l');
+    const queryBuilder = this.laborViewRepo.createQueryBuilder('l');
     const { filter, parameters } = getFilterAndParameters('l', searchParam);
     
     if (filter) {
@@ -39,7 +42,8 @@ export class PriLaborService {
       queryBuilder.orderBy('l.beginDate', 'DESC');
     }
 
-    return paginate<PriLaborView>(queryBuilder, options);
+    const data = await paginate<PriLaborView>(queryBuilder, options);
+    return { rows: data.items, total: data.meta.totalItems }
   }
 
   async createAndUpdate(data: any, user: any) {
@@ -171,76 +175,94 @@ export class PriLaborService {
     });
     return { success: true };
   }
-  async getPrisonerList(options: IPaginationOptions, searchParam: string, user: any) {
-    try {
-      const filter = searchParam && searchParam !== '[]' ? JSON.parse(searchParam) : null;
-      const queryBuilder = this.dataSource.createQueryBuilder(PriPrisonerLabor, 'pl');
 
-      queryBuilder
-        .select([
-          'pl.prisonerLaborId AS "prisonerLaborId"',
-          'pl.laborId AS "laborId"',
-          'pl.prisonerKeyId AS "prisonerKeyId"',
-          'pl.laborTypeId AS "laborTypeId"',
-          'pl.beginDate AS "beginDate"',
-          'pl.endDate AS "endDate"',
-          'pl.description AS "description"',
-          'pl.wfmStatusId AS "wfmStatusId"',
-          'pl.isSalary AS "isSalary"',
-          'pl.laborResultTypeId AS "laborResultTypeId"',
-          'pl.createdDate AS "createdDate"',
-          
-          // Joined columns with UPPERCASE aliases and quoted output aliases
-          "BP.LAST_NAME || ' ' || BP.FIRST_NAME AS \"prisonerName\"",
-          'P.PRISONER_NUMBER AS "registerNo"',
-          'LT.NAME AS "laborTypeName"',
-          'WS.WFM_STATUS_NAME AS "statusName"',
-          'NVL(D.NAME, PD.NAME) AS "departmentName"', // Fallback to Prisoner Department
-          'LRT.NAME AS "laborResultTypeName"'
-        ])
-        .leftJoin('PRI_PRISONER_KEY', 'K', 'pl.prisonerKeyId = K.PRISONER_KEY_ID')
-        .leftJoin('PRI_PRISONER', 'P', 'K.PRISONER_ID = P.PRISONER_ID')
-        .leftJoin('BASE_PERSON', 'BP', 'P.PERSON_ID = BP.PERSON_ID')
-        .leftJoin('PRI_LABOR', 'L', 'pl.laborId = L.LABOR_ID')
-        .leftJoin('PRI_INFO_DEPARTMENT', 'D', 'L.DEPARTMENT_ID = D.DEPARTMENT_ID')
-        .leftJoin('PRI_INFO_DEPARTMENT', 'PD', 'P.DEPARTMENT_ID = PD.DEPARTMENT_ID') // Join Prisoner Department
-        .leftJoin('PRI_INFO_LABOR_TYPE', 'LT', 'pl.laborTypeId = LT.LABOR_TYPE_ID')
-        .leftJoin('WFM_STATUS', 'WS', 'pl.wfmStatusId = WS.WFM_STATUS_ID')
-        .leftJoin('PRI_INFO_LABOR_RESULT_TYPE', 'LRT', 'pl.laborResultTypeId = LRT.LABOR_RESULT_TYPE_ID');
-
-      if (filter) {
-          if (filter.prisonerLaborId) {
-              queryBuilder.andWhere('pl.prisonerLaborId = :prisonerLaborId', { prisonerLaborId: filter.prisonerLaborId });
-          }
-      }
-
-      queryBuilder.orderBy('pl.createdDate', 'DESC');
-
-      const limit = Number(options.limit) || 10;
-      const page = Number(options.page) || 1;
-      const skip = (page - 1) * limit;
-
-      const total = await queryBuilder.getCount();
-      const rows = await queryBuilder.offset(skip).limit(limit).getRawMany();
-
-      return {
-        items: rows,
-        meta: {
-          totalItems: total,
-          itemCount: rows.length,
-          itemsPerPage: limit,
-          totalPages: Math.ceil(total / limit),
-          currentPage: page,
-        },
-        rows: rows, 
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      };
-    } catch (error) {
-      console.error('Error in LaborService.getPrisonerList:', error);
-      throw error;
+  async getPrisonerList (options: IPaginationOptions, searchParam: string, sortParam: string, user: any) {
+    const queryBuilder = this.prisonerLaborViewRepo.createQueryBuilder('pl')
+      .leftJoin("pl.wfmStatus", "WS").addSelect(['WS.wfmStatusId', 'WS.wfmStatusCode', 'WS.wfmStatusName', 'WS.wfmStatusColor']);
+    const { filter, parameters } = getFilterAndParameters('pl', searchParam)
+    if (filter) {
+      queryBuilder.where(filter, parameters)
     }
+    const { field, order } = getSortFieldAndOrder('pl', sortParam)
+    if (field) {
+      queryBuilder.orderBy(field, order)
+    } else {
+      queryBuilder.orderBy('pl.createdDate', 'DESC')
+    }
+    
+    const data = await paginate<PriPrisonerLaborView>(queryBuilder, options);
+    return { rows: data.items, total: data.meta.totalItems }
   }
+  // async getPrisonerList(options: IPaginationOptions, searchParam: string, user: any) {
+  //   try {
+  //     const filter = searchParam && searchParam !== '[]' ? JSON.parse(searchParam) : null;
+  //     const queryBuilder = this.dataSource.createQueryBuilder(PriPrisonerLabor, 'pl');
+
+  //     queryBuilder
+  //       .select([
+  //         'pl.prisonerLaborId AS "prisonerLaborId"',
+  //         'pl.laborId AS "laborId"',
+  //         'pl.prisonerKeyId AS "prisonerKeyId"',
+  //         'pl.laborTypeId AS "laborTypeId"',
+  //         'pl.beginDate AS "beginDate"',
+  //         'pl.endDate AS "endDate"',
+  //         'pl.description AS "description"',
+  //         'pl.wfmStatusId AS "wfmStatusId"',
+  //         'pl.isSalary AS "isSalary"',
+  //         'pl.laborResultTypeId AS "laborResultTypeId"',
+  //         'pl.createdDate AS "createdDate"',
+          
+  //         // Joined columns with UPPERCASE aliases and quoted output aliases
+  //         "BP.LAST_NAME || ' ' || BP.FIRST_NAME AS \"prisonerName\"",
+  //         'P.PRISONER_NUMBER AS "registerNo"',
+  //         'LT.NAME AS "laborTypeName"',
+  //         'WS.WFM_STATUS_NAME AS "statusName"',
+  //         'NVL(D.NAME, PD.NAME) AS "departmentName"', // Fallback to Prisoner Department
+  //         'LRT.NAME AS "laborResultTypeName"'
+  //       ])
+  //       .leftJoin('PRI_PRISONER_KEY', 'K', 'pl.prisonerKeyId = K.PRISONER_KEY_ID')
+  //       .leftJoin('PRI_PRISONER', 'P', 'K.PRISONER_ID = P.PRISONER_ID')
+  //       .leftJoin('BASE_PERSON', 'BP', 'P.PERSON_ID = BP.PERSON_ID')
+  //       .leftJoin('PRI_LABOR', 'L', 'pl.laborId = L.LABOR_ID')
+  //       .leftJoin('PRI_INFO_DEPARTMENT', 'D', 'L.DEPARTMENT_ID = D.DEPARTMENT_ID')
+  //       .leftJoin('PRI_INFO_DEPARTMENT', 'PD', 'P.DEPARTMENT_ID = PD.DEPARTMENT_ID') // Join Prisoner Department
+  //       .leftJoin('PRI_INFO_LABOR_TYPE', 'LT', 'pl.laborTypeId = LT.LABOR_TYPE_ID')
+  //       .leftJoin('WFM_STATUS', 'WS', 'pl.wfmStatusId = WS.WFM_STATUS_ID')
+  //       .leftJoin('PRI_INFO_LABOR_RESULT_TYPE', 'LRT', 'pl.laborResultTypeId = LRT.LABOR_RESULT_TYPE_ID');
+
+  //     if (filter) {
+  //         if (filter.prisonerLaborId) {
+  //             queryBuilder.andWhere('pl.prisonerLaborId = :prisonerLaborId', { prisonerLaborId: filter.prisonerLaborId });
+  //         }
+  //     }
+
+  //     queryBuilder.orderBy('pl.createdDate', 'DESC');
+
+  //     const limit = Number(options.limit) || 10;
+  //     const page = Number(options.page) || 1;
+  //     const skip = (page - 1) * limit;
+
+  //     const total = await queryBuilder.getCount();
+  //     const rows = await queryBuilder.offset(skip).limit(limit).getRawMany();
+
+  //     return {
+  //       items: rows,
+  //       meta: {
+  //         totalItems: total,
+  //         itemCount: rows.length,
+  //         itemsPerPage: limit,
+  //         totalPages: Math.ceil(total / limit),
+  //         currentPage: page,
+  //       },
+  //       rows: rows, 
+  //       total,
+  //       page,
+  //       limit,
+  //       totalPages: Math.ceil(total / limit),
+  //     };
+  //   } catch (error) {
+  //     console.error('Error in LaborService.getPrisonerList:', error);
+  //     throw error;
+  //   }
+  // }
 }

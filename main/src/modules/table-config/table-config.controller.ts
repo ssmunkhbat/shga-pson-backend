@@ -7,6 +7,7 @@ import { ListQueryDto } from 'src/dto/listQuery.dto';
 export class TableConfigController {
   constructor(private readonly service: TableConfigService) { }
 
+  //#region [MAIN]
   
   @Get('list/:tableKey')
   async getList(
@@ -23,6 +24,16 @@ export class TableConfigController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('form/fields/:name')
+  async getFormFields(@Param('name') name: string) {
+    return await this.service.getFormFields(name);
+  }
+
+  //#endregion
+
+  //#region [MENU]
+
+  @UseGuards(JwtAuthGuard)
   @Get('actions/byurl')
   async getActionsByPath(@Req() req, @Query('path') path: string) {
     return await this.service.getActionsByPath(path, req.user);
@@ -33,4 +44,7 @@ export class TableConfigController {
   async getActions(@Req() req, @Param('menuId') menuId: number) {
     return await this.service.getActions(menuId, req.user);
   }
+
+  //#endregion
+  
 }
