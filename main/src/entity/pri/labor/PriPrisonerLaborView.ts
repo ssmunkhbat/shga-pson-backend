@@ -58,6 +58,9 @@ export class PriPrisonerLaborView {
   @ViewColumn({ name: 'CREATED_DATE' })
   createdDate: Date;
 
+  @ViewColumn({ name: 'DEPARTMENT_ID' })
+  departmentId: number;
+
   @ViewColumn({ name: 'DEPARTMENT_NAME' })
   departmentName: string;
 
