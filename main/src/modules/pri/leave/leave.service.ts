@@ -2,6 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { PriLeaveValidationDto } from 'src/dto/validation/pri/leave/leave.validation.dto';
+import { PriLeaveReceivedValidationDto } from 'src/dto/validation/pri/leave/leaveReceived.validation.dto';
 import { LeaveView } from 'src/entity/pri/leave/leaveView.entity';
 import { PriLeave } from 'src/entity/pri/leave/priLeave.entity';
 import { DynamicService } from 'src/modules/dynamic/dynamic.service';
@@ -86,6 +87,21 @@ export class LeaveService {
       await queryRunner.commitTransaction();
     } catch (err) {
       console.log(err)
+      await queryRunner.rollbackTransaction();
+      throw new HttpException(err, 500)
+    } finally {
+      await queryRunner.release();
+    }
+  }
+  async received (dto: PriLeaveReceivedValidationDto, user: any) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const updateData = { ...dto, wfmStatusId: 100502 };
+      await this.dynamicService.updateTableData(queryRunner, PriLeave, this.priLeaveRepository, updateData, user)
+      await queryRunner.commitTransaction();
+    } catch (err) {
       await queryRunner.rollbackTransaction();
       throw new HttpException(err, 500)
     } finally {

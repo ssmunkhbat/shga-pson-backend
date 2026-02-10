@@ -74,6 +74,15 @@ export class LeaveView {
   @ViewColumn({ name: 'CREATED_DATE' })
   createdDate: Date;
 
+  @ViewColumn({
+    name: 'IS_CRIME_DURING_LEAVE',
+    transformer: {
+      to: (value: boolean) => (value ? 1 : 0),
+      from: (value: number) => Boolean(value)
+    }
+  })
+  isCrimeDuringLeave: boolean;
+
   static getTableFields() {
     return {
       prisonerNumber: { header: 'Хоригдогчийн дугаар', type: 'string', sortable: true, filterable: true, width: 'w-72' },

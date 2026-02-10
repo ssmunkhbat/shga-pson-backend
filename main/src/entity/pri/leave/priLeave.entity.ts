@@ -43,6 +43,17 @@ export class PriLeave {
   @Column({ name: 'CREATED_DATE' })
   createdDate: Date;
 
+  @Column({
+    name: 'IS_CRIME_DURING_LEAVE',
+    default: 0,
+    precision: 1,
+    transformer: {
+      to: (value: boolean) => (value ? 1 : 0),
+      from: (value: number) => Boolean(value)
+    }
+  })
+  isCrimeDuringLeave: boolean;
+
   constructor(item: Partial<PriLeave>) {
     Object.assign(this, item)
   }
