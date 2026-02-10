@@ -6,6 +6,9 @@ export class LeaveView {
   @ViewColumn({ name: 'LEAVE_ID' })
   leaveId: string;
 
+  @ViewColumn({ name: 'PRISONER_KEY_ID' })
+  prisonerKeyId: number;
+
   @ViewColumn({ name: 'PRISONER_NUMBER' })
   prisonerNumber: string;
 
@@ -15,11 +18,20 @@ export class LeaveView {
   @ViewColumn({ name: 'LAST_NAME' })
   lastName: string;
 
+  @ViewColumn({ name: 'LEAVE_TYPE_ID' })
+  leaveTypeId: number;
+
   @ViewColumn({ name: 'LEAVE_TYPE_NAME' })
   leaveTypeName: string;
 
+  @ViewColumn({ name: 'WFM_STATUS_ID' })
+  wfmStatusId: number;
+
   @ViewColumn({ name: 'WFM_STATUS_NAME' })
   wfmStatusName: string;
+
+  @ViewColumn({ name: 'DECISION_ID' })
+  decisionId: number;
 
   @ViewColumn({ name: 'DECISION_NUMBER' })
   decisionNumber: string;
@@ -36,8 +48,14 @@ export class LeaveView {
   @ViewColumn({ name: 'RECEIVED_DATE' })
   receivedDate: Date;
 
+  @ViewColumn({ name: 'OFFICER_ID' })
+  officerId: number;
+  
   @ViewColumn({ name: 'OFFICER_NAME' })
   officerName: string;
+
+  @ViewColumn({ name: 'DESCRIPTION' })
+  description: string;
 
   @ViewColumn({ name: 'OFFICER_PHONE' })
   officerPhone: string;

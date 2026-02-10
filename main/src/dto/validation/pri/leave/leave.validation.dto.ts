@@ -19,9 +19,9 @@ export class PriLeaveValidationDto {
   @IsDateString()
   @IsNotEmpty({ message: 'leaveDate огноо утга шаардана.' })
   leaveDate: Date;
-
+  
+  @IsOptional()
   @IsNumber({}, { message: 'officerId тоо байх ёстой' })
-  @IsNotEmpty({ message: 'officerId утга шаардана' })
   officerId: number;
 
   @IsNumber({}, { message: 'wfmStatusId тоо байх ёстой' })

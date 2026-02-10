@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { LeaveService } from './leave.service';
 import { JwtAuthGuard } from 'src/modules/auth/jwt.guard';
 import { PriLeaveValidationDto } from 'src/dto/validation/pri/leave/leave.validation.dto';
@@ -18,5 +18,10 @@ export class LeaveController {
   @Post()
   createAndUpdate(@Body() dto: PriLeaveValidationDto, @Req() req) {
     return this.service.createAndUpdate(dto, req.user)
+  }
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async delete(@Req() req, @Param('id') id: number) {
+    return this.service.delete(id, req.user)
   }
 }

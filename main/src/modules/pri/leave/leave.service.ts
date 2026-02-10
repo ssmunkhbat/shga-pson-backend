@@ -76,4 +76,19 @@ export class LeaveService {
       await queryRunner.release();
     }
   }
+  async delete (id : number, user: any) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await this.dynamicService.deleteHardTableData(queryRunner, this.priLeaveRepository, id)
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      console.log(err)
+      await queryRunner.rollbackTransaction();
+      throw new HttpException(err, 500)
+    } finally {
+      await queryRunner.release();
+    }
+  }
 }
