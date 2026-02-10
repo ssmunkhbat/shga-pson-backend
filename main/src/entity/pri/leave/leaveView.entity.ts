@@ -99,7 +99,7 @@ export class LeaveView {
       decisionNumber: { header: 'Шийдвэрийн дугаар', type: 'string', sortable: true, filterable: true, width: 'w-72' },
       decisionTypeName: { header: 'Шийдвэрийн төрөл', type: 'string', sortable: true, filterable: true, width: 'w-72' },
       leaveDate: { header: 'Явсан огноо', type: 'datetime', sortable: true, filterable: true, width: 'w-72' },
-      arriveDate: { header: 'Ирэх огноо', type: 'datetime', sortable: true, filterable: true, width: 'w-72' },
+      // arriveDate: { header: 'Ирэх огноо', type: 'datetime', sortable: true, filterable: true, width: 'w-72' },
       receivedDate: { header: 'Ирсэн огноо', type: 'datetime', sortable: true, filterable: true, width: 'w-72' },
       officerName: { header: 'Авч явсан албан хаагч', type: 'string', sortable: true, filterable: true, width: 'w-72' },
       officerPhone: { header: 'Авч явсан а.х утас', type: 'string', sortable: true, filterable: true, width: 'w-72' },
