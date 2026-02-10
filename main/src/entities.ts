@@ -43,6 +43,10 @@ import { PriTsagdanTimeView } from "./entity/pri/detention/PriTsagdanTimeView"
 import { PriInfoDecisionType } from "./entity/info/priInfoDecisionType"
 import { PriLeave } from "./entity/pri/leave/priLeave.entity"
 import { PriInfoLeaveType } from "./entity/info/priInfoLeaveType.entity"
+import { PriLaborView } from "./entity/pri/labor/PriLaborView"
+import { PriLabor } from "./entity/pri/labor/PriLabor"
+import { PriPrisonerLabor } from "./entity/pri/labor/PriPrisonerLabor"
+import { PriInfoLaborType } from "./entity/info/priInfoLaborType"
 
 const Entities = [
   MenuSettings, ActionSettings, RoleMenuSettings, RoleActionSettings,
@@ -64,6 +68,7 @@ const Entities = [
   LeaveView, PriLeave, PriInfoLeaveType,
 
   PriDecision, PriDecisionView,
-  PriTsagdanTimeView,
+  PriTsagdanTimeView,PriLaborView,
+  PriLabor, PriPrisonerLabor, PriInfoLaborType,
 ]
 export default Entities

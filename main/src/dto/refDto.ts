@@ -29,7 +29,9 @@ export class RefDto {
             'BOOK_TYPE_ID',
             'TRANSACTION_TYPE_ID',
             'DECISION_TYPE_ID',
-            'LEAVE_TYPE_ID'
+            'LEAVE_TYPE_ID',
+            'LABOR_TYPE_ID',
+            'LABOR_RESULT_TYPE_ID',
         ].map(k => obj[k]).find(v => v !== undefined && v !== null)
     )
     id: number;

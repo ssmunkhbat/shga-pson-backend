@@ -18,6 +18,8 @@ import { LeaveView } from 'src/entity/pri/leave/leaveView.entity';
 import { PriDecisionView } from 'src/entity/pri/decision/priDecisionView';
 import { PriTsagdanTimeView } from 'src/entity/pri/detention/PriTsagdanTimeView';
 import { MenuSettings } from 'src/entity/pri/settings/MenuSettings';
+import { PriLaborView } from 'src/entity/pri/labor/PriLaborView';
+import { PriPrisonerLaborView } from 'src/entity/pri/labor/PriPrisonerLaborView';
 
 interface TableFieldMeta {
   header: string;
@@ -47,6 +49,8 @@ const dynamicTables: Record<string, DynamicTable> = {
   'decision-view': PriDecisionView as unknown as DynamicTable,
   'tsagdan-time-list': PriTsagdanTimeView as unknown as DynamicTable,
   'psMenuList': MenuSettings as unknown as DynamicTable,
+  'labor-list': PriLaborView as unknown as DynamicTable,
+  'prisoner-labor-list': PriPrisonerLaborView as unknown as DynamicTable,
 };
 
 @Injectable()

@@ -26,7 +26,9 @@ const mapRef = {
   'bookTypeList': 'PRI_INFO_BOOK_TYPE',
   'decisionTypeList': 'PRI_INFO_DECISION_TYPE',
   'psMenuList': 'PRI_SETTINGS_MENU',
-  'leaveTypeList': 'PRI_INFO_LEAVE_TYPE'
+  'leaveTypeList': 'PRI_INFO_LEAVE_TYPE',
+  'labor-type': 'PRI_INFO_LABOR_TYPE',
+  'labor-result-type': 'PRI_INFO_LABOR_RESULT_TYPE',
 };
 
 const notCheckIsActive = {
