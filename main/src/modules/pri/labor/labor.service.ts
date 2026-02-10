@@ -178,7 +178,7 @@ export class PriLaborService {
 
   async getPrisonerList (options: IPaginationOptions, searchParam: string, sortParam: string, user: any) {
     const queryBuilder = this.prisonerLaborViewRepo.createQueryBuilder('pl')
-      .leftJoin("pl.wfmStatus", "WS").addSelect(['WS.wfmStatusId', 'WS.wfmStatusCode', 'WS.wfmStatusName', 'WS.wfmStatusColor']);
+      .leftJoin("pl.wfmStatus", "WS").addSelect(['WS.wfmStatusId', 'WS.wfmStatusCode', 'WS.wfmStatusName', 'WS.wfmStatusColor', 'WS.wfmStatusBgColor']);
     const { filter, parameters } = getFilterAndParameters('pl', searchParam)
     if (filter) {
       queryBuilder.where(filter, parameters)

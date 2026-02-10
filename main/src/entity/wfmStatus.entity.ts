@@ -17,6 +17,9 @@ export class WfmStatus {
   @Column({ name: 'WFM_STATUS_COLOR' })
   wfmStatusColor: string;
 
+  @Column({ name: 'WFM_STATUS_BG_COLOR' })
+  wfmStatusBgColor: string;
+
   @Column({ name: "IS_CONFIRMED", default: true })
   isConfirmed: boolean;
 
@@ -43,7 +46,8 @@ export class WfmStatus {
       wfmStatusId: { header: 'wfmStatusId', type: 'number', sortable: true, filterable: false, width: 'w-16' },
       wfmStatusCode: { header: 'Код', type: 'string', sortable: true, filterable: true, width: 'w-48' },
       wfmStatusName: { header: 'Нэр', type: 'string', sortable: true, filterable: true, width: 'w-48' },
-      WFM_STATUS_COLOR: { header: 'Өнгө', type: 'string', sortable: true, filterable: true, width: 'w-48' },
+      wfmStatusColor: { header: 'Текст өнгө', type: 'string', sortable: true, filterable: true, width: 'w-48' },
+      wfmStatusBgColor: { header: 'Background өнгө', type: 'string', sortable: true, filterable: true, width: 'w-48' },
       isConfirmed: { header: 'isConfirmed', type: 'boolean', sortable: true, filterable: true, width: 'w-48' },
     };
   }

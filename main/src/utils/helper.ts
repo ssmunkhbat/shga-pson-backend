@@ -43,7 +43,7 @@ export function getFilterAndParameters (mainAlias, searchParam: string) {
         whereStrs.push(`${field} = :${field}`)
         parameters[field] = val[0]
       }
-    } else if (item.type == 'ref') {
+    } else if (item.type == 'ref' || item.type == 'refstatus') {
       whereStrs.push(`${field} = :${field}`)
       parameters[field] = val
     }

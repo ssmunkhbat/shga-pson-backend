@@ -32,6 +32,8 @@ interface TableFieldMeta {
   width?: number;
   refField?: string;
   refListName?: string;
+  refColorField?: string;
+  refBgColorField?: string;
 }
 type TableFields = Record<string, TableFieldMeta>;
 type DynamicTable = { getTableFields(): TableFields };
@@ -106,6 +108,8 @@ export class TableConfigService {
         width: meta.width,
         refField: meta.refField,
         refListName: meta.refListName,
+        refColorField: meta.refColorField,
+        refBgColorField: meta.refBgColorField,
       }
     });
     return columns;

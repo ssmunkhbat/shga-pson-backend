@@ -63,16 +63,19 @@ export class PriPrisonerLaborView {
 
   static getTableFields() {
     return {
-      prisonerName: { header: 'Хоригдогч', type: 'string', width: 200, sortable: true, filterable: true },
+      prisonerName: { header: 'Хоригдогч', type: 'string', width: 200, sortable: false, filterable: true },
       registerNo: { header: 'Регистр', type: 'string', width: 100, sortable: true, filterable: true },
-      laborTypeName: { header: 'Ажлын төрөл', type: 'string', width: 150, sortable: true, filterable: true },
-      departmentName: { header: 'Алба хэлтэс', type: 'string', width: 150, sortable: true, filterable: true },
-      beginDate: { header: 'Эхэлсэн', type: 'date', width: 120, sortable: true, filterable: true },
-      endDate: { header: 'Дуусах', type: 'date', width: 120, sortable: true, filterable: true },
-      // statusName: { header: 'Төлөв', type: 'string', width: 120, sortable: true, filterable: true },
-      statusName: { header: 'Төлөв', type: 'refstatus', refField: 'wfmStatus.wfmStatusName', sortable: false, filterable: true, width: 'w-16' },
-      createdDate: { header: 'Үүсгэсэн', type: 'date', width: 120, sortable: true, filterable: true },
-      isSalary: { header: 'Цалинтай', type: 'boolean', width: 80, sortable: true, filterable: false }, // Could be mapped to Yes/No in frontend
+      laborTypeName: { header: 'Ажлын төрөл', type: 'string', width: 150, sortable: false, filterable: true },
+      departmentName: { header: 'Алба хэлтэс', type: 'string', width: 150, sortable: false, filterable: true },
+      beginDate: { header: 'Эхэлсэн', type: 'date', width: 120, sortable: false, filterable: true },
+      endDate: { header: 'Дуусах', type: 'date', width: 120, sortable: false, filterable: true },
+      wfmStatus: {
+        header: 'Төлөв',
+        type: 'refstatus', refField: 'wfmStatus.wfmStatusName', refListName: 'wfmStatusList', refColorField: 'wfmStatus.wfmStatusColor', refBgColorField: 'wfmStatus.wfmStatusBgColor',
+        sortable: false, filterable: true, width: 'w-16'
+      },
+      createdDate: { header: 'Үүсгэсэн', type: 'date', width: 120, sortable: false, filterable: true },
+      isSalary: { header: 'Цалинтай', type: 'boolean', width: 80, sortable: false, filterable: true },
     };
   }
 }
