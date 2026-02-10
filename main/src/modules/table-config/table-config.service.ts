@@ -62,6 +62,8 @@ interface FormFieldMeta {
   label: string;
   type: string;
   isRequired?: boolean;
+  column?: number;
+  hidden?: boolean;
 }
 type FormFields = Record<string, FormFieldMeta>;
 type DynamicForm = { getFormFields(): FormFields };
@@ -131,6 +133,8 @@ export class TableConfigService {
         label: meta.label,
         type: meta.type,
         isRequired: meta.isRequired,
+        column: meta.column,
+        hidden: meta.hidden,
       }
     });
     return parsedFields;

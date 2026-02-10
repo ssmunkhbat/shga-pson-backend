@@ -63,8 +63,8 @@ export class ActionSettings {
       code: { label: 'Код', type: 'string', isRequired: false, column: 1 },
       name: { label: 'Нэр', type: 'string', isRequired: false, column: 1 },
       icon: { label: 'icon', type: 'string', isRequired: false, column: 2 },
-      orderNum: { label: 'orderNum', type: 'number', isRequired: false, column: 2 },
-      isActive: { label: 'isActive', type: 'boolean', isRequired: false, column: 2 },
+      orderNum: { label: 'Эрэмбэ', type: 'number', isRequired: false, column: 2 },
+      isActive: { label: 'Идэвхтэй эсэх', type: 'boolean', isRequired: false , column: 2},
     };
   }
 }

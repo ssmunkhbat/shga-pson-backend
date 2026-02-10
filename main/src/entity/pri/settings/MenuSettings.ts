@@ -63,14 +63,14 @@ export class MenuSettings {
   */
   static getFormFields() {
     return {
-      id: { label: 'id', type: 'number', isRequired: false },
-      metaDataId: { label: 'metaDataId', type: 'number', isRequired: false },
-      type: { label: 'Төрөл', type: 'type', isRequired: false },
-      code: { label: 'Код', type: 'string', isRequired: false },
-      name: { label: 'Нэр', type: 'string', isRequired: false },
-      path: { label: 'path', type: 'string', isRequired: false },
-      orderNum: { label: 'orderNum', type: 'number', isRequired: false },
-      isActive: { label: 'isActive', type: 'boolean', isRequired: false },
+      id: { label: 'id', type: 'number', isRequired: false, column: 1, hidden: true },
+      metaDataId: { label: 'metaDataId', type: 'number', isRequired: false, column: 1, hidden: true },
+      type: { label: 'Төрөл', type: 'type', isRequired: true, column: 1 },
+      code: { label: 'Код', type: 'string', isRequired: true, column: 1 },
+      name: { label: 'Нэр', type: 'string', isRequired: true, column: 1 },
+      path: { label: 'path', type: 'string', isRequired: false, column: 2 },
+      orderNum: { label: 'Эрэмбэ', type: 'number', isRequired: false, column: 2 },
+      isActive: { label: 'Идэвхтэй эсэх', type: 'boolean', isRequired: false , column: 2},
     };
   }
 }
