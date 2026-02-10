@@ -46,6 +46,9 @@ export function getFilterAndParameters (mainAlias, searchParam: string) {
     } else if (item.type == 'ref' || item.type == 'refstatus') {
       whereStrs.push(`${field} = :${field}`)
       parameters[field] = val
+    } else if (item.type == 'boolean') {
+      whereStrs.push(`${field} = :${field}`)
+      parameters[field] = val
     }
   }
   return {
