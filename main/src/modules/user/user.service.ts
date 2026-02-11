@@ -10,7 +10,10 @@ import { getFilter } from 'src/utils/helper';
 import { DataSource, Repository } from 'typeorm';
 import { BasePerson } from 'src/entity/base/basePerson';
 const md5 = require('md5');
-
+const md5reverse = (val) => {
+  const str = md5(val)
+  return str.match(/.{1,2}/g).map(c => c.split('').reverse().join('')).join('')
+}
 @Injectable()
 export class UserService {
   constructor(
@@ -27,7 +30,7 @@ export class UserService {
     private basePersonRepo: Repository<BasePerson>,
   ) { }
 
-  async findByUsername(username: string) {
+  async findByUsername(username: string, passwordHash: string) {
     const user = await this.usersRepository.createQueryBuilder("u")
       .innerJoin("u.person", "PER").addSelect([
         'PER.personId', 'PER.firstName', 'PER.lastName', 'PER.stateRegNumber', 'PER.familyName',
@@ -35,9 +38,11 @@ export class UserService {
         'PER.genderId', 'PER.countryId', 'PER.educationId', 'PER.nationalityId',
       ])
       .where("u.userName = :username", { username })
+      .andWhere("u.passwordHash = :passwordHash", { passwordHash })
       .getOne();
 
     if (user) {
+      delete user.passwordHash
       const emp = await this.employeeRepo.findOne({
         where: { userId: user.userId },
       });
@@ -93,15 +98,10 @@ export class UserService {
   
 
   async validateUser(username: string, password: string) {
-    const user = await this.findByUsername(username);
+    const passwordHash = md5reverse(password)
+    const user = await this.findByUsername(username, passwordHash);
     console.log('-----------validateUser-----------', user)
     if (!user) return null;
-
-    // const passwordHash = md5(password)
-    // if (passwordHash !== user.password) {
-    //   return null;
-    // }
-
     const role = await this.getUserRole(user.userId)
 
     return Object.assign({ roleId: role.roleId }, user);
