@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpException, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { BaseRoleDtoValidator } from 'src/dto/validation/basePerson.dto.validator';
@@ -9,6 +9,7 @@ import { UmUserRole } from 'src/entity/um/um-user-role';
 import { getFilter } from 'src/utils/helper';
 import { DataSource, Repository } from 'typeorm';
 import { BasePerson } from 'src/entity/base/basePerson';
+import { ChangePasswordValidationDto } from 'src/dto/validation/changePassword.dto.validator';
 const md5 = require('md5');
 const md5reverse = (val) => {
   const str = md5(val)
@@ -105,6 +106,28 @@ export class UserService {
     const role = await this.getUserRole(user.userId)
 
     return Object.assign({ roleId: role.roleId }, user);
+  }
+
+  async changePassword (user: any, body: ChangePasswordValidationDto) {
+    const user1 = await this.findById(user.userId)
+    const { currentPassword, newPassword, confirmPassword } = body
+    const passwordHash = md5reverse(currentPassword)
+    if (passwordHash !== user1.passwordHash) {
+      throw new ForbiddenException('Одоогийн нууц үг буруу байна.')
+    }
+    if (newPassword.length < 6) {
+      throw new ForbiddenException('Шинэ нууц үг 6 дээш тэмдэгт байх шаардлагатай.')
+    }
+    if (newPassword !== confirmPassword) {
+      throw new ForbiddenException('Нууц үг давтах буруу байна.')
+    }
+    user1.passwordHash = md5reverse(newPassword)
+    if (user1.passwordHash === passwordHash) {
+      throw new ForbiddenException('Шинэ нууц үг одоогийн нууц үгтэй ижил байж болохгүй')
+    }
+    user1.changeDate = new Date()
+    await this.usersRepository.save(user1)
+    return { success: true }
   }
 
   async getUsers(options: IPaginationOptions, searchParam) {

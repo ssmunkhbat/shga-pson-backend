@@ -18,4 +18,5 @@ export class AuthController {
     console.log('--------profile---------', req.user)
     return req.user;
   }
+
 }

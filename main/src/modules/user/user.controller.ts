@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nest
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { BaseRoleDtoValidator } from 'src/dto/validation/basePerson.dto.validator';
+import { ChangePasswordValidationDto } from 'src/dto/validation/changePassword.dto.validator';
 
 @Controller('user')
 export class UserController {
@@ -24,5 +25,11 @@ export class UserController {
     async saveBasePerson(@Body() dto: BaseRoleDtoValidator, @Req() req) {
         await this.userService.saveBasePerson(dto, req.user);
         return { success: true, message: 'Settings saved successfully' };
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('changePassword')
+    changePassword(@Req() req : any, @Body() body: ChangePasswordValidationDto) {
+        return this.userService.changePassword(req.user, body)
     }
 }
