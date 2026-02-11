@@ -37,7 +37,7 @@ export class UserService {
         'PER.imageUrl',
         'PER.genderId', 'PER.countryId', 'PER.educationId', 'PER.nationalityId',
       ])
-      .where("u.userName = :username", { username })
+      .where("UPPER(u.userName) = :username", { username: username.toUpperCase() })
       .andWhere("u.passwordHash = :passwordHash", { passwordHash })
       .getOne();
 
