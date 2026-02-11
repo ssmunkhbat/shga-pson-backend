@@ -12,6 +12,9 @@ export class LeaveView {
 
   @ViewColumn({ name: 'PRISONER_NUMBER' })
   prisonerNumber: string;
+  
+  @ViewColumn({ name: 'STATE_REG_NUMBER' })
+  stateRegNumber: string;
 
   @ViewColumn({ name: 'FIRST_NAME' })
   firstName: string;

@@ -54,7 +54,7 @@ export class RotlService {
     await queryRunner.startTransaction();
     try {
       const newData = Object.assign(dto, {
-        leaveId: await getId(),
+        rotlId: await getId(),
         createdDate: new Date(),
         createdEmployeeKeyId: user.employeeKey.employeeKeyId
       });
@@ -102,7 +102,7 @@ export class RotlService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const updateData = { ...dto, wfmStatusId: 100502 };
+      const updateData = { ...dto, wfmStatusId: 100602 };
       await this.dynamicService.updateTableData(queryRunner, PriRotl, this.priRotlRepository, updateData, user)
       await queryRunner.commitTransaction();
     } catch (err) {
