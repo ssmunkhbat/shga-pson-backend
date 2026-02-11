@@ -1,30 +1,31 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
-import { PriLeaveValidationDto } from 'src/dto/validation/pri/leave/leave.validation.dto';
 import { PriLeaveReceivedValidationDto } from 'src/dto/validation/pri/leave/leaveReceived.validation.dto';
-import { LeaveView } from 'src/entity/pri/leave/leaveView.entity';
-import { PriLeave } from 'src/entity/pri/leave/priLeave.entity';
+import { PriRotlValidationDto } from 'src/dto/validation/pri/rotl/rotl.validation.dto';
+import { PriRotlReceivedValidationDto } from 'src/dto/validation/pri/rotl/rotlReceived.validation.dto';
+import { PriRotl } from 'src/entity/pri/rotl/priRotl.entity';
+import { PriRotlView } from 'src/entity/pri/rotl/PriRotlView';
 import { DynamicService } from 'src/modules/dynamic/dynamic.service';
 import { getFilterAndParameters, getSortFieldAndOrder } from 'src/utils/helper';
 import { getId } from 'src/utils/unique';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
-export class LeaveService {
+export class RotlService {
   constructor (
     @InjectDataSource() private dataSource: DataSource,
-    @InjectRepository(LeaveView)
-    private leaveViewRepository : Repository<LeaveView>,
-    @InjectRepository(PriLeave)
-    private priLeaveRepository : Repository<PriLeave>,
+    @InjectRepository(PriRotlView)
+    private rotlViewRepository : Repository<PriRotlView>,
+    @InjectRepository(PriRotl)
+    private priRotlRepository : Repository<PriRotl>,
     private readonly dynamicService: DynamicService,
   ) {}
   getHello () : string {
     return 'hello'
   }
   async getList (options: IPaginationOptions, searchParam: string, sortParam: string, user: any) {
-    const queryBuilder = this.leaveViewRepository.createQueryBuilder('md')
+    const queryBuilder = this.rotlViewRepository.createQueryBuilder('md')
       .leftJoin("md.wfmStatus", "WS").addSelect(['WS.wfmStatusId', 'WS.wfmStatusCode', 'WS.wfmStatusName', 'WS.wfmStatusColor', 'WS.wfmStatusBgColor']);
     const { filter, parameters } = getFilterAndParameters('md', searchParam)
     if (filter) {
@@ -37,17 +38,17 @@ export class LeaveService {
     if (field) {
       queryBuilder.orderBy(field, order)
     }
-    const data = await paginate<LeaveView>(queryBuilder, options)
+    const data = await paginate<PriRotlView>(queryBuilder, options)
     return {
       rows: data.items,
       total: data.meta.totalItems
     }
   }
 
-  async createAndUpdate(dto: PriLeaveValidationDto, user: any) {
-    return dto.leaveId ? this.update(dto, user) : this.create(dto, user)
+  async createAndUpdate(dto: PriRotlValidationDto, user: any) {
+    return dto.rotlId ? this.update(dto, user) : this.create(dto, user)
   }
-  async create (dto: PriLeaveValidationDto, user: any) {
+  async create (dto: PriRotlValidationDto, user: any) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -57,7 +58,7 @@ export class LeaveService {
         createdDate: new Date(),
         createdEmployeeKeyId: user.employeeKey.employeeKeyId
       });
-      await this.dynamicService.createTableData(queryRunner, PriLeave, this.priLeaveRepository, newData, user)
+      await this.dynamicService.createTableData(queryRunner, PriRotl, this.priRotlRepository, newData, user)
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
@@ -66,13 +67,13 @@ export class LeaveService {
       await queryRunner.release();
     }
   }
-  async update (dto: PriLeaveValidationDto, user: any) {
+  async update (dto: PriRotlValidationDto, user: any) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       const updateData = dto;
-      await this.dynamicService.updateTableData(queryRunner, PriLeave, this.priLeaveRepository, updateData, user)
+      await this.dynamicService.updateTableData(queryRunner, PriRotl, this.priRotlRepository, updateData, user)
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
@@ -86,7 +87,7 @@ export class LeaveService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      await this.dynamicService.deleteHardTableData(queryRunner, this.priLeaveRepository, id)
+      await this.dynamicService.deleteHardTableData(queryRunner, this.priRotlRepository, id)
       await queryRunner.commitTransaction();
     } catch (err) {
       console.log(err)
@@ -96,13 +97,13 @@ export class LeaveService {
       await queryRunner.release();
     }
   }
-  async received (dto: PriLeaveReceivedValidationDto, user: any) {
+  async received (dto: PriRotlReceivedValidationDto, user: any) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       const updateData = { ...dto, wfmStatusId: 100502 };
-      await this.dynamicService.updateTableData(queryRunner, PriLeave, this.priLeaveRepository, updateData, user)
+      await this.dynamicService.updateTableData(queryRunner, PriRotl, this.priRotlRepository, updateData, user)
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();

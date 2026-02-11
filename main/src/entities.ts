@@ -49,6 +49,8 @@ import { PriPrisonerLabor } from "./entity/pri/labor/PriPrisonerLabor"
 import { PriInfoLaborType } from "./entity/info/priInfoLaborType"
 import { WfmStatus } from "./entity/wfmStatus.entity"
 import { PriPrisonerLaborView } from "./entity/pri/labor/PriPrisonerLaborView"
+import { PriRotlView } from "./entity/pri/rotl/PriRotlView"
+import { PriRotl } from "./entity/pri/rotl/priRotl.entity"
 
 const Entities = [
   WfmStatus,
@@ -73,5 +75,7 @@ const Entities = [
   PriDecision, PriDecisionView,
   PriTsagdanTimeView,PriLaborView,
   PriLabor, PriPrisonerLabor, PriPrisonerLaborView, PriInfoLaborType,
+
+  PriRotlView, PriRotl
 ]
 export default Entities

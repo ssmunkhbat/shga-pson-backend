@@ -1,6 +1,6 @@
 import { IsNumber, IsNotEmpty, IsDateString, IsBoolean } from 'class-validator';
 export class PriLeaveReceivedValidationDto {
-  @IsNotEmpty({ message: 'prisonerKeyId утга шаардана' })
+  @IsNotEmpty({ message: 'leaveId утга шаардана' })
   @IsNumber({}, { message: 'leaveId байх ёстой' })
   leaveId: number;
 

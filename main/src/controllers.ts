@@ -12,6 +12,7 @@ import { LeaveController } from './modules/pri/leave/leave.controller';
 import { PriDecisionController } from "./modules/pri/decision/decision.controller";
 import { PriDetentionController } from "./modules/pri/detention/detention.controller";
 import { PriLaborController } from "./modules/pri/labor/labor.controller";
+import { RotlController } from "./modules/pri/rotl/rotl.controller";
 export const controllers = [
     TableConfigController,
     SettingsController,
@@ -27,4 +28,5 @@ export const controllers = [
     PriDecisionController,
     PriDetentionController,
     PriLaborController,
+    RotlController
 ]

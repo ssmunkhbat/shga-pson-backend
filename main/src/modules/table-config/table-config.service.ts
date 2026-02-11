@@ -23,6 +23,7 @@ import { MenuSettings } from 'src/entity/pri/settings/MenuSettings';
 import { ActionSettings } from 'src/entity/pri/settings/ActionSettings.ts';
 import { PriLaborView } from 'src/entity/pri/labor/PriLaborView';
 import { PriPrisonerLaborView } from 'src/entity/pri/labor/PriPrisonerLaborView';
+import { PriRotlView } from 'src/entity/pri/rotl/PriRotlView';
 
 interface TableFieldMeta {
   header: string;
@@ -56,6 +57,7 @@ const dynamicTables: Record<string, DynamicTable> = {
   'psActionList': ActionSettings as unknown as DynamicTable,
   'labor-list': PriLaborView as unknown as DynamicTable,
   'prisoner-labor-list': PriPrisonerLaborView as unknown as DynamicTable,
+  'rotl-view': PriRotlView as unknown as DynamicTable,
 };
 
 interface FormFieldMeta {
@@ -83,6 +85,7 @@ const dynamicForms: Record<string, DynamicForm> = {
   'tsagdan-time-list': PriTsagdanTimeView as unknown as DynamicForm,
   'psMenuList': MenuSettings as unknown as DynamicForm,
   'psActionList': ActionSettings as unknown as DynamicForm,
+  'rotl-view': PriRotlView as unknown as DynamicForm,
 };
 
 @Injectable()
