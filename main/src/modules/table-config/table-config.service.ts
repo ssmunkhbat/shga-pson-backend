@@ -25,6 +25,11 @@ import { PriLaborView } from 'src/entity/pri/labor/PriLaborView';
 import { PriPrisonerLaborView } from 'src/entity/pri/labor/PriPrisonerLaborView';
 import { PriRotlView } from 'src/entity/pri/rotl/PriRotlView';
 
+import * as ExcelJS from 'exceljs';
+import { Response } from 'express';
+import { getNestedValue } from 'src/utils/helper';
+const moment = require("moment");
+
 interface TableFieldMeta {
   header: string;
   type: string;
@@ -292,6 +297,54 @@ export class TableConfigService {
     const id = match ? match[1] : null;
     console.log(id);
     return id;
+  }
+
+  //#endregion
+
+  //#region [EXCEL DOWNLOAD]
+
+  async downloadExcel(res: Response, dynamicTableName: string = 'leave-view', rows: any[], fileName) {
+    const columns = await this.getColumns(dynamicTableName)
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('sheet1');
+
+    // Header үүсгэх
+    worksheet.columns = columns.map((item: any) => {
+      return { key: item.key, header: item.header }
+    })
+
+    // Мэдээлэл нэмэх
+    for (const item of rows) {
+      const formattedRow = {};
+
+      columns.forEach(col => {
+        const key = col.type === "ref" || col.type === "refstatus" ? col.refField : col.key
+        let value = getNestedValue(item, key);
+        if (col.type === 'date' && value) {
+          value = moment(new Date(value)).format('YYYY-MM-DD')
+        }
+        if (col.type === 'boolean') {
+          value = value ? 'Тийм' : 'Үгүй';
+        }
+        formattedRow[col.key] = value;
+      });
+
+      worksheet.addRow(formattedRow);
+    }
+
+    // Response рүү буцаах
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=${fileName}`,
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
   }
 
   //#endregion

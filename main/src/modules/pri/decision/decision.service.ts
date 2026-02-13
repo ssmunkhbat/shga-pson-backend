@@ -82,12 +82,12 @@ export class PriDecisionService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const count = await queryRunner.manager.count(PriDecision, {
-        where: { decisionNumber: dto.decisionNumber, decisionId: Not(dto.decisionId) },
-      });
-      if (count > 0) {
-        throw new BadRequestException(`${dto.decisionNumber} шийдвэрийн дугаар давхардаж байна!`);
-      }
+      // const count = await queryRunner.manager.count(PriDecision, {
+      //   where: { decisionNumber: dto.decisionNumber, decisionId: Not(dto.decisionId) },
+      // });
+      // if (count > 0) {
+      //   throw new BadRequestException(`${dto.decisionNumber} шийдвэрийн дугаар давхардаж байна!`);
+      // }
       const found = await queryRunner.manager.findOne(PriDecision, {
         where: { decisionId: dto.decisionId },
       });

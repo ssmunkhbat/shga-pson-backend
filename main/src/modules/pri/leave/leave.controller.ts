@@ -1,8 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { LeaveService } from './leave.service';
 import { JwtAuthGuard } from 'src/modules/auth/jwt.guard';
 import { PriLeaveValidationDto } from 'src/dto/validation/pri/leave/leave.validation.dto';
 import { PriLeaveReceivedValidationDto } from 'src/dto/validation/pri/leave/leaveReceived.validation.dto';
+import { Response } from 'express';
+
 @Controller('leave')
 export class LeaveController {
   constructor(private readonly service: LeaveService) {
@@ -31,5 +33,10 @@ export class LeaveController {
   @Post('received')
   received(@Body() dto: PriLeaveReceivedValidationDto, @Req() req) {
     return this.service.received(dto, req.user)
+  }
+  
+  @Get('download/excel')
+  async downloadExcel(@Req() req, @Res() res: Response) {
+    return this.service.downloadExcel(res, req.user);
   }
 }

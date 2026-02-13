@@ -87,3 +87,8 @@ export function getFilter(mainAlias, searches: any[]) {
   }
   return result
 }
+
+
+export function getNestedValue(obj, path) {
+  return path.split('.').reduce((acc, part) => acc?.[part], obj);
+}

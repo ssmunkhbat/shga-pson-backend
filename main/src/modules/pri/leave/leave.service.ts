@@ -6,9 +6,13 @@ import { PriLeaveReceivedValidationDto } from 'src/dto/validation/pri/leave/leav
 import { LeaveView } from 'src/entity/pri/leave/leaveView.entity';
 import { PriLeave } from 'src/entity/pri/leave/priLeave.entity';
 import { DynamicService } from 'src/modules/dynamic/dynamic.service';
-import { getFilterAndParameters, getSortFieldAndOrder } from 'src/utils/helper';
+import { getFilterAndParameters, getNestedValue, getSortFieldAndOrder } from 'src/utils/helper';
 import { getId } from 'src/utils/unique';
 import { DataSource, Repository } from 'typeorm';
+import * as ExcelJS from 'exceljs';
+import { Response } from 'express';
+import { TableConfigService } from 'src/modules/table-config/table-config.service';
+const moment = require("moment");
 
 @Injectable()
 export class LeaveService {
@@ -19,6 +23,7 @@ export class LeaveService {
     @InjectRepository(PriLeave)
     private priLeaveRepository : Repository<PriLeave>,
     private readonly dynamicService: DynamicService,
+    private readonly tableConfiService: TableConfigService,
   ) {}
   getHello () : string {
     return 'hello'
@@ -30,7 +35,7 @@ export class LeaveService {
     if (filter) {
       queryBuilder.where(filter, parameters)
     }
-    if (user.userRole.roleId !== 100) {
+    if (user && user.userRole && user.userRole.roleId !== 100) {
       queryBuilder.andWhere('md.departmentId = :departmentId', { departmentId: user.employeeKey.departmentId })
     }
     const { field, order } = getSortFieldAndOrder('md', sortParam)
@@ -110,5 +115,14 @@ export class LeaveService {
     } finally {
       await queryRunner.release();
     }
+  }
+  
+  async downloadExcel(res: Response, user: any) {
+    const page = 1, limit = 10, search = '[]', sort = '{}';
+    const { rows } = await this.getList({ page, limit }, search, sort, user)
+
+    const fileName = 'sample.xlsx';
+    const dynamicTableName = 'leave-view'
+    return this.tableConfiService.downloadExcel(res, dynamicTableName, rows, fileName);
   }
 }
