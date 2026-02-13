@@ -3,7 +3,7 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { PriRotlValidationDto } from 'src/dto/validation/pri/rotl/rotl.validation.dto';
 import { PriRotlReceivedValidationDto } from 'src/dto/validation/pri/rotl/rotlReceived.validation.dto';
-import { PriRotl } from 'src/entity/pri/rotl/priRotl.entity';
+import { PriRotl } from 'src/entity/pri/rotl/PriRotl.entity';
 import { PriTrainingView } from 'src/entity/pri/training/PriTrainingView.entity';
 import { DynamicService } from 'src/modules/dynamic/dynamic.service';
 import { getFilterAndParameters, getSortFieldAndOrder } from 'src/utils/helper';
@@ -24,23 +24,28 @@ export class TrainingService {
     return 'hello'
   }
   async getList (options: IPaginationOptions, searchParam: string, sortParam: string, user: any) {
-    const queryBuilder = this.trainingViewRepository.createQueryBuilder('md')
-      .leftJoin("md.wfmStatus", "WS").addSelect(['WS.wfmStatusId', 'WS.wfmStatusCode', 'WS.wfmStatusName', 'WS.wfmStatusColor', 'WS.wfmStatusBgColor']);
-    const { filter, parameters } = getFilterAndParameters('md', searchParam)
-    if (filter) {
-      queryBuilder.where(filter, parameters)
-    }
-    if (user.userRole.roleId !== 100) {
-      queryBuilder.andWhere('md.departmentId = :departmentId', { departmentId: user.employeeKey.departmentId })
-    }
-    const { field, order } = getSortFieldAndOrder('md', sortParam)
-    if (field) {
-      queryBuilder.orderBy(field, order)
-    }
-    const data = await paginate<PriTrainingView>(queryBuilder, options)
-    return {
-      rows: data.items,
-      total: data.meta.totalItems
+    try {
+      const queryBuilder = this.trainingViewRepository.createQueryBuilder('md')
+        .leftJoin("md.wfmStatus", "WS").addSelect(['WS.wfmStatusId', 'WS.wfmStatusCode', 'WS.wfmStatusName', 'WS.wfmStatusColor', 'WS.wfmStatusBgColor']);
+      const { filter, parameters } = getFilterAndParameters('md', searchParam)
+      if (filter) {
+        queryBuilder.where(filter, parameters)
+      }
+      if (user.userRole.roleId !== 100) {
+        queryBuilder.andWhere('md.departmentId = :departmentId', { departmentId: user.employeeKey.departmentId })
+      }
+      const { field, order } = getSortFieldAndOrder('md', sortParam)
+      if (field) {
+        queryBuilder.orderBy(field, order)
+      }
+      const data = await paginate<PriTrainingView>(queryBuilder, options)
+      return {
+        rows: data.items,
+        total: data.meta.totalItems
+      }
+    } catch (err) {
+      console.error(err)
+      throw err
     }
   }
 

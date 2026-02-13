@@ -1,4 +1,5 @@
-import { ViewColumn, ViewEntity } from "typeorm";
+import { WfmStatus } from "src/entity/wfmStatus.entity";
+import { JoinColumn, ManyToOne, ViewColumn, ViewEntity } from "typeorm";
 
 @ViewEntity('PRI_TRAINING_VIEW')
 export class PriTrainingView {
@@ -55,14 +56,23 @@ export class PriTrainingView {
 
   @ViewColumn({ name: 'TEACHER_NAME' })
   teacherName: string;
+  
+  @ManyToOne(() => WfmStatus, (ws) => ws.wfmStatusId)
+  @JoinColumn({name: 'WFM_STATUS_ID'})
+  wfmStatus: WfmStatus;
+
+  @ViewColumn({ name: 'RANGE_TIME' })
+  rangeTime: string;
 
   static getTableFields() {
     return {
-      prisonerNumber: { header: 'Хоригдогчийн дугаар', type: 'string', sortable: true, filterable: true, width: 'w-16' },
+      trainingName: { header: 'Сургалтын төрөл', type: 'string', sortable: true, filterable: true, width: 'w-16' },
       beginDate: { header: 'Эхлэх огноо', type: 'date', sortable: true, filterable: true, width: 'w-48' },
       endDate: { header: 'Дуусах огноо', type: 'date', sortable: true, filterable: true, width: 'w-48' },
-      timeOfDay: { header: 'Цаг огноо', type: 'time', sortable: true, filterable: true, width: 'w-48' },
+      rangeTime: { header: 'Цаг огноо', type: 'string', sortable: true, filterable: true, width: 'w-48' },
       timesAWeek: { header: '7 хоногт', type: 'number', sortable: true, filterable: true, width: 'w-48' },
+      teacherName: { header: 'Багш', type: 'string', sortable: true, filterable: true, width: 'w-16' },
+      trainingPrisonersCount: { header: 'Оролцогчид', type: 'number', sortable: true, filterable: true, width: 'w-48' },
       wfmStatus: {
         header: 'Төлөв',
         type: 'refstatus',
@@ -70,7 +80,7 @@ export class PriTrainingView {
         refColorField: 'wfmStatus.wfmStatusColor', refBgColorField: 'wfmStatus.wfmStatusBgColor',
         sortable: false, filterable: true, width: 'w-16'
       },
-      employeeCode: { header: 'Бүртгэсэн ажилтан код', type: 'string', sortable: true, filterable: true, width: 'w-48' },
+      createdEmployeeCode: { header: 'Бүртгэсэн ажилтан код', type: 'string', sortable: true, filterable: true, width: 'w-48' },
       createdEmployeeName: { header: 'Бүртгэсэн ажилтан', type: 'string', sortable: true, filterable: true, width: 'w-48' },
       createdDate: { header: 'Үүсгэсэн огноо', type: 'datetime', sortable: true, filterable: true, width: 'w-48' }
     }

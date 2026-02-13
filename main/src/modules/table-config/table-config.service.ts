@@ -16,18 +16,19 @@ import { ActionSettingsDto } from 'src/dto/settings/action.dto';
 import { plainToClass } from '@nestjs/class-transformer';
 import { PriAddress } from 'src/entity/pri/address/priAddress';
 import { PriInfoTransactionType } from 'src/entity/info/priInfoTransactionType';
-import { LeaveView } from 'src/entity/pri/leave/leaveView.entity';
+import { PriLeaveView } from 'src/entity/pri/leave/PriLeaveView.entity';
 import { PriDecisionView } from 'src/entity/pri/decision/priDecisionView';
 import { PriTsagdanTimeView } from 'src/entity/pri/detention/PriTsagdanTimeView';
 import { MenuSettings } from 'src/entity/pri/settings/MenuSettings';
 import { ActionSettings } from 'src/entity/pri/settings/ActionSettings.ts';
 import { PriLaborView } from 'src/entity/pri/labor/PriLaborView';
 import { PriPrisonerLaborView } from 'src/entity/pri/labor/PriPrisonerLaborView';
-import { PriRotlView } from 'src/entity/pri/rotl/PriRotlView';
+import { PriRotlView } from 'src/entity/pri/rotl/PriRotlView.entity';
 
 import * as ExcelJS from 'exceljs';
 import { Response } from 'express';
 import { getNestedValue } from 'src/utils/helper';
+import { PriTrainingView } from 'src/entity/pri/training/PriTrainingView.entity';
 const moment = require("moment");
 
 interface TableFieldMeta {
@@ -55,7 +56,7 @@ const dynamicTables: Record<string, DynamicTable> = {
   'account-book': PriPrisonerAccountBook as unknown as DynamicTable,
   'account-book-view': PriPrisonerAccountBookView as unknown as DynamicTable,
   'address': PriAddress as unknown as DynamicTable,
-  'leave-view': LeaveView as unknown as DynamicTable,
+  'leave-view': PriLeaveView as unknown as DynamicTable,
   'decision-view': PriDecisionView as unknown as DynamicTable,
   'tsagdan-time-list': PriTsagdanTimeView as unknown as DynamicTable,
   'psMenuList': MenuSettings as unknown as DynamicTable,
@@ -63,6 +64,7 @@ const dynamicTables: Record<string, DynamicTable> = {
   'labor-list': PriLaborView as unknown as DynamicTable,
   'prisoner-labor-list': PriPrisonerLaborView as unknown as DynamicTable,
   'rotl-view': PriRotlView as unknown as DynamicTable,
+  'training-view': PriTrainingView as unknown as DynamicTable
 };
 
 interface FormFieldMeta {
@@ -85,12 +87,13 @@ const dynamicForms: Record<string, DynamicForm> = {
   'account-book': PriPrisonerAccountBook as unknown as DynamicForm,
   'account-book-view': PriPrisonerAccountBookView as unknown as DynamicForm,
   'address': PriAddress as unknown as DynamicForm,
-  'leave-view': LeaveView as unknown as DynamicForm,
+  'leave-view': PriLeaveView as unknown as DynamicForm,
   'decision-view': PriDecisionView as unknown as DynamicForm,
   'tsagdan-time-list': PriTsagdanTimeView as unknown as DynamicForm,
   'psMenuList': MenuSettings as unknown as DynamicForm,
   'psActionList': ActionSettings as unknown as DynamicForm,
   'rotl-view': PriRotlView as unknown as DynamicForm,
+  'training-view': PriTrainingView as unknown as DynamicForm
 };
 
 @Injectable()

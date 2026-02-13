@@ -3,8 +3,8 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { PriLeaveValidationDto } from 'src/dto/validation/pri/leave/leave.validation.dto';
 import { PriLeaveReceivedValidationDto } from 'src/dto/validation/pri/leave/leaveReceived.validation.dto';
-import { LeaveView } from 'src/entity/pri/leave/leaveView.entity';
-import { PriLeave } from 'src/entity/pri/leave/priLeave.entity';
+import { PriLeaveView } from 'src/entity/pri/leave/PriLeaveView.entity';
+import { PriLeave } from 'src/entity/pri/leave/PriLeave.entity';
 import { DynamicService } from 'src/modules/dynamic/dynamic.service';
 import { getFilterAndParameters, getNestedValue, getSortFieldAndOrder } from 'src/utils/helper';
 import { getId } from 'src/utils/unique';
@@ -18,8 +18,8 @@ const moment = require("moment");
 export class LeaveService {
   constructor (
     @InjectDataSource() private dataSource: DataSource,
-    @InjectRepository(LeaveView)
-    private leaveViewRepository : Repository<LeaveView>,
+    @InjectRepository(PriLeaveView)
+    private leaveViewRepository : Repository<PriLeaveView>,
     @InjectRepository(PriLeave)
     private priLeaveRepository : Repository<PriLeave>,
     private readonly dynamicService: DynamicService,
@@ -42,7 +42,7 @@ export class LeaveService {
     if (field) {
       queryBuilder.orderBy(field, order)
     }
-    const data = await paginate<LeaveView>(queryBuilder, options)
+    const data = await paginate<PriLeaveView>(queryBuilder, options)
     return {
       rows: data.items,
       total: data.meta.totalItems

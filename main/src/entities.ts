@@ -36,12 +36,12 @@ import { RefCountry } from "./entity/ref/refCountry"
 import { PriAddress } from "./entity/pri/address/priAddress"
 import { PriInfoTransactionType } from "./entity/info/priInfoTransactionType"
 import { PriInfoBookType } from "./entity/info/priInfoBookType"
-import { LeaveView } from "./entity/pri/leave/leaveView.entity"
+import { PriLeaveView } from "./entity/pri/leave/PriLeaveView.entity"
 import { PriDecisionView } from "./entity/pri/decision/priDecisionView"
 import { PriDecision } from "./entity/pri/decision/priDecision"
 import { PriTsagdanTimeView } from "./entity/pri/detention/PriTsagdanTimeView"
 import { PriInfoDecisionType } from "./entity/info/priInfoDecisionType"
-import { PriLeave } from "./entity/pri/leave/priLeave.entity"
+import { PriLeave } from "./entity/pri/leave/PriLeave.entity"
 import { PriInfoLeaveType } from "./entity/info/priInfoLeaveType.entity"
 import { PriLaborView } from "./entity/pri/labor/PriLaborView"
 import { PriLabor } from "./entity/pri/labor/PriLabor"
@@ -49,9 +49,12 @@ import { PriPrisonerLabor } from "./entity/pri/labor/PriPrisonerLabor"
 import { PriInfoLaborType } from "./entity/info/priInfoLaborType"
 import { WfmStatus } from "./entity/wfmStatus.entity"
 import { PriPrisonerLaborView } from "./entity/pri/labor/PriPrisonerLaborView"
-import { PriRotlView } from "./entity/pri/rotl/PriRotlView"
-import { PriRotl } from "./entity/pri/rotl/priRotl.entity"
+import { PriRotlView } from "./entity/pri/rotl/PriRotlView.entity"
+import { PriRotl } from "./entity/pri/rotl/PriRotl.entity"
 import { PriTrainingView } from "./entity/pri/training/PriTrainingView.entity"
+import { PriTrainingPrisonerView } from "./entity/pri/training/PriTrainingPrisonerView.entity"
+import { PriTraining } from "./entity/pri/training/PriTraining.entity"
+import { PriTrainingPrisoner } from "./entity/pri/training/PriTrainingPrisoner.entity"
 
 const Entities = [
   WfmStatus,
@@ -71,7 +74,7 @@ const Entities = [
   PriPrisonerAccountBook, PriPrisonerAccountBookView,
   PriNotificationMView, PriMovementArrival,
 
-  LeaveView, PriLeave, PriInfoLeaveType,
+  PriLeaveView, PriLeave, PriInfoLeaveType,
 
   PriDecision, PriDecisionView,
   PriTsagdanTimeView,PriLaborView,
@@ -79,6 +82,6 @@ const Entities = [
 
   PriRotlView, PriRotl,
 
-  PriTrainingView
+  PriTrainingView, PriTrainingPrisonerView, PriTraining, PriTrainingPrisoner
 ]
 export default Entities
