@@ -4,18 +4,18 @@ import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { PriRotlValidationDto } from 'src/dto/validation/pri/rotl/rotl.validation.dto';
 import { PriRotlReceivedValidationDto } from 'src/dto/validation/pri/rotl/rotlReceived.validation.dto';
 import { PriRotl } from 'src/entity/pri/rotl/priRotl.entity';
-import { PriRotlView } from 'src/entity/pri/rotl/PriRotlView';
+import { PriTrainingView } from 'src/entity/pri/training/PriTrainingView.entity';
 import { DynamicService } from 'src/modules/dynamic/dynamic.service';
 import { getFilterAndParameters, getSortFieldAndOrder } from 'src/utils/helper';
 import { getId } from 'src/utils/unique';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
-export class RotlService {
+export class TrainingService {
   constructor (
     @InjectDataSource() private dataSource: DataSource,
-    @InjectRepository(PriRotlView)
-    private rotlViewRepository : Repository<PriRotlView>,
+    @InjectRepository(PriTrainingView)
+    private trainingViewRepository : Repository<PriTrainingView>,
     @InjectRepository(PriRotl)
     private priRotlRepository : Repository<PriRotl>,
     private readonly dynamicService: DynamicService,
@@ -24,7 +24,7 @@ export class RotlService {
     return 'hello'
   }
   async getList (options: IPaginationOptions, searchParam: string, sortParam: string, user: any) {
-    const queryBuilder = this.rotlViewRepository.createQueryBuilder('md')
+    const queryBuilder = this.trainingViewRepository.createQueryBuilder('md')
       .leftJoin("md.wfmStatus", "WS").addSelect(['WS.wfmStatusId', 'WS.wfmStatusCode', 'WS.wfmStatusName', 'WS.wfmStatusColor', 'WS.wfmStatusBgColor']);
     const { filter, parameters } = getFilterAndParameters('md', searchParam)
     if (filter) {
@@ -37,7 +37,7 @@ export class RotlService {
     if (field) {
       queryBuilder.orderBy(field, order)
     }
-    const data = await paginate<PriRotlView>(queryBuilder, options)
+    const data = await paginate<PriTrainingView>(queryBuilder, options)
     return {
       rows: data.items,
       total: data.meta.totalItems

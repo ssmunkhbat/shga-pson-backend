@@ -13,6 +13,7 @@ import { PriDecisionController } from "./modules/pri/decision/decision.controlle
 import { PriDetentionController } from "./modules/pri/detention/detention.controller";
 import { PriLaborController } from "./modules/pri/labor/labor.controller";
 import { RotlController } from "./modules/pri/rotl/rotl.controller";
+import { TrainingController } from "./modules/pri/training/training.controller";
 export const controllers = [
     TableConfigController,
     SettingsController,
@@ -28,5 +29,6 @@ export const controllers = [
     PriDecisionController,
     PriDetentionController,
     PriLaborController,
-    RotlController
+    RotlController,
+    TrainingController
 ]
