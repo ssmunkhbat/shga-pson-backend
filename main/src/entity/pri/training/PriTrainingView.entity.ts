@@ -32,6 +32,9 @@ export class PriTrainingView {
 
   @ViewColumn({ name: 'TIME_OF_DAY' })
   timeOfDay: Date;
+
+  @ViewColumn({ name: 'FINISH_TIME_OF_DAY' })
+  finishTimeOfDay: Date;
   
   @ViewColumn({ name: 'DESCRIPTION' })
   description: string;

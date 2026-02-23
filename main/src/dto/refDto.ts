@@ -33,7 +33,8 @@ export class RefDto {
             'LABOR_TYPE_ID',
             'LABOR_RESULT_TYPE_ID',
             'WFM_STATUS_ID',
-            'ROTL_TYPE_ID'
+            'ROTL_TYPE_ID',
+            'INFO_TRAINING_ID'
         ].map(k => obj[k]).find(v => v !== undefined && v !== null)
     )
     id: number;

@@ -35,7 +35,7 @@ export class PriTraining {
   @Column({ name: 'CREATED_DATE' })
   createdDate: Date;
 
-  @Column({ name: 'TIME_OF_DAY' })
+  @Column({ name: 'FINISH_TIME_OF_DAY' })
   finishTimeOfDay: Date;
 
   @Column({ name: 'TEACHER_NAME' })

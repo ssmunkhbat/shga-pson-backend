@@ -1,4 +1,4 @@
-import { Column,  PrimaryGeneratedColumn, ViewColumn, ViewEntity } from "typeorm";
+import { ViewColumn, ViewEntity } from "typeorm";
 @ViewEntity('PRI_TRAINING_PRISONER_VIEW')
 export class PriTrainingPrisonerView {
 

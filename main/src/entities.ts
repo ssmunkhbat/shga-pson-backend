@@ -55,6 +55,7 @@ import { PriTrainingView } from "./entity/pri/training/PriTrainingView.entity"
 import { PriTrainingPrisonerView } from "./entity/pri/training/PriTrainingPrisonerView.entity"
 import { PriTraining } from "./entity/pri/training/PriTraining.entity"
 import { PriTrainingPrisoner } from "./entity/pri/training/PriTrainingPrisoner.entity"
+import { PriTrainingPrisonerKeyView } from "./entity/pri/training/PriTrainingPrisonerKeyView.entity"
 
 const Entities = [
   WfmStatus,
@@ -82,6 +83,6 @@ const Entities = [
 
   PriRotlView, PriRotl,
 
-  PriTrainingView, PriTrainingPrisonerView, PriTraining, PriTrainingPrisoner
+  PriTrainingView, PriTrainingPrisonerView, PriTraining, PriTrainingPrisoner, PriTrainingPrisonerKeyView
 ]
 export default Entities
