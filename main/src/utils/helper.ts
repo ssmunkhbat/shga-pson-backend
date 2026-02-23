@@ -92,3 +92,10 @@ export function getFilter(mainAlias, searches: any[]) {
 export function getNestedValue(obj, path) {
   return path.split('.').reduce((acc, part) => acc?.[part], obj);
 }
+
+export function isNull(value) {
+  return value === undefined || value === null || value === ''
+}
+export function isEmptyList(list: Array<any>) {
+  return list === undefined || list.length === 0
+}
