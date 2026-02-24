@@ -20,7 +20,7 @@ import { PriLeaveView } from 'src/entity/pri/leave/PriLeaveView.entity';
 import { PriDecisionView } from 'src/entity/pri/decision/priDecisionView';
 import { PriTsagdanTimeView } from 'src/entity/pri/detention/PriTsagdanTimeView';
 import { MenuSettings } from 'src/entity/pri/settings/MenuSettings';
-import { ActionSettings } from 'src/entity/pri/settings/ActionSettings.ts';
+import { ActionSettings } from 'src/entity/pri/settings/ActionSettings';
 import { PriLaborView } from 'src/entity/pri/labor/PriLaborView';
 import { PriPrisonerLaborView } from 'src/entity/pri/labor/PriPrisonerLaborView';
 import { PriRotlView } from 'src/entity/pri/rotl/PriRotlView.entity';

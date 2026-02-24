@@ -70,7 +70,7 @@ export class MenuSettings {
       name: { label: 'Нэр', type: 'string', isRequired: true, column: 1 },
       path: { label: 'path', type: 'string', isRequired: false, column: 2 },
       orderNum: { label: 'Эрэмбэ', type: 'number', isRequired: false, column: 2 },
-      isActive: { label: 'Идэвхтэй эсэх', type: 'boolean', isRequired: false , column: 2},
+      isActive: { label: 'Идэвхтэй эсэх', type: 'boolean', isRequired: true, column: 2},
     };
   }
 }

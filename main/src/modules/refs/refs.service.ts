@@ -1,12 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, HttpException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { RefDto } from 'src/dto/refDto';
 import { DataSource } from 'typeorm';
 import { plainToClass } from '@nestjs/class-transformer';
 import { getId } from 'src/utils/unique';
-import { CacheService } from '../cache/cache.service';
+import { CacheService } from 'src/modules/cache/cache.service';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { getFilterAndParameters, getSortFieldAndOrder } from 'src/utils/helper';
+import { TableConfigService } from 'src/modules/table-config/table-config.service';
 
 const mapRef = {
   'role': 'UM_ROLE',
@@ -55,6 +56,7 @@ export class RefsService {
   constructor(
     @InjectDataSource() private dataSource: DataSource,
     private readonly cacheService: CacheService,
+    private readonly tableConfigService: TableConfigService,
   ) {}
 
   //#region [MAIN]
@@ -206,6 +208,87 @@ export class RefsService {
 
     const data = await paginate(queryBuilder, options);
     return { rows: data.items, total: data.meta.totalItems };
+  }
+
+  async saveRefDynamic(dto: any, user: any) {
+    const { refName, id, ...data } = dto;
+
+    const EntityClass = mapRef[refName];
+    if (!EntityClass) {
+      throw new NotFoundException('Reference not found');
+    }
+    console.log('--saveRefDynamic-> dto:', dto);
+    const fields = this.tableConfigService.getFormFields(refName);
+    this.validateDynamicDto(data, fields);
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      let entity;
+
+      if (id) {
+        entity = await queryRunner.manager.findOne(EntityClass, {
+          where: { id },
+        });
+        if (!entity) {
+          throw new NotFoundException('Өгөгдөл олдсонгүй');
+        }
+
+        const allowedKeys = fields.map(f => f.key);
+        Object.entries(data).forEach(([key, value]) => {
+          if (allowedKeys.includes(key)) {
+            entity[key] = value;
+          }
+        });
+
+        if ('modifiedDate' in entity) entity.modifiedDate = new Date();
+        if ('modifiedUserId' in entity) entity.modifiedUserId = user?.userId;
+      } else {
+        const allowedData: any = {};
+        const allowedKeys = fields.map(f => f.key);
+        Object.entries(data).forEach(([key, value]) => {
+          if (allowedKeys.includes(key)) {
+            allowedData[key] = value;
+          }
+        });
+
+        entity = queryRunner.manager.create(EntityClass, allowedData);
+        
+        if ('createdDate' in entity) entity.createdDate = new Date();
+        if ('createdUserId' in entity) entity.createdUserId = user?.userId;
+      }
+      const saved = await queryRunner.manager.save(EntityClass, entity);
+
+      await queryRunner.commitTransaction();
+      return saved;
+    } catch (err) {
+      console.log(err)
+      await queryRunner.rollbackTransaction();
+      throw new HttpException(err, 500)
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  validateDynamicDto(data: any, fields: any) {
+    const errors: string[] = [];
+    Object.entries(fields).forEach(([key, config]: any) => {
+      const value = data[config.key || key];
+      if (config.isRequired && (value === undefined || value === null || value === '')) {
+        errors.push(`${key} шаардлагатай`);
+      }
+      if (config.type === 'string' && value && typeof value !== 'string') {
+        errors.push(`${key} string байх ёстой`);
+      }
+      if (config.type === 'number' && value && typeof value !== 'number') {
+        errors.push(`${key} number байх ёстой`);
+      }
+    });
+    console.log('--errors--:', errors);
+    if (errors.length) {
+      throw new BadRequestException(errors);
+    }
   }
 
   //#endregion
