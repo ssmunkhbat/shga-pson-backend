@@ -7,11 +7,12 @@ import { UmUserRole } from 'src/entity/um/um-user-role';
 import { PriEmployee } from 'src/entity/pri/employee/priEmployee';
 import { PriEmployeeKey } from 'src/entity/pri/employee/priEmployeeKey';
 import { BasePerson } from 'src/entity/base/basePerson';
+import { PriLoginLog } from 'src/entity/log/PriLoginLog.entity';
 
 @Global()
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UmSystemUser, UmUserRole, PriEmployee, PriEmployeeKey, BasePerson]), // ✅ MUST be here
+    TypeOrmModule.forFeature([UmSystemUser, UmUserRole, PriEmployee, PriEmployeeKey, BasePerson, PriLoginLog]), // ✅ MUST be here
   ],
   controllers: [UserController],
   providers: [UserService],

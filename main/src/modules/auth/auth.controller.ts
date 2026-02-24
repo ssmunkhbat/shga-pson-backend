@@ -8,8 +8,8 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  login(@Body() body: { username: string; password: string }, @Res({ passthrough: true }) res: Response) {
-    return this.authService.login(body, res);
+  login(@Request() req, @Body() body: { username: string; password: string }, @Res({ passthrough: true }) res: Response) {
+    return this.authService.login(body, res, req);
   }
 
   @UseGuards(JwtAuthGuard)

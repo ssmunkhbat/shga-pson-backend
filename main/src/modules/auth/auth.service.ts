@@ -1,7 +1,8 @@
-import { Body, Injectable, Res, UnauthorizedException } from '@nestjs/common';
+import { Body, Injectable, Res, UnauthorizedException, Request } from '@nestjs/common';
 import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
+import { getIp } from 'src/utils/helper';
 
 @Injectable()
 export class AuthService {
@@ -13,9 +14,11 @@ export class AuthService {
   async login(
     @Body() body: { username: string; password: string },
     @Res({ passthrough: true }) res: Response,
+    @Request() req: Request,
   ) {
     const { username, password } = body
-    const user = await this.usersService.validateUser(username, password);
+    const ipAddress : string = getIp(req)
+    const user = await this.usersService.validateUser(username, password, ipAddress);
 
     if (!user) {
       throw new UnauthorizedException('Нэвтрэх нэр эсвэл Нууц үгээ шалгана уу!');

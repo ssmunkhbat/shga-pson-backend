@@ -10,6 +10,8 @@ import { getFilter } from 'src/utils/helper';
 import { DataSource, Repository } from 'typeorm';
 import { BasePerson } from 'src/entity/base/basePerson';
 import { ChangePasswordValidationDto } from 'src/dto/validation/changePassword.dto.validator';
+import { PriLoginLog } from 'src/entity/log/PriLoginLog.entity';
+import { getId } from 'src/utils/unique';
 const md5 = require('md5');
 const md5reverse = (val) => {
   const str = md5(val)
@@ -29,6 +31,9 @@ export class UserService {
     private employeeKeyRepo: Repository<PriEmployeeKey>,
     @InjectRepository(BasePerson)
     private basePersonRepo: Repository<BasePerson>,
+
+    @InjectRepository(PriLoginLog)
+    private priLoginLogRepository: Repository<PriLoginLog>
   ) { }
 
   async findByUsername(username: string, passwordHash: string) {
@@ -96,15 +101,23 @@ export class UserService {
     }
     return user
   }
-  
+  async savePriLoginLog (user: any, ipAddress: string) {
+    const log = new PriLoginLog()
+    log.employeeKeyId = user.employeeKey.employeeKeyId,
+    log.ipAddress = ipAddress
+    log.loginDate = new Date()
+    log.loginLogId = getId()
+    log.userId = user.userId
+    await this.priLoginLogRepository.save(log)
+  }
 
-  async validateUser(username: string, password: string) {
+  async validateUser(username: string, password: string, ipAddress: string) {
     const passwordHash = md5reverse(password)
     const user = await this.findByUsername(username, passwordHash);
     console.log('-----------validateUser-----------', user)
     if (!user) return null;
     const role = await this.getUserRole(user.userId)
-
+    await this.savePriLoginLog(user, ipAddress)
     return Object.assign({ roleId: role.roleId }, user);
   }
 

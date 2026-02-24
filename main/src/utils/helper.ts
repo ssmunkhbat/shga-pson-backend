@@ -99,3 +99,11 @@ export function isNull(value) {
 export function isEmptyList(list: Array<any>) {
   return list === undefined || list.length === 0
 }
+export function getIp(req: any) : string {
+  const forwarded = req.headers['x-forwarded-for'];
+  const ip = Array.isArray(forwarded)
+    ? forwarded[0]
+    : forwarded?.split(',')[0];
+
+  return ip || req.socket.remoteAddress;
+}
