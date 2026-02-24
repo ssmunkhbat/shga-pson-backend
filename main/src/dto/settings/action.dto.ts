@@ -1,4 +1,5 @@
 import { Expose } from '@nestjs/class-transformer';
+import { MenuSettingsDto } from './menu.dto';
 
 export class ActionSettingsDto {
 
@@ -22,4 +23,9 @@ export class ActionSettingsDto {
 
     @Expose({ name: 'ORDER_NUM' })
     orderNum: number;
+
+    @Expose({ name: 'LINKED_MENU_ID' })
+    linkedMenuId: number;
+
+    linkedMenu?: MenuSettingsDto;
 }

@@ -37,7 +37,7 @@ export class SettingsService {
         *
       FROM PRI_SETTINGS_MENU SM
       ${joinStr}
-      WHERE SM.TYPE = 'sub' AND SM.IS_ACTIVE = 1 AND SM.PARENT_ID != 10878524
+      WHERE SM.TYPE = 'sub' AND SM.IS_ACTIVE = 1 AND (SM.PARENT_ID != 10878524 OR SM.PARENT_ID IS NULL)
       ${whereStr}
       ORDER BY SM.ORDER_NUM ASC
     `;
@@ -67,6 +67,12 @@ export class SettingsService {
       if (isAction) {
         for (const sItem of data) {
           sItem.actions = await this.getMenuAction(sItem.id);
+          // "Цахим хувийн хэрэг" гэх мэт LINKED_MENU_ID-тэй action-уудад
+          for (const action of sItem.actions) {
+            if (action.linkedMenuId) {
+              action.linkedMenu = await this.getPageMenuTree(action.linkedMenuId);
+            }
+          }
         }
       }
       item.children = data
@@ -78,9 +84,7 @@ export class SettingsService {
   async getMenuAction(menuId: number) {
     if (!menuId) return []
     const queryAction = `
-      SELECT
-        *
-      FROM PRI_SETTINGS_ACTION SA
+      SELECT * FROM PRI_SETTINGS_ACTION SA
       WHERE SA.MENU_ID = ${menuId}
     `;
     const result = await this.dataSource.query(queryAction);
@@ -90,6 +94,41 @@ export class SettingsService {
       { excludeExtraneousValues: true },
     );
     return rows
+  }
+
+  // page -> section -> section
+  async getPageMenuTree(menuId: number): Promise<MenuSettingsDto | null> {
+    if (!menuId) return null;
+    const query = `SELECT * FROM PRI_SETTINGS_MENU SM WHERE SM.ID = ${menuId} AND SM.IS_ACTIVE = 1`;
+    const result = await this.dataSource.query(query);
+    if (!result || result.length === 0) return null;
+    const menu: MenuSettingsDto = plainToClass(MenuSettingsDto, result[0] as object, {
+      excludeExtraneousValues: true,
+    });
+    menu.children = await this.getSectionChildren(menu.id);
+    menu.actions = await this.getMenuAction(menu.id);
+    return menu;
+  }
+  // section-уудыг авах
+  async getSectionChildren(parentId: number): Promise<MenuSettingsDto[]> {
+    if (!parentId) return [];
+    const query = `
+      SELECT *
+      FROM PRI_SETTINGS_MENU SM
+      WHERE SM.PARENT_ID = ${parentId}
+        AND SM.TYPE = 'section'
+        AND SM.IS_ACTIVE = 1
+      ORDER BY SM.ORDER_NUM ASC
+    `;
+    const result = await this.dataSource.query(query);
+    const sections: MenuSettingsDto[] = plainToClass(MenuSettingsDto, result as object[], {
+      excludeExtraneousValues: true,
+    });
+    for (const section of sections) {
+      section.children = await this.getSectionChildren(section.id);
+      section.actions = await this.getMenuAction(section.id);
+    }
+    return sections;
   }
   
   async getMenuTree(roleId: number, user: any) {
