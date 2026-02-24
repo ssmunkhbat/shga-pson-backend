@@ -10,6 +10,9 @@ import { RoleActionSettings } from 'src/entity/pri/settings/RoleActionSettings';
 import { CacheService } from '../cache/cache.service';
 import { SaveMenuSettingsDto } from 'src/dto/settings/saveMenuSettings.dto';
 import { getId } from 'src/utils/unique';
+import { PriLoginLogView } from 'src/entity/log/PriLoginLogView.entity';
+import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
+import { getFilterAndParameters, getSortFieldAndOrder } from 'src/utils/helper';
 
 @Injectable()
 export class SettingsService {
@@ -21,6 +24,9 @@ export class SettingsService {
     @InjectRepository(RoleActionSettings)
     private roleActionRepository: Repository<RoleActionSettings>,
     private readonly cacheService: CacheService,
+
+    @InjectRepository(PriLoginLogView)
+    private priLoginLogViewRepository: Repository<PriLoginLogView>
   ) {}
 
   //#region [MANAIH]
@@ -526,6 +532,21 @@ export class SettingsService {
   }
 
   //#endregion
-
+  async getLoginLogList (options: IPaginationOptions, searchParam: string, sortParam: string, user: any) {
+    const queryBuilder = this.priLoginLogViewRepository.createQueryBuilder('md');
+    const { filter, parameters } = getFilterAndParameters('md', searchParam);
+    if (filter) {
+      queryBuilder.where(filter, parameters);
+    }
+    const { field, order } = getSortFieldAndOrder('md', sortParam);
+    if (field) {
+      queryBuilder.orderBy(field, order);
+    }
+    const data = await paginate<PriLoginLogView>(queryBuilder, options)
+    return {
+      rows: data.items,
+      total: data.meta.totalItems
+    };
+  }
 }
 

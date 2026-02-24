@@ -29,6 +29,7 @@ import * as ExcelJS from 'exceljs';
 import { Response } from 'express';
 import { getNestedValue } from 'src/utils/helper';
 import { PriTrainingView } from 'src/entity/pri/training/PriTrainingView.entity';
+import { PriLoginLogView } from 'src/entity/log/PriLoginLogView.entity';
 const moment = require("moment");
 
 interface TableFieldMeta {
@@ -64,7 +65,8 @@ const dynamicTables: Record<string, DynamicTable> = {
   'labor-list': PriLaborView as unknown as DynamicTable,
   'prisoner-labor-list': PriPrisonerLaborView as unknown as DynamicTable,
   'rotl-view': PriRotlView as unknown as DynamicTable,
-  'training-view': PriTrainingView as unknown as DynamicTable
+  'training-view': PriTrainingView as unknown as DynamicTable,
+  'login-log-view': PriLoginLogView as unknown as DynamicTable
 };
 
 interface FormFieldMeta {
@@ -93,7 +95,8 @@ const dynamicForms: Record<string, DynamicForm> = {
   'psMenuList': MenuSettings as unknown as DynamicForm,
   'psActionList': ActionSettings as unknown as DynamicForm,
   'rotl-view': PriRotlView as unknown as DynamicForm,
-  'training-view': PriTrainingView as unknown as DynamicForm
+  'training-view': PriTrainingView as unknown as DynamicForm,
+  'login-log-view': PriLoginLogView as unknown as DynamicForm
 };
 
 @Injectable()

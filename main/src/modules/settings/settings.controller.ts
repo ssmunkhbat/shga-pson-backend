@@ -69,4 +69,9 @@ export class SettingsController {
 
   //#endregion
 
+	@UseGuards(JwtAuthGuard)
+  @Get('login/log/list')
+  getLoginLogList (@Req() req, @Query('page') page = 1, @Query('limit') limit = 10, @Query('search') search = '[]', @Query('sort') sort = '{}') {
+    return this.service.getLoginLogList({ page, limit }, search, sort, req.user)
+  }
 }
