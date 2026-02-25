@@ -32,6 +32,8 @@ import { Response } from 'express';
 import { getNestedValue } from 'src/utils/helper';
 import { PriTrainingView } from 'src/entity/pri/training/PriTrainingView.entity';
 import { PriLoginLogView } from 'src/entity/log/PriLoginLogView.entity';
+import { WfmStatus } from 'src/entity/wfmStatus.entity';
+import { RefCountry } from 'src/entity/ref/refCountry';
 const moment = require("moment");
 
 interface TableFieldMeta {
@@ -70,7 +72,9 @@ const dynamicTables: Record<string, DynamicTable> = {
   'training-view': PriTrainingView as unknown as DynamicTable,
   'login-log-view': PriLoginLogView as unknown as DynamicTable,
   'prisoner-break-view': PriPrisonerBreakView as unknown as DynamicTable,
-  'release-view': PriReleaseView as unknown as DynamicTable
+  'release-view': PriReleaseView as unknown as DynamicTable,
+  'countryList': RefCountry as unknown as DynamicTable,
+  'wfmStatusList': WfmStatus as unknown as DynamicTable,
 };
 
 interface FormFieldMeta {
@@ -104,7 +108,9 @@ const dynamicForms: Record<string, DynamicForm> = {
   'psActionList': ActionSettings as unknown as DynamicForm,
   'rotl-view': PriRotlView as unknown as DynamicForm,
   'training-view': PriTrainingView as unknown as DynamicForm,
-  'login-log-view': PriLoginLogView as unknown as DynamicForm
+  'login-log-view': PriLoginLogView as unknown as DynamicForm,
+  'countryList': RefCountry as unknown as DynamicForm,
+  'wfmStatusList': WfmStatus as unknown as DynamicForm,
 };
 
 @Injectable()

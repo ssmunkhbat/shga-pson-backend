@@ -28,9 +28,21 @@ export class RefCountry{
   static getTableFields() {
     return {
       countryId: { header: 'ID', type: 'number', sortable: true, filterable: false, width: 'w-16' },
-      code: { header: 'Код', type: 'string', sortable: true, filterable: true, width: 'w-48' },
-      name: { header: 'Нэр', type: 'string', sortable: true, filterable: true, width: 'w-48' },
+      countryCode: { header: 'Код', type: 'string', sortable: true, filterable: true, width: 'w-48' },
+      countryName: { header: 'Нэр', type: 'string', sortable: true, filterable: true, width: 'w-48' },
       displayOrder: { header: 'displayOrder', type: 'number', sortable: true, filterable: false, width: 'w-16' },
+    };
+  }
+  
+  /*
+    * Form-ын талбаруудын мэдээлэл
+  */
+  static getFormFields() {
+    return {
+      countryId: { label: 'ID', type: 'number', isRequired: false, column: 1, hidden: true, isPrimary: true },
+      countryCode: { label: 'Код', type: 'string', isRequired: true, column: 1 },
+      countryName: { label: 'Нэр', type: 'string', isRequired: true, column: 1 },
+      displayOrder: { label: 'Эрэмбэ', type: 'number', isRequired: true, column: 2 },
     };
   }
 }

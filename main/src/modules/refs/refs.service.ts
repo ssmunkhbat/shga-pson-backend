@@ -51,6 +51,14 @@ export const refList = [
     key: 'psActionList', name: 'Цэсний үйлдэл', entity: 'PRI_SETTINGS_ACTION',
     tableIdField: 'id', tableColumnService: '/table-config/columns/psActionList', listService: '/refs/column-list/data/psActionList'
   },
+  {
+    key: 'countryList', name: 'Улс', entity: 'REF_COUNTRY',
+    tableIdField: 'countryId', tableColumnService: '/table-config/columns/countryList', listService: '/refs/column-list/data/countryList'
+  },
+  {
+    key: 'wfmStatusList', name: 'Төлөв', entity: 'WFM_STATUS',
+    tableIdField: 'wfmStatusId', tableColumnService: '/table-config/columns/wfmStatusList', listService: '/refs/column-list/data/wfmStatusList'
+  },
 ];
 
 @Injectable()
@@ -183,12 +191,10 @@ export class RefsService {
   }
     
   async getRefColumnListData (options: IPaginationOptions, searchParam: string, sortParam: string, user: any, refName) {
-    console.log("getRefColumnList -> refName:", refName);
     if (!mapRef[refName]) {
       throw new NotFoundException('Reference not found');
     }
     const entityName = mapRef[refName]
-    console.log("getRefColumnList -> entityName:", entityName);
     const repository = this.dataSource.getRepository(entityName);
     const queryBuilder = repository.createQueryBuilder(entityName.toLowerCase());
 
@@ -201,12 +207,12 @@ export class RefsService {
       queryBuilder.where(filter, parameters);
     }
 
-    const { field, order } = getSortFieldAndOrder(entityName.toLowerCase(), sortParam);
-    if (field) {
-      queryBuilder.orderBy(field, order);
-    } else {
-      queryBuilder.orderBy(`${entityName.toLowerCase()}.createdDate`, 'DESC');
-    }
+    // const { field, order } = getSortFieldAndOrder(entityName.toLowerCase(), sortParam);
+    // if (field) {
+    //   queryBuilder.orderBy(field, order);
+    // } else {
+    //   queryBuilder.orderBy(`${entityName.toLowerCase()}.createdDate`, 'DESC');
+    // }
 
     const data = await paginate(queryBuilder, options);
     return { rows: data.items, total: data.meta.totalItems };
