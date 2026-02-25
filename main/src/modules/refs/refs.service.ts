@@ -311,7 +311,10 @@ export class RefsService {
   }
 
   async removeRefDynamic(dto: any, user: any) {
-    const { refName, id } = dto;
+    const { refName, id, primaryField } = dto;
+    if (!refName || !id || !primaryField) {
+      throw new NotFoundException('refName эсвэл id, primaryField утга шаардана!');
+    }
 
     const EntityClass = mapRef[refName];
     if (!EntityClass) {
@@ -326,7 +329,7 @@ export class RefsService {
 
       if (id) {
         entity = await queryRunner.manager.findOne(EntityClass, {
-          where: { id },
+          where: { [primaryField]: id },
         });
         if (!entity) {
           throw new NotFoundException('Өгөгдөл олдсонгүй');
@@ -348,7 +351,10 @@ export class RefsService {
   }
 
   async restoreRefDynamic(dto: any, user: any) {
-    const { refName, id } = dto;
+    const { refName, id, primaryField } = dto;
+    if (!refName || !id || !primaryField) {
+      throw new NotFoundException('refName эсвэл id, primaryField утга шаардана!');
+    }
 
     const EntityClass = mapRef[refName];
     if (!EntityClass) {
@@ -363,7 +369,7 @@ export class RefsService {
 
       if (id) {
         entity = await queryRunner.manager.findOne(EntityClass, {
-          where: { id },
+          where: { [primaryField]: id },
         });
         if (!entity) {
           throw new NotFoundException('Өгөгдөл олдсонгүй');

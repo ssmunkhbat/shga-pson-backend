@@ -41,7 +41,7 @@ export function getFilterAndParameters (mainAlias, searchParam: string) {
         parameters[field + '2'] = val[1]
       } else {
         whereStrs.push(`${field} = :${field}`)
-        parameters[field] = val[0]
+        parameters[field] = val
       }
     } else if (item.type == 'ref' || item.type == 'refstatus') {
       whereStrs.push(`${field} = :${field}`)
