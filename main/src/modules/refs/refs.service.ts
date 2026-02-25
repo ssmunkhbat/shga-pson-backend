@@ -34,7 +34,8 @@ const mapRef = {
   'laborResultTypeList': 'PRI_INFO_LABOR_RESULT_TYPE',
   'wfmStatusList': 'WFM_STATUS',
   'rotlTypeList': 'PRI_INFO_ROTL_TYPE',
-  'infoTrainingList': 'PRI_INFO_TRAINING'
+  'infoTrainingList': 'PRI_INFO_TRAINING',
+  'releaseTypeList': 'PRI_INFO_RELEASE_TYPE',
 };
 
 const notCheckIsActive = {

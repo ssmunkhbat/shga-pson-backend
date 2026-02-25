@@ -24,6 +24,8 @@ import { ActionSettings } from 'src/entity/pri/settings/ActionSettings';
 import { PriLaborView } from 'src/entity/pri/labor/PriLaborView';
 import { PriPrisonerLaborView } from 'src/entity/pri/labor/PriPrisonerLaborView';
 import { PriRotlView } from 'src/entity/pri/rotl/PriRotlView.entity';
+import { PriPrisonerBreakView } from 'src/entity/pri/break/PriPrisonerBreakView';
+import { PriReleaseView } from 'src/entity/pri/release/PriReleaseView';   
 
 import * as ExcelJS from 'exceljs';
 import { Response } from 'express';
@@ -66,7 +68,9 @@ const dynamicTables: Record<string, DynamicTable> = {
   'prisoner-labor-list': PriPrisonerLaborView as unknown as DynamicTable,
   'rotl-view': PriRotlView as unknown as DynamicTable,
   'training-view': PriTrainingView as unknown as DynamicTable,
-  'login-log-view': PriLoginLogView as unknown as DynamicTable
+  'login-log-view': PriLoginLogView as unknown as DynamicTable,
+  'prisoner-break-view': PriPrisonerBreakView as unknown as DynamicTable,
+  'release-view': PriReleaseView as unknown as DynamicTable
 };
 
 interface FormFieldMeta {

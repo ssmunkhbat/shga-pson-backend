@@ -58,6 +58,12 @@ import { PriTrainingPrisoner } from "./entity/pri/training/PriTrainingPrisoner.e
 import { PriTrainingPrisonerKeyView } from "./entity/pri/training/PriTrainingPrisonerKeyView.entity"
 import { PriLoginLog } from "./entity/log/PriLoginLog.entity"
 import { PriLoginLogView } from "./entity/log/PriLoginLogView.entity"
+import { PriPrisonerBreak } from "./entity/pri/break/PriPrisonerBreak"
+import { PriPrisonerBreakView } from "./entity/pri/break/PriPrisonerBreakView"
+
+import { PriRelease } from "./entity/pri/release/PriRelease"
+import { PriReleaseView } from "./entity/pri/release/PriReleaseView"
+
 
 const Entities = [
   WfmStatus,
@@ -84,6 +90,9 @@ const Entities = [
   PriLabor, PriPrisonerLabor, PriPrisonerLaborView, PriInfoLaborType,
 
   PriRotlView, PriRotl,
+  PriPrisonerBreak, PriPrisonerBreakView,
+  
+  PriRelease, PriReleaseView,
 
   PriTrainingView, PriTrainingPrisonerView, PriTraining, PriTrainingPrisoner, PriTrainingPrisonerKeyView,
 

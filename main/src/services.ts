@@ -21,6 +21,8 @@ import { PriDecisionService } from "./modules/pri/decision/decision.service";
 import { PriLaborService } from "./modules/pri/labor/labor.service";
 import { RotlService } from "./modules/pri/rotl/rotl.service";
 import { TrainingService } from "./modules/pri/training/training.service";
+import { PriPrisonerBreakService } from "./modules/pri/break/break.service";
+import { PriReleaseService } from "./modules/pri/release/release.service";
 
 export const services = [
     UserService,
@@ -44,5 +46,7 @@ export const services = [
     PriDecisionService,
     PriLaborService,
     RotlService,
-    TrainingService
+    TrainingService,
+    PriPrisonerBreakService,
+    PriReleaseService
 ]
