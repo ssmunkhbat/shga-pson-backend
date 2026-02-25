@@ -74,4 +74,7 @@ export class RefDto {
 
     @Expose({ name: 'CLASS_NAME' })
     className: string;
+
+    @Expose({ name: 'TYPE' })
+    type: string;
 }

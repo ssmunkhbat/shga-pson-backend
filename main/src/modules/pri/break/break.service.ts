@@ -32,7 +32,8 @@ export class PriPrisonerBreakService {
   ) {}
 
   async getList(options: IPaginationOptions, searchParam: string, sortParam: string, user: any) {
-    const queryBuilder = this.prisonerBreakViewRepo.createQueryBuilder('pb');
+    const queryBuilder = this.prisonerBreakViewRepo.createQueryBuilder('pb')
+      .leftJoin("pb.wfmStatus", "WS").addSelect(['WS.wfmStatusId', 'WS.wfmStatusCode', 'WS.wfmStatusName', 'WS.wfmStatusColor', 'WS.wfmStatusBgColor']);;
     const { filter, parameters } = getFilterAndParameters('pb', searchParam);
     
     queryBuilder.where('pb.isActive = :isActive', { isActive: 1 });

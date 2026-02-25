@@ -1,5 +1,6 @@
 
-import { ViewEntity, ViewColumn } from 'typeorm';
+import { ViewEntity, ViewColumn, OneToOne, JoinColumn } from 'typeorm';
+import { WfmStatus } from 'src/entity/wfmStatus.entity';
 
 @ViewEntity({
   name: 'PRI_PRISONER_BREAK_VIEW',
@@ -26,6 +27,10 @@ export class PriPrisonerBreakView {
 
   @ViewColumn({ name: 'WFM_STATUS_ID' })
   wfmStatusId: number;
+  
+  @OneToOne(() => WfmStatus, (ws) => ws.wfmStatusId)
+  @JoinColumn({name: 'WFM_STATUS_ID'})
+  wfmStatus: WfmStatus;
 
   @ViewColumn({ name: 'FOUND_DATE' })
   foundDate: Date;
@@ -82,7 +87,12 @@ export class PriPrisonerBreakView {
       nickname: { header: 'Хоч', type: 'string', width: 150, sortable: true, filterable: true },
       departmentName: { header: 'Хэлтэс тасгийн нэр', type: 'string', width: 200, sortable: true, filterable: true },
       breakDate: { header: 'Оргосон огноо', type: 'date', width: 150, sortable: true, filterable: true },
-      wfmStatusId: { header: 'Төлөв', type: 'number', width: 150, sortable: true, filterable: true, refListName: 'wfmStatus', refField: 'statusName', refListFilter: 'typeId=100' }, // Assuming typeId=100 for Break status types or general status
+      wfmStatus: {
+        header: 'Төлөв',
+        type: 'refstatus',
+        refField: 'wfmStatus.wfmStatusName', refListName: 'wfmStatusList', refListFilter: 'filters=[{"field":"WFM_STATUS_GROUP_ID","value":100400}]', refColorField: 'wfmStatus.wfmStatusColor', refBgColorField: 'wfmStatus.wfmStatusBgColor',
+        sortable: false, filterable: true, width: 'w-16'
+      },
       foundDate: { header: 'Олдсон огноо', type: 'date', width: 150, sortable: true, filterable: true },
       isTracking: { header: 'Эрэн сурвалжилж байгаа эсэх', type: 'boolean', width: 100, sortable: true, filterable: true },
       contactInfo: { header: 'Холбоо барих утас', type: 'string', width: 200, sortable: true, filterable: true },
