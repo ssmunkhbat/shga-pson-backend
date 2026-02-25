@@ -34,6 +34,7 @@ import { PriTrainingView } from 'src/entity/pri/training/PriTrainingView.entity'
 import { PriLoginLogView } from 'src/entity/log/PriLoginLogView.entity';
 import { WfmStatus } from 'src/entity/wfmStatus.entity';
 import { RefCountry } from 'src/entity/ref/refCountry';
+import { PriOffenceActionView } from 'src/entity/pri/offence/PriOffenceActionView.entity';
 const moment = require("moment");
 
 interface TableFieldMeta {
@@ -75,6 +76,7 @@ const dynamicTables: Record<string, DynamicTable> = {
   'release-view': PriReleaseView as unknown as DynamicTable,
   'countryList': RefCountry as unknown as DynamicTable,
   'wfmStatusList': WfmStatus as unknown as DynamicTable,
+  'offence-action-view': PriOffenceActionView as unknown as DynamicTable
 };
 
 interface FormFieldMeta {
@@ -111,6 +113,7 @@ const dynamicForms: Record<string, DynamicForm> = {
   'login-log-view': PriLoginLogView as unknown as DynamicForm,
   'countryList': RefCountry as unknown as DynamicForm,
   'wfmStatusList': WfmStatus as unknown as DynamicForm,
+  'offence-action-view': PriOffenceActionView as unknown as DynamicForm
 };
 
 @Injectable()
