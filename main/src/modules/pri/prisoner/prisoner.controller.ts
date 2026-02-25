@@ -88,4 +88,14 @@ export class PrisonerController {
 
   //#endregion
 
+  //#region [/admin/pri/prisoner/[id] -> GET]
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/detail-menu')
+  async getPrisonerDetailMenu(@Req() req) {
+    return await this.service.getPrisonerDetailMenu(req.user);
+  }
+
+  //#endregion
+
 }

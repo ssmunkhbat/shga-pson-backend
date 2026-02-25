@@ -153,6 +153,13 @@ export class PrisonerService {
     }
   }
 
+  async getPrisonerDetailMenu(user: any) {
+    console.log('---------------getPrisonerDetailMenu------------------', user)
+    // const data = await this.getPrisonerCardAll(prisonerId)
+    // return data;
+    return []
+  }
+
   //#endregion
 
   //#region [PERSONAL]
@@ -1000,6 +1007,12 @@ export class PrisonerService {
       educationId: dto.educationId,
     };
   }
+
+  //#endregion
+
+  //#region [/admin/pri/prisoner/[id] -> GET]
+
+
 
   //#endregion
 
