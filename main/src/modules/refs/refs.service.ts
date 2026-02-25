@@ -8,6 +8,7 @@ import { CacheService } from 'src/modules/cache/cache.service';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { getFilterAndParameters, getSortFieldAndOrder } from 'src/utils/helper';
 import { TableConfigService } from 'src/modules/table-config/table-config.service';
+import { isNumeric } from 'src/utils/helper';
 
 const mapRef = {
   'role': 'UM_ROLE',
@@ -217,7 +218,6 @@ export class RefsService {
     if (!EntityClass) {
       throw new NotFoundException('Reference not found');
     }
-    console.log('--saveRefDynamic-> dto:', dto);
     const fields = this.tableConfigService.getFormFields(refName);
     this.validateDynamicDto(data, fields);
 
@@ -249,9 +249,21 @@ export class RefsService {
         const allowedKeys = fields.map(f => f.key);
         Object.entries(data).forEach(([key, value]) => {
           if (allowedKeys.includes(key)) {
-            allowedData[key] = value;
+            const foundKey = fields.find(f => f.key === key);
+            if (foundKey) {
+              if (foundKey.type === 'number') {
+                allowedData[key] = Number(value);
+              } else {
+                allowedData[key] = value;
+              }
+            }
           }
         });
+
+        const primary = fields.find(f => f.isPrimary);
+        if (primary) {
+          allowedData[primary.key] = id || await getId();
+        }
 
         entity = queryRunner.manager.create(EntityClass, allowedData);
         
@@ -276,18 +288,92 @@ export class RefsService {
     Object.entries(fields).forEach(([key, config]: any) => {
       const value = data[config.key || key];
       if (config.isRequired && (value === undefined || value === null || value === '')) {
-        errors.push(`${key} шаардлагатай`);
+        errors.push(`${config.key} шаардлагатай`);
       }
       if (config.type === 'string' && value && typeof value !== 'string') {
-        errors.push(`${key} string байх ёстой`);
+        errors.push(`${config.key} string байх ёстой`);
       }
-      if (config.type === 'number' && value && typeof value !== 'number') {
-        errors.push(`${key} number байх ёстой`);
+      if (config.type === 'number' && value && !isNumeric(value)) {
+        errors.push(`${config.key} number байх ёстой`);
       }
     });
     console.log('--errors--:', errors);
     if (errors.length) {
       throw new BadRequestException(errors);
+    }
+  }
+
+  async removeRefDynamic(dto: any, user: any) {
+    const { refName, id } = dto;
+
+    const EntityClass = mapRef[refName];
+    if (!EntityClass) {
+      throw new NotFoundException('Reference not found');
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      let entity;
+
+      if (id) {
+        entity = await queryRunner.manager.findOne(EntityClass, {
+          where: { id },
+        });
+        if (!entity) {
+          throw new NotFoundException('Өгөгдөл олдсонгүй');
+        }
+
+        entity.isActive = false;
+      }
+      const saved = await queryRunner.manager.save(EntityClass, entity);
+
+      await queryRunner.commitTransaction();
+      return saved;
+    } catch (err) {
+      console.log(err)
+      await queryRunner.rollbackTransaction();
+      throw new HttpException(err, 500)
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async restoreRefDynamic(dto: any, user: any) {
+    const { refName, id } = dto;
+
+    const EntityClass = mapRef[refName];
+    if (!EntityClass) {
+      throw new NotFoundException('Reference not found');
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      let entity;
+
+      if (id) {
+        entity = await queryRunner.manager.findOne(EntityClass, {
+          where: { id },
+        });
+        if (!entity) {
+          throw new NotFoundException('Өгөгдөл олдсонгүй');
+        }
+
+        entity.isActive = true;
+      }
+      const saved = await queryRunner.manager.save(EntityClass, entity);
+
+      await queryRunner.commitTransaction();
+      return saved;
+    } catch (err) {
+      console.log(err)
+      await queryRunner.rollbackTransaction();
+      throw new HttpException(err, 500)
+    } finally {
+      await queryRunner.release();
     }
   }
 

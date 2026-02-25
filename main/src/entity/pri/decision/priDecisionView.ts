@@ -63,7 +63,7 @@ export class PriDecisionView {
       // decisionTypeName: { header: 'Төрөл', type: 'string', sortable: false, filterable: true, width: 'w-48' },
       departmentName: { header: 'Алба хэлтэс', type: 'string', sortable: false, filterable: true, width: 'w-48' },
       employeeName: { header: 'Албан хаагч', type: 'string', sortable: false, filterable: true, width: 'w-48' },
-      createdDate: { header: 'Бүртгэсэн Огноо', type: 'daterange', sortable: false, filterable: true, width: 'w-48' },
+      createdDate: { header: 'Бүртгэсэн Огноо', type: 'date', sortable: false, filterable: true, width: 'w-48' },
       createdEmployeeName: { header: 'Бүртгэсэн ажилтан', type: 'string', sortable: false, filterable: true, width: 'w-48' },
       createdEmployeeCode: { header: 'Бүртгэсэн ажилтны код', type: 'string', sortable: false, filterable: true, width: 'w-48' },
     };

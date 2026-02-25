@@ -99,6 +99,10 @@ export function isNull(value) {
 export function isEmptyList(list: Array<any>) {
   return list === undefined || list.length === 0
 }
+export function isNumeric(value) {
+  return /^-?\d+$/.test(value);
+}
+
 export function getIp(req: any) : string {
   const forwarded = req.headers['x-forwarded-for'];
   const ip = Array.isArray(forwarded)

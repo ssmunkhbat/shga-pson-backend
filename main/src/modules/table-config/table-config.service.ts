@@ -75,6 +75,10 @@ interface FormFieldMeta {
   isRequired?: boolean;
   column?: number;
   hidden?: boolean;
+  isPrimary?: boolean;
+  enumName?: string;
+  refField?: string;
+  refListName?: string;
 }
 type FormFields = Record<string, FormFieldMeta>;
 type DynamicForm = { getFormFields(): FormFields };
@@ -149,6 +153,10 @@ export class TableConfigService {
         isRequired: meta.isRequired,
         column: meta.column,
         hidden: meta.hidden,
+        isPrimary: meta.isPrimary,
+        enumName: meta.enumName,
+        refField: meta.refField,
+        refListName: meta.refListName,
       }
     });
     return parsedFields;

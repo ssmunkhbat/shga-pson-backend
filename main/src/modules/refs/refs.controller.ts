@@ -34,8 +34,20 @@ export class RefsController {
 
   @UseGuards(JwtAuthGuard)
   @Post('column-list/save')
-  create(@Req() req, @Body() body: any) {
+  saveRefDynamic(@Req() req, @Body() body: any) {
     return this.service.saveRefDynamic(body, req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('column-list/remove')
+  removeRefDynamic(@Req() req, @Body() body: any) {
+    return this.service.removeRefDynamic(body, req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('column-list/restore')
+  restoreRefDynamic(@Req() req, @Body() body: any) {
+    return this.service.restoreRefDynamic(body, req.user);
   }
 
 	//#endregion

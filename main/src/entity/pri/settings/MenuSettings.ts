@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, OneToOne } from 'typeorm';
 
 @Entity('PRI_SETTINGS_MENU')
 export class MenuSettings {
@@ -10,6 +10,10 @@ export class MenuSettings {
 
   @Column({ name: 'PARENT_ID' })
   parentId: number;
+  
+  @OneToOne(() => MenuSettings, (ms) => ms.id)
+  @JoinColumn({name: 'PARENT_ID'})
+  parent: MenuSettings;
 
   @Column({ name: "CODE" })
   code: string;
@@ -50,11 +54,12 @@ export class MenuSettings {
   static getTableFields() {
     return {
       // id: { header: 'ID', type: 'number', sortable: false, filterable: false, width: 'w-16' },
-      code: { header: 'Код', type: 'string', sortable: false, filterable: true, width: 'w-48' },
-      type: { header: 'Төрөл', type: 'string', sortable: false, filterable: true, width: 'w-48' },
+      code: { header: 'Код', type: 'string', sortable: false, filterable: true, width: 'w-24' },
+      type: { header: 'Төрөл', type: 'string', sortable: false, filterable: true, width: 'w-24' },
       name: { header: 'Нэр', type: 'string', sortable: false, filterable: true, width: 'w-48' },
-      path: { header: 'Path', type: 'string', sortable: false, filterable: true, width: 'w-48' },
+      path: { header: 'Path', type: 'string', sortable: false, filterable: true, width: 'w-24' },
       orderNum: { header: 'orderNum', type: 'number', sortable: false, filterable: false, width: 'w-16' },
+      isActive: { header: 'Идэвхтэй эсэх', type: 'boolean', sortable: false, filterable: false, width: 'w-16' },
     };
   }
 
@@ -63,9 +68,10 @@ export class MenuSettings {
   */
   static getFormFields() {
     return {
-      id: { label: 'id', type: 'number', isRequired: false, column: 1, hidden: true },
+      id: { label: 'id', type: 'number', isRequired: false, column: 1, hidden: true, isPrimary: true },
       metaDataId: { label: 'metaDataId', type: 'number', isRequired: false, column: 1, hidden: true },
-      type: { label: 'Төрөл', type: 'type', isRequired: true, column: 1 },
+      type: { label: 'Төрөл', type: 'enum', enumName: 'MenuSettingsType', isRequired: true, column: 1 },
+      parentId: { label: 'parentId', type: 'ref', refField: 'name', refListName: 'psMenuList', isRequired: false, column: 1 },
       code: { label: 'Код', type: 'string', isRequired: true, column: 1 },
       name: { label: 'Нэр', type: 'string', isRequired: true, column: 1 },
       path: { label: 'path', type: 'string', isRequired: false, column: 2 },

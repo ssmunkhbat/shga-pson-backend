@@ -45,10 +45,11 @@ export class ActionSettings {
     return {
       // id: { header: 'ID', type: 'number', sortable: false, filterable: false, width: 'w-16' },
       menuId: { header: 'menuId', type: 'number', sortable: false, filterable: false, width: 'w-16' },
-      code: { header: 'Код', type: 'string', sortable: false, filterable: true, width: 'w-48' },
+      code: { header: 'Код', type: 'string', sortable: false, filterable: true, width: 'w-24' },
       name: { header: 'Нэр', type: 'string', sortable: false, filterable: true, width: 'w-48' },
-      icon: { header: 'icon', type: 'string', sortable: false, filterable: true, width: 'w-48' },
+      icon: { header: 'icon', type: 'string', sortable: false, filterable: true, width: 'w-16' },
       orderNum: { header: 'orderNum', type: 'number', sortable: false, filterable: false, width: 'w-16' },
+      isActive: { header: 'Идэвхтэй эсэх', type: 'boolean', sortable: false, filterable: false, width: 'w-16' },
     };
   }
 
@@ -57,13 +58,13 @@ export class ActionSettings {
   */
   static getFormFields() {
     return {
-      id: { label: 'id', type: 'number', isRequired: false, column: 1 },
-      menuId: { label: 'menuId', type: 'number', isRequired: false, column: 1 },
+      id: { label: 'id', type: 'number', isRequired: false, column: 1, hidden: true, isPrimary: true },
+      menuId: { label: 'Цэс', type: 'ref', refField: 'name', refListName: 'psMenuList', isRequired: true, column: 1 },
       metaDataId: { label: 'metaDataId', type: 'number', isRequired: false, column: 1 },
-      code: { label: 'Код', type: 'string', isRequired: false, column: 1 },
-      name: { label: 'Нэр', type: 'string', isRequired: false, column: 1 },
+      code: { label: 'Код', type: 'string', isRequired: true, column: 1 },
+      name: { label: 'Нэр', type: 'string', isRequired: true, column: 1 },
       icon: { label: 'icon', type: 'string', isRequired: false, column: 2 },
-      orderNum: { label: 'Эрэмбэ', type: 'number', isRequired: false, column: 2 },
+      orderNum: { label: 'Эрэмбэ', type: 'number', isRequired: true, column: 2 },
       isActive: { label: 'Идэвхтэй эсэх', type: 'boolean', isRequired: true, column: 2},
     };
   }
