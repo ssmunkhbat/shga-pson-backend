@@ -3,6 +3,7 @@ import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { HttpExceptionsFilter } from './utils/http-exception';
 import { urlencoded, json } from 'express';
+import { LogInterceptor } from './modules/log/log.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -41,6 +42,8 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new HttpExceptionsFilter());
+
+  // app.useGlobalInterceptors(app.get(LogInterceptor));
   
   app.use(json({ limit: '50mb' }));
   app.use(urlencoded({ extended: true, limit: '50mb' }));
