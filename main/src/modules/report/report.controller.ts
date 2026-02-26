@@ -9,13 +9,6 @@ import { Response } from 'express';
 export class ReportController {
 	constructor(private readonly service: ReportService) { }
 
-  @Get("html")
-  // async getReportHtml(@Query() filter: ReportFilterDto): Promise<string> {
-  async getReportHtml(@Query() filter): Promise<string> {
-    console.log("html --1--:", filter);
-    return this.service.generateHtml(filter);
-  }
-
   @Get("export")
   async exportReport(@Query() filter: ReportFilterDto, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
   // async exportReport(@Query() filter, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
@@ -34,7 +27,7 @@ export class ReportController {
   @Get('excel')
   // async getExcel(@Query() filter: ReportFilterDto, @Res() res: Response) {
   async getExcel(@Query() filter, @Res() res: Response) {
-    const { buffer, mimeType, filename } = await this.service.toExcel(filter);
+    const { buffer, mimeType, filename } = await this.service.toTemplateExcel(filter);
     res.set({
       'Content-Type': mimeType,
       'Content-Disposition': `inline; filename="${filename}"`, // inline = preview

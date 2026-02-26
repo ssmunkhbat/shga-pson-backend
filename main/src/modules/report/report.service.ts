@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { ReportFilterDto } from 'src/dto/report/ReportFilter.dto';
 import * as ExcelJS from 'exceljs';
+import { join } from "path";
+
+const fs = require('fs-extra')
 
 interface ExportResult {
   buffer: Buffer;
@@ -16,103 +19,73 @@ export class ReportService {
     @InjectDataSource() private dataSource: DataSource,
   ) {}
 
-  async generateHtml(filter: ReportFilterDto): Promise<string> {
-    const rows = await this.queryData(filter);
+  // Эсвэл шууд openpyxl-ын загварыг template болгон ашиглаж
+  // ExcelJS-ээр өгөгдөл дүүргэх
+  async toTemplateExcel(filter: ReportFilterDto): Promise<ExportResult> {
+    try {
+      if (!process.env.TEMPLATE_FILE_PATH) {
+        throw new Error("Template файлын зам тодорхойгүй байна.");
+      }
+      const fileName = 'report1.xlsx';
+      const template = fs.readFileSync(join(__dirname, '../../../', `${process.env.TEMPLATE_FILE_PATH}/excel/${fileName}`));
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(template); // загвар файлыг унших
+      const ws = workbook.getWorksheet('Тайлан');
 
-    const tableRows = rows
-      .map(
-        (r) => `<tr>
-        <td>${r.id}</td>
-        <td>${r.name}</td>
-        <td>${r.department}</td>
-        <td>${r.date}</td>
-        <td>${r.value}</td>
-      </tr>`,
-      )
-      .join('');
+      // const rows = await this.queryData(filter);
+      // rows.forEach((r, i) => {
+      //   const row = ws.getRow(16 + i);
+      //   // row.getCell(1).value = r.group;
+      //   // row.getCell(3).value = r.md;
+      //   row.commit();
+      // });
 
-    return `
-      <style>
-        body { font-family: Arial, sans-serif; font-size: 12px; }
-        h3 { text-align: center; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ccc; padding: 6px 8px; }
-        th { background: #f0f0f0; text-align: center; }
-        td { text-align: center; }
-      </style>
-      <h3>Тайлан (${filter.startDate} - ${filter.endDate})</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>№</th><th>Нэр</th><th>Хэлтэс</th><th>Огноо</th><th>Утга</th>
-          </tr>
-        </thead>
-        <tbody>${tableRows}</tbody>
-      </table>
-    `;
+      const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
+      return {
+        buffer,
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        filename: fileName
+      };
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(err, 500);
+    }
   }
 
   async exportReport(filter: ReportFilterDto): Promise<ExportResult> {
-    const html = await this.generateHtml(filter);
-
     if (filter.format === 'excel') {
-      return this.toExcel(filter);
-    } else if (filter.format === 'pdf') {
-      return this.toPdf(html, filter);
-    } else {
-      return this.toWord(filter);
+      return this.toTemplateExcel(filter);
     }
   }
 
   //#region [HELPER FUNCTIONS]
 
   async queryData(filter: ReportFilterDto) {
-    return [
-      { id: 1, name: 'Жишээ 1', department: 'Нягтлан', date: filter.startDate, value: 100 },
-      { id: 2, name: 'Жишээ 2', department: 'Хүний нөөц', date: filter.endDate, value: 200 },
-    ];
-  }
-
-  async toExcel(filter: ReportFilterDto): Promise<ExportResult> {
-    const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet('Тайлан');
-    sheet.addRow(['№', 'Нэр', 'Хэлтэс', 'Огноо', 'Утга']);
-    const rows = await this.queryData(filter);
-    rows.forEach((r) => sheet.addRow([r.id, r.name, r.department, r.date, r.value]));
-
-    const excelBuffer = await workbook.xlsx.writeBuffer();
-    const buffer = Buffer.from(excelBuffer);
-
-    return {
-      buffer,
-      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      filename: `report_${filter.startDate}.xlsx`,
-    };
-  }
-
-  async toPdf(html: string, filter: ReportFilterDto): Promise<ExportResult> {
-    // const browser = await puppeteer.launch({ headless: true });
-    // const page = await browser.newPage();
-    // await page.setContent(html);
-    // const pdfBuffer = await page.pdf({ format: "A4" });
-    // await browser.close();
-    const buffer = Buffer.from('pdf placeholder');
-    return {
-      buffer,
-      mimeType: 'application/pdf',
-      filename: `report_${filter.startDate}.pdf`,
-    };
-  }
-
-  async toWord(filter: ReportFilterDto): Promise<ExportResult> {
-    // const doc = new docx.Document({ sections: [...] });
-    // const buffer = await docx.Packer.toBuffer(doc);
-    const buffer = Buffer.from('word placeholder');
-    return {
-      buffer,
-      mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      filename: `report_${filter.startDate}.docx`,
-    };
+    return this.dataSource.query(
+      `
+      SELECT
+        group_name   AS "group",
+        sub_group    AS "subGroup",
+        md_count     AS "md",
+        age_16_18    AS "a1618",
+        age_19_25    AS "a1925",
+        age_26_33    AS "a2633",
+        age_34_41    AS "a3441",
+        age_42_49    AS "a4249",
+        age_50_57    AS "a5057",
+        age_58_65    AS "a5865",
+        age_65_69    AS "a6569",
+        age_70_plus  AS "a70plus",
+        buga_count   AS "buga"
+      FROM report_table
+      WHERE report_date BETWEEN $1 AND $2
+      ${filter.departmentId ? 'AND department_id = $3' : ''}
+      ORDER BY sort_order
+      `,
+      filter.departmentId
+        ? [filter.startDate, filter.endDate, filter.departmentId]
+        : [filter.startDate, filter.endDate],
+    );
   }
 
   //#endregion
