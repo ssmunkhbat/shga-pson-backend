@@ -35,6 +35,7 @@ export class RefDto {
             'WFM_STATUS_ID',
             'ROTL_TYPE_ID',
             'INFO_TRAINING_ID',
+            'ORGAN_ID',
             'ID',
         ].map(k => obj[k]).find(v => v !== undefined && v !== null)
     )
@@ -77,4 +78,10 @@ export class RefDto {
 
     @Expose({ name: 'TYPE' })
     type: string;
+
+    @Expose({ name: 'LEFT' })
+    left: number;
+
+    @Expose({ name: 'TOP' })
+    top: number;
 }

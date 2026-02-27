@@ -18,6 +18,7 @@ import { PriPrisonerBreakController } from "./modules/pri/break/break.controller
 import { PriReleaseController } from "./modules/pri/release/release.controller";
 import { OffenceController } from "./modules/pri/offence/offence.controller";
 import { ReportController } from "./modules/report/report.controller";
+import { SymptomController } from "./modules/pri/symptom/symptom.controller";
 
 export const controllers = [
     TableConfigController,
@@ -40,4 +41,5 @@ export const controllers = [
     PriReleaseController,
     OffenceController,
     ReportController,
+    SymptomController,
 ]

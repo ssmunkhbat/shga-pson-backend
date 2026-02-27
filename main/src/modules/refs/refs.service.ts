@@ -36,6 +36,7 @@ const mapRef = {
   'rotlTypeList': 'PRI_INFO_ROTL_TYPE',
   'infoTrainingList': 'PRI_INFO_TRAINING',
   'releaseTypeList': 'PRI_INFO_RELEASE_TYPE',
+  'priInfoSymptomOrganList': 'PRI_INFO_SYMPTOM_ORGAN',
 };
 
 const notCheckIsActive = {

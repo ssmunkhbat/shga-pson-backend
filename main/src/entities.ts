@@ -64,6 +64,8 @@ import { PriPrisonerBreakView } from "./entity/pri/break/PriPrisonerBreakView"
 import { PriRelease } from "./entity/pri/release/PriRelease"
 import { PriReleaseView } from "./entity/pri/release/PriReleaseView"
 import { PriOffenceActionView } from "./entity/pri/offence/PriOffenceActionView.entity"
+import { PriPersonSymptom } from "./entity/pri/symptom/PriPersonSymptom.entity"
+import { PriPersonSymptomView } from "./entity/pri/symptom/PriPersonSymptomView.entity"
 
 
 const Entities = [
@@ -99,6 +101,9 @@ const Entities = [
 
   PriLoginLog, PriLoginLogView,
 
-  PriOffenceActionView
+  PriOffenceActionView,
+
+  PriPersonSymptom, PriPersonSymptomView,
+  
 ]
 export default Entities

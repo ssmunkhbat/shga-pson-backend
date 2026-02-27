@@ -25,6 +25,7 @@ import { PriPrisonerBreakService } from "./modules/pri/break/break.service";
 import { PriReleaseService } from "./modules/pri/release/release.service";
 import { OffenceService } from "./modules/pri/offence/offence.service";
 import { ReportService } from "./modules/report/report.service";
+import { SymptomService } from "./modules/pri/symptom/symptom.service";
 
 export const services = [
     UserService,
@@ -53,4 +54,5 @@ export const services = [
     PriReleaseService,
     OffenceService,
     ReportService,
+    SymptomService,
 ]
