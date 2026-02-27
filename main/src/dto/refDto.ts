@@ -35,7 +35,9 @@ export class RefDto {
             'WFM_STATUS_ID',
             'ROTL_TYPE_ID',
             'INFO_TRAINING_ID',
+            'ORGAN_DETAIL_ID',
             'ORGAN_ID',
+            'SYMPTOM_ID',
             'ID',
         ].map(k => obj[k]).find(v => v !== undefined && v !== null)
     )

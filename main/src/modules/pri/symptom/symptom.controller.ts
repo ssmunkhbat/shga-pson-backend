@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { SymptomService } from './symptom.service';
 import { JwtAuthGuard } from 'src/modules/auth/jwt.guard';
-import { PriRotlValidationDto } from 'src/dto/validation/pri/rotl/rotl.validation.dto';
+import { PriPersonSymptomValidationDto } from 'src/dto/validation/pri/symptom/symptom.validation.dto';
 @Controller('symptom')
 export class SymptomController {
   constructor(private readonly service: SymptomService) {
@@ -13,7 +13,7 @@ export class SymptomController {
   }
   @UseGuards(JwtAuthGuard)
   @Post()
-  createAndUpdate(@Body() dto: PriRotlValidationDto, @Req() req) {
+  createAndUpdate(@Body() dto: PriPersonSymptomValidationDto, @Req() req) {
     return this.service.createAndUpdate(dto, req.user)
   }
   @UseGuards(JwtAuthGuard)

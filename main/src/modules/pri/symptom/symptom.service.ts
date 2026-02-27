@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
-import { PriRotlValidationDto } from 'src/dto/validation/pri/rotl/rotl.validation.dto';
+import { PriPersonSymptomValidationDto } from 'src/dto/validation/pri/symptom/symptom.validation.dto';
 import { PriPersonSymptom } from 'src/entity/pri/symptom/PriPersonSymptom.entity';
 import { PriPersonSymptomView } from 'src/entity/pri/symptom/PriPersonSymptomView.entity';
 import { DynamicService } from 'src/modules/dynamic/dynamic.service';
@@ -36,10 +36,10 @@ export class SymptomService {
     }
   }
 
-  async createAndUpdate(dto: PriRotlValidationDto, user: any) {
-    return dto.rotlId ? this.update(dto, user) : this.create(dto, user)
+  async createAndUpdate(dto: PriPersonSymptomValidationDto, user: any) {
+    return dto.personSymptomId ? this.update(dto, user) : this.create(dto, user)
   }
-  async create (dto: PriRotlValidationDto, user: any) {
+  async create (dto: PriPersonSymptomValidationDto, user: any) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -58,7 +58,7 @@ export class SymptomService {
       await queryRunner.release();
     }
   }
-  async update (dto: PriRotlValidationDto, user: any) {
+  async update (dto: PriPersonSymptomValidationDto, user: any) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
