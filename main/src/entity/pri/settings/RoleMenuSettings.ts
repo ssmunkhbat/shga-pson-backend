@@ -14,8 +14,8 @@ export class RoleMenuSettings {
   @Column({ name: 'IS_ACTIVE', default: 1 })
   isActive: number;
 
-  // @Column({ name: 'LEVEL' })
-  // level: number;
+  @Column({ name: 'LEVEL' })
+  level: number;
 
   @Column({ name: 'CREATED_DATE', default: () => new Date() })
   createdDate: Date;

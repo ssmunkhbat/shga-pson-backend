@@ -10,4 +10,7 @@ export class SaveMenuSettingsDto {
 
   @IsObject()
   actions: { [key: number]: number[] };
+
+  @IsObject()
+  levels: { [menuId: number]: number };
 }

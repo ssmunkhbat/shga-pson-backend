@@ -152,10 +152,16 @@ export class SettingsService {
     // Menu IDs татах
     const menuSettings = await this.roleMenuRepository.find({
       where: { roleId, isActive: 1 },
-      select: ['menuId'],
+      select: ['menuId', 'level'],
     });
 
     const menuIds = menuSettings.map(m => m.menuId);
+
+    // { menuId: level } map
+    const levelMap: { [key: number]: number } = {};
+    menuSettings.forEach(m => {
+      levelMap[m.menuId] = m.level;
+    });
 
     // Action IDs татах
     const actionSettings = await this.roleActionRepository.find({
@@ -176,6 +182,7 @@ export class SettingsService {
     return {
       defaultSelectedMenu: menuIds,
       defaultSelectedAction: actionMap,
+      defaultSelectedLevel: levelMap,
     };
   }
 
@@ -188,9 +195,16 @@ export class SettingsService {
 
     try {
       // Өмнөх menus устгах
-      await queryRunner.manager.delete(RoleMenuSettings, {
-        roleId: dto.roleId,
-      });
+      await queryRunner.manager.delete(RoleMenuSettings, { roleId: dto.roleId });
+
+      const levelsNormalized: { [key: number]: number } = {};
+      if (dto.levels) {
+        Object.entries(dto.levels).forEach(([k, v]) => {
+          if (v !== null && v === 2) {
+            levelsNormalized[Number(k)] = Number(v);
+          }
+        });
+      }
 
       // Шинэ menus оруулах
       if (dto.menuIds.length > 0) {
@@ -200,6 +214,9 @@ export class SettingsService {
           entity.roleId = dto.roleId;
           entity.menuId = menuId;
           entity.createdUserId = user.userId;
+          if (levelsNormalized[menuId]) {
+            entity.level = levelsNormalized[menuId];
+          }
           return entity;
         });
 
@@ -207,9 +224,7 @@ export class SettingsService {
       }
 
       // Өмнөх actions устгах
-      await queryRunner.manager.delete(RoleActionSettings, {
-        roleId: dto.roleId,
-      });
+      await queryRunner.manager.delete(RoleActionSettings, { roleId: dto.roleId });
 
       // Шинэ actions оруулах
       const actionEntities = [];
@@ -532,6 +547,9 @@ export class SettingsService {
   }
 
   //#endregion
+
+  //#region [LOG]
+
   async getLoginLogList (options: IPaginationOptions, searchParam: string, sortParam: string, user: any) {
     const queryBuilder = this.priLoginLogViewRepository.createQueryBuilder('md');
     const { filter, parameters } = getFilterAndParameters('md', searchParam);
@@ -548,5 +566,8 @@ export class SettingsService {
       total: data.meta.totalItems
     };
   }
+
+  //#endregion
+
 }
 
