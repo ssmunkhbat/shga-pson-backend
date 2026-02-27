@@ -13,11 +13,14 @@ import { getId } from 'src/utils/unique';
 import { PriLoginLogView } from 'src/entity/log/PriLoginLogView.entity';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { getFilterAndParameters, getSortFieldAndOrder } from 'src/utils/helper';
+import { MenuSettings } from 'src/entity/pri/settings/MenuSettings';
 
 @Injectable()
 export class SettingsService {
   constructor(
     @InjectDataSource() private dataSource: DataSource,
+    @InjectRepository(MenuSettings)
+    private menuRepo: Repository<MenuSettings>,
     @InjectRepository(RoleMenuSettings)
     private roleMenuRepository: Repository<RoleMenuSettings>,
     
@@ -149,12 +152,10 @@ export class SettingsService {
   }
 
   async getRoleMenuSettings(roleId: number): Promise<any> {
-    // Menu IDs татах
     const menuSettings = await this.roleMenuRepository.find({
       where: { roleId, isActive: 1 },
       select: ['menuId', 'level'],
     });
-
     const menuIds = menuSettings.map(m => m.menuId);
 
     // { menuId: level } map
@@ -163,14 +164,13 @@ export class SettingsService {
       levelMap[m.menuId] = m.level;
     });
 
-    // Action IDs татах
+    // Action IDs
     const actionSettings = await this.roleActionRepository.find({
       where: { roleId, isActive: 1 },
       select: ['menuId', 'actionId'],
       order: { menuId: 'ASC', actionId: 'ASC' },
     });
 
-    // Actions-г menuId-р багцлана
     const actionMap: { [key: number]: number[] } = {};
     actionSettings.forEach(item => {
       if (!actionMap[item.menuId]) {
@@ -565,6 +565,31 @@ export class SettingsService {
       rows: data.items,
       total: data.meta.totalItems
     };
+  }
+
+  //#endregion
+
+  //#region [PERMISSION HELPER]
+
+  /**
+   * Дүрийн түвшин
+   * 1 - Системийн хэмжээнд
+   * 2 - Өөрийн хэмжээнд
+   * 
+   * @description: Бааз-д зөвхөн [2 - Өөрийн хэмжээнд] хадгалагдана.
+   * @return: 1 || 2, бхгүй бол 0
+   * 
+   */
+  async getPermissionLevel(roleId: number, path: string) {
+    const menu = await this.menuRepo.findOne({
+      where: { path, isActive: 1 },
+    });
+    if (!menu) return { level: 0 };
+    const menuSettings = await this.roleMenuRepository.findOne({
+      where: { roleId: roleId, menuId: menu?.id, isActive: 1 },
+      select: ['level'],
+    });
+    return { level: menuSettings?.level ?? 0 };
   }
 
   //#endregion

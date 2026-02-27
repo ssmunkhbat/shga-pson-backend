@@ -1,5 +1,13 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
+/**
+ * level - Дүрийн түвшин
+ * 1 - Системийн хэмжээнд
+ * 2 - Өөрийн хэмжээнд
+ * 
+ * Тайлбар: Бааз-д зөвхөн [2 - Өөрийн хэмжээнд] хадгалагдана.
+ * 
+ */
 @Entity('PRI_SETTINGS_ROLE_MENU')
 export class RoleMenuSettings {
   @PrimaryGeneratedColumn({ name: 'ID' })

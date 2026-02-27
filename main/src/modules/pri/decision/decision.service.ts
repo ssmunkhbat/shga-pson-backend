@@ -20,7 +20,7 @@ export class PriDecisionService {
 
   //#region [LIST]
   
-  async getList (options: IPaginationOptions, searchParam: string, sortParam: string, user: any) {
+  async getList (options: IPaginationOptions, searchParam: string, sortParam: string, user: any, permissionLevel?: number) {
     const queryBuilder = this.decisionViewRepo.createQueryBuilder('dec')
       .leftJoin("dec.decisionType", "DT").addSelect(['DT.decisionTypeId', 'DT.code', 'DT.name'])
     const { filter, parameters } = getFilterAndParameters('dec', searchParam)
@@ -35,6 +35,16 @@ export class PriDecisionService {
       queryBuilder.orderBy('dec.createdDate', 'DESC')
     }
     console.log('-------field, order-------', field, order)
+
+    console.log('-------permissionLevel-------', permissionLevel)
+    if (permissionLevel === 2) {
+      if (user.employeeKey?.departmentId) {
+        queryBuilder[!!filter ? "andWhere" : "where"](
+          "dec.departmentId = :departmentId",
+          { departmentId: user.employeeKey.departmentId }
+        );
+      }
+    }
     
     const data = await paginate<PriDecisionView>(queryBuilder, options);
     return { rows: data.items, total: data.meta.totalItems }

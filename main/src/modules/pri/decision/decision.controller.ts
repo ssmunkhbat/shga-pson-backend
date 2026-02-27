@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Param, Query, Req, UseGuards, Body, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Param, Query, Req, UseGuards, Body, Delete, Headers } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/modules/auth/jwt.guard';
 import { PriDecisionService } from './decision.service';
 import { PriDecisionValidationDto } from 'src/dto/validation/pri/decision.dto';
+import { PermissionGuard } from 'src/guard/PermissionGuard';
 
 @Controller('decision')
 export class PriDecisionController {
@@ -11,10 +12,10 @@ export class PriDecisionController {
 
   //#region [LIST]
 
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard, PermissionGuard)
 	@Get()
   async list(@Req() req, @Query('page') page = 1, @Query('limit') limit = 10, @Query('search') search = '[]', @Query('sort') sort = '{}') {
-    return this.service.getList({ page, limit }, search, sort, req.user)
+    return this.service.getList({ page, limit }, search, sort, req.user, req.permissionLevel)
   }
 
   //#endregion
