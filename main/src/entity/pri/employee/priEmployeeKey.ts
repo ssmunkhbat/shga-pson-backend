@@ -18,29 +18,29 @@ export class PriEmployeeKey {
   @Column({ name: 'EMPLOYEE_ID' })
   employeeId: number;
 
-  @OneToOne(() => PriEmployee, (pe) => pe.employeeId)
+  @OneToOne(() => PriEmployee, (employee) => employee.employeeKey)
   @JoinColumn({ name: 'EMPLOYEE_ID' })
   employee: PriEmployee;
 
-  @Column({ name: 'POSITION_TYPE_ID' })
+  @Column({ name: "POSITION_TYPE_ID" })
   positionTypeId: number;
 
-  @OneToOne(() => PriInfoPositionType, (pt) => pt.positionTypeId)
-  @JoinColumn({ name: 'POSITION_TYPE_ID' })
+  @OneToOne(() => PriInfoPositionType)
+  @JoinColumn({name: 'POSITION_TYPE_ID'})
   positionType: PriInfoPositionType;
 
-  @Column({ name: 'MILITARY_RANK_ID' })
+  @Column({ name: "MILITARY_RANK_ID" })
   militaryRankId: number;
 
-  @OneToOne(() => PriInfoMilitaryRank, (mr) => mr.militaryRankId)
-  @JoinColumn({ name: 'MILITARY_RANK_ID' })
+  @OneToOne(() => PriInfoMilitaryRank)
+  @JoinColumn({name: 'MILITARY_RANK_ID'})
   militaryRank: PriInfoMilitaryRank;
 
-  @Column({ name: 'DEPARTMENT_ID' })
+  @Column({ name: "DEPARTMENT_ID" })
   departmentId: number;
 
-  @OneToOne(() => PriInfoDepartment, (d) => d.departmentId)
-  @JoinColumn({ name: 'DEPARTMENT_ID' })
+  @OneToOne(() => PriInfoDepartment)
+  @JoinColumn({name: 'DEPARTMENT_ID'})
   department: PriInfoDepartment;
 
   @Column({ name: 'IS_ACTIVE' })

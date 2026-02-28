@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
 import { EntBase } from '../entBase.entity';
+import { PriEmployee } from '../pri/employee/priEmployee'
 
 @Entity('BASE_PERSON')
 export class BasePerson extends EntBase{
@@ -27,6 +28,9 @@ export class BasePerson extends EntBase{
 
   @Column({ name: "EMPLOYEE_ID" })
   employeeId: number;
+
+  @OneToOne(() => PriEmployee, (employee) => employee.person)
+  employee: PriEmployee;
 
   @Column({ name: "FAMILY_NAME" })
   familyName: string;

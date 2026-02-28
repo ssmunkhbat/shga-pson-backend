@@ -147,8 +147,17 @@ export class UserService {
     let filterVals = JSON.parse(searchParam)
     let filter = getFilter('su', filterVals)
     const queryBuilder = this.usersRepository.createQueryBuilder('su')
+      .leftJoin("su.person", "PER").addSelect(['PER.personId', 'PER.firstName', 'PER.lastName', 'PER.stateRegNumber'])
+        // EMPLOYEE
+        .leftJoinAndSelect('PER.employee', 'EMP')
+        // EMPLOYEE KEY
+        .leftJoinAndSelect('EMP.employeeKey', 'EK')
+        // INFOS
+        .leftJoinAndSelect('EK.positionType', 'PT')
+        .leftJoinAndSelect('EK.militaryRank', 'MR')
+        .leftJoinAndSelect('EK.department', 'DEP')
       .where(filter)
-      .orderBy('su.createdDate', 'DESC')
+      .orderBy('su.createdDate', 'DESC');
     const data = await paginate<UmSystemUser>(queryBuilder, options);
     return { rows: data.items, total: data.meta.totalItems }
   }

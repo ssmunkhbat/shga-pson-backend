@@ -1,6 +1,7 @@
 import { BasePerson } from 'src/entity/base/basePerson';
 import { UmSystemUser } from 'src/entity/um/um-system-user.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
+import { PriEmployeeKey } from './priEmployeeKey'
 
 @Entity('PRI_EMPLOYEE')
 export class PriEmployee {
@@ -11,8 +12,8 @@ export class PriEmployee {
   @Column({ name: "PERSON_ID" })
   personId: number;
 
-  @OneToOne(() => BasePerson, (bp) => bp.personId)
-  @JoinColumn({name: 'PERSON_ID'})
+  @OneToOne(() => BasePerson, (person) => person.employee)
+  @JoinColumn({ name: 'PERSON_ID' })
   person: BasePerson;
 
   @Column({ name: "EMPLOYEE_CODE" })
@@ -30,6 +31,9 @@ export class PriEmployee {
 
   @Column({ name: "CREATED_DATE", default: new Date() })
   createdDate: Date;
+
+  @OneToOne(() => PriEmployeeKey, (key) => key.employee)
+  employeeKey: PriEmployeeKey;
 
   constructor(item: Partial<PriEmployee>) {
     Object.assign(this, item)

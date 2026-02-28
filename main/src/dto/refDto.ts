@@ -41,6 +41,8 @@ export class RefDto {
             'BODY_ATTRIBUTE_TYPE_ID',
             'BODY_ATTRIBUTE_ID',
             'ID',
+            'POSITION_TYPE_ID',
+            'MILITARY_RANK_ID',
         ].map(k => obj[k]).find(v => v !== undefined && v !== null)
     )
     id: number;

@@ -40,7 +40,9 @@ const mapRef = {
   'priInfoSymptomOrganDtlList': 'PRI_INFO_SYMPTOM_ORGAN_DTL',
   'priInfoSymptomList': 'PRI_INFO_SYMPTOM',
   'priBodyAttributeList': 'PRI_BODY_ATTRIBUTE',
-  'priBodyAttributeTypeList': 'PRI_BODY_ATTRIBUTE_TYPE'
+  'priBodyAttributeTypeList': 'PRI_BODY_ATTRIBUTE_TYPE',
+  'positionTypeList': 'PRI_INFO_POSITION_TYPE',
+  'militaryRankList': 'PRI_INFO_MILITARY_RANK',
 };
 
 const notCheckIsActive = {
