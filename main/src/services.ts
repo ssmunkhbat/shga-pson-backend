@@ -26,6 +26,7 @@ import { PriReleaseService } from "./modules/pri/release/release.service";
 import { OffenceService } from "./modules/pri/offence/offence.service";
 import { ReportService } from "./modules/report/report.service";
 import { SymptomService } from "./modules/pri/symptom/symptom.service";
+import { BodyAttributeService } from "./modules/pri/body-attribute/body-attribute.service";
 
 export const services = [
     UserService,
@@ -55,4 +56,5 @@ export const services = [
     OffenceService,
     ReportService,
     SymptomService,
+    BodyAttributeService,
 ]

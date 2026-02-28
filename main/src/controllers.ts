@@ -19,6 +19,7 @@ import { PriReleaseController } from "./modules/pri/release/release.controller";
 import { OffenceController } from "./modules/pri/offence/offence.controller";
 import { ReportController } from "./modules/report/report.controller";
 import { SymptomController } from "./modules/pri/symptom/symptom.controller";
+import { BodyAttributeController } from "./modules/pri/body-attribute/body-attribute.controller";
 
 export const controllers = [
     TableConfigController,
@@ -42,4 +43,5 @@ export const controllers = [
     OffenceController,
     ReportController,
     SymptomController,
+    BodyAttributeController
 ]

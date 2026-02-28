@@ -39,6 +39,8 @@ const mapRef = {
   'priInfoSymptomOrganList': 'PRI_INFO_SYMPTOM_ORGAN',
   'priInfoSymptomOrganDtlList': 'PRI_INFO_SYMPTOM_ORGAN_DTL',
   'priInfoSymptomList': 'PRI_INFO_SYMPTOM',
+  'priBodyAttributeList': 'PRI_BODY_ATTRIBUTE',
+  'priBodyAttributeTypeList': 'PRI_BODY_ATTRIBUTE_TYPE'
 };
 
 const notCheckIsActive = {

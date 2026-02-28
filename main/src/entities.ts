@@ -66,6 +66,8 @@ import { PriReleaseView } from "./entity/pri/release/PriReleaseView"
 import { PriOffenceActionView } from "./entity/pri/offence/PriOffenceActionView.entity"
 import { PriPersonSymptom } from "./entity/pri/symptom/PriPersonSymptom.entity"
 import { PriPersonSymptomView } from "./entity/pri/symptom/PriPersonSymptomView.entity"
+import { PriPrisonerBodyAttributeView } from "./entity/pri/body-attribute/PriPrisonerBodyAttributeView.entity"
+import { PriPrisonerBodyAttribute } from "./entity/pri/body-attribute/PriPrisonerBodyAttribute.entity"
 
 
 const Entities = [
@@ -105,5 +107,6 @@ const Entities = [
 
   PriPersonSymptom, PriPersonSymptomView,
   
+  PriPrisonerBodyAttributeView, PriPrisonerBodyAttribute
 ]
 export default Entities

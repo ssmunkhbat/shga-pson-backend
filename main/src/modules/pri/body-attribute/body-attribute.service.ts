@@ -1,28 +1,28 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
-import { PriPersonSymptomValidationDto } from 'src/dto/validation/pri/symptom/symptom.validation.dto';
-import { PriPersonSymptom } from 'src/entity/pri/symptom/PriPersonSymptom.entity';
-import { PriPersonSymptomView } from 'src/entity/pri/symptom/PriPersonSymptomView.entity';
+import { PriPrisonerBodyAttributeValidationDto } from 'src/dto/validation/pri/body-attribute/body-attribute.validation.dto';
+import { PriPrisonerBodyAttribute } from 'src/entity/pri/body-attribute/PriPrisonerBodyAttribute.entity';
+import { PriPrisonerBodyAttributeView } from 'src/entity/pri/body-attribute/PriPrisonerBodyAttributeView.entity';
 import { DynamicService } from 'src/modules/dynamic/dynamic.service';
 import { getFilterAndParameters, getSortFieldAndOrder } from 'src/utils/helper';
 import { getId } from 'src/utils/unique';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
-export class SymptomService {
+export class BodyAttributeService {
   constructor (
     @InjectDataSource() private dataSource: DataSource,
-    @InjectRepository(PriPersonSymptomView)
-    private priPersonSymptomViewRepository : Repository<PriPersonSymptomView>,
+    @InjectRepository(PriPrisonerBodyAttributeView)
+    private priPrisonerBodyAttributeViewRepository : Repository<PriPrisonerBodyAttributeView>,
 
-    @InjectRepository(PriPersonSymptom)
-    private priPersonSymptomRepository : Repository<PriPersonSymptom>,
+    @InjectRepository(PriPrisonerBodyAttribute)
+    private priPrisonerBodyAttributeRepository : Repository<PriPrisonerBodyAttribute>,
 
     private readonly dynamicService: DynamicService,
   ) {}
   async getList (options: IPaginationOptions, searchParam: string, sortParam: string, user: any) {
-    const queryBuilder = this.priPersonSymptomViewRepository.createQueryBuilder('md');
+    const queryBuilder = this.priPrisonerBodyAttributeViewRepository.createQueryBuilder('md');
     const { filter, parameters } = getFilterAndParameters('md', searchParam)
     if (filter) {
       queryBuilder.where(filter, parameters)
@@ -31,28 +31,27 @@ export class SymptomService {
     if (field) {
       queryBuilder.orderBy(field, order)
     }
-    const data = await paginate<PriPersonSymptomView>(queryBuilder, options)
+    const data = await paginate<PriPrisonerBodyAttributeView>(queryBuilder, options)
     return {
       rows: data.items,
       total: data.meta.totalItems
     }
   }
 
-  async createAndUpdate(dto: PriPersonSymptomValidationDto, user: any) {
-    return dto.personSymptomId ? this.update(dto, user) : this.create(dto, user)
+  async createAndUpdate(dto: PriPrisonerBodyAttributeValidationDto, user: any) {
+    return dto.prisonerBodyAttributeId ? this.update(dto, user) : this.create(dto, user)
   }
-  async create (dto: PriPersonSymptomValidationDto, user: any) {
+  async create (dto: PriPrisonerBodyAttributeValidationDto, user: any) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       const newData = Object.assign({...dto}, {
-        personSymptomId: getId(),
+        prisonerBodyAttributeId: getId(),
         createdDate: new Date(),
-        employeeKeyId: user.employeeKey.employeeKeyId,
-        isActive: 1
+        createdEmployeeKeyId: user.employeeKey.employeeKeyId,
       });
-      await this.dynamicService.createTableData(queryRunner, PriPersonSymptom, this.priPersonSymptomRepository, newData, user)
+      await this.dynamicService.createTableData(queryRunner, PriPrisonerBodyAttribute, this.priPrisonerBodyAttributeRepository, newData, user)
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
@@ -61,13 +60,13 @@ export class SymptomService {
       await queryRunner.release();
     }
   }
-  async update (dto: PriPersonSymptomValidationDto, user: any) {
+  async update (dto: PriPrisonerBodyAttributeValidationDto, user: any) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       const updateData = { ...dto };
-      await this.dynamicService.updateTableData(queryRunner, PriPersonSymptom, this.priPersonSymptomRepository, updateData, user)
+      await this.dynamicService.updateTableData(queryRunner, PriPrisonerBodyAttribute, this.priPrisonerBodyAttributeRepository, updateData, user)
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
@@ -81,7 +80,7 @@ export class SymptomService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      await this.dynamicService.deleteHardTableData(queryRunner, this.priPersonSymptomRepository, id)
+      await this.dynamicService.deleteHardTableData(queryRunner, this.priPrisonerBodyAttributeRepository, id)
       await queryRunner.commitTransaction();
     } catch (err) {
       console.log(err)
