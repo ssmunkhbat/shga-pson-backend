@@ -18,7 +18,7 @@ export class PermissionGuard implements CanActivate {
       throw new ForbiddenException('No path provided');
     }
 
-    const { level } = await this.settingsService.getPermissionLevel(user?.userRole?.roleId, callUrl);
+    const { level } = await this.settingsService.getPermissionLevel(user?.userId, callUrl);
     if (level === 0) {
       throw new ForbiddenException('No permission');
     }

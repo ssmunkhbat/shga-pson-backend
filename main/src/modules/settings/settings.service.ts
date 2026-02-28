@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { plainToClass } from '@nestjs/class-transformer';
 import { MenuMetaDto } from 'src/dto/menuMetaDto';
 import { MenuSettingsDto } from 'src/dto/settings/menu.dto';
@@ -14,6 +14,7 @@ import { PriLoginLogView } from 'src/entity/log/PriLoginLogView.entity';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { getFilterAndParameters, getSortFieldAndOrder } from 'src/utils/helper';
 import { MenuSettings } from 'src/entity/pri/settings/MenuSettings';
+import { UmUserRole } from 'src/entity/um/um-user-role';
 
 @Injectable()
 export class SettingsService {
@@ -29,7 +30,9 @@ export class SettingsService {
     private readonly cacheService: CacheService,
 
     @InjectRepository(PriLoginLogView)
-    private priLoginLogViewRepository: Repository<PriLoginLogView>
+    private priLoginLogViewRepository: Repository<PriLoginLogView>,
+    @InjectRepository(UmUserRole)
+    private userRoleRepository: Repository<UmUserRole>,
   ) {}
 
   //#region [MANAIH]
@@ -580,16 +583,24 @@ export class SettingsService {
    * @return: 1 || 2, бхгүй бол 0
    * 
    */
-  async getPermissionLevel(roleId: number, path: string) {
+  async getPermissionLevel(userId: number, path: string) {
+    const userRoles = await this.userRoleRepository.find({ where: { userId } });
+    if (!userRoles || userRoles.length === 0) return { level: 0 };
+
+    const roleIds = userRoles.map(r => { return r.roleId });
     const menu = await this.menuRepo.findOne({
       where: { path, isActive: 1 },
     });
     if (!menu) return { level: 0 };
-    const menuSettings = await this.roleMenuRepository.findOne({
-      where: { roleId: roleId, menuId: menu?.id, isActive: 1 },
+
+    const menuSettingsList = await this.roleMenuRepository.find({
+      where: { roleId: In(roleIds), menuId: menu?.id, isActive: 1 },
       select: ['level'],
     });
-    return { level: menuSettings?.level ?? 0 };
+    if (!menuSettingsList || menuSettingsList.length === 0) return { level: 0 };
+
+    const maxLevel = Math.max(...menuSettingsList.map(m => m.level));
+    return { level: maxLevel };
   }
 
   //#endregion
