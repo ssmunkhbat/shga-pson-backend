@@ -33,4 +33,23 @@ export class PriAddressValidationDto {
   @IsString({ message: 'Дэлгэрэнгүй хаяг утга шаардана.' })
   @IsNotEmpty({ message: 'Дэлгэрэнгүй хаяг утга шаардана.' })
   description: string;
+
+  @IsOptional()
+  companyId: number;
+
+  @IsOptional()
+  country: any;
+
+  @IsOptional()
+  addressType: any;
+
+  @IsOptional()
+  aimag: any;
+
+  @IsOptional()
+  soum: any;
+
+  @IsOptional()
+  bag: any;
+
 }
