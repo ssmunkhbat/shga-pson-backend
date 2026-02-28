@@ -31,4 +31,8 @@ export class PriPersonSymptom {
 
   @Column({ name: 'FILE_PATH' })
   filePath: number;
+
+  constructor(item: Partial<PriPersonSymptom>) {
+    Object.assign(this, item)
+  }
 }

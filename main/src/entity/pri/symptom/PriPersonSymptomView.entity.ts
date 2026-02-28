@@ -50,9 +50,9 @@ export class PriPersonSymptomView {
 
   static getTableFields() {
     return {
-      symptomName: { header: 'Шинж тэмдэг', type: 'string', sortable: true, filterable: false, width: 'w-16' },
       organName: { header: 'Хэсэг', type: 'string', sortable: true, filterable: false, width: 'w-16' },
       organDetailName: { header: 'Эрхтэн', type: 'string', sortable: true, filterable: false, width: 'w-16' },
+      symptomName: { header: 'Шинж тэмдэг', type: 'string', sortable: true, filterable: false, width: 'w-16' },
       description: { header: 'Тайлбар', type: 'string', sortable: true, filterable: false, width: 'w-16' }
     };
   }

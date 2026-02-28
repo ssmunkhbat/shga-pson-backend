@@ -15,8 +15,10 @@ export class SymptomService {
     @InjectDataSource() private dataSource: DataSource,
     @InjectRepository(PriPersonSymptomView)
     private rotlPersonSymptomViewRepository : Repository<PriPersonSymptomView>,
+
     @InjectRepository(PriPersonSymptom)
     private priPersonSymptomRepository : Repository<PriPersonSymptom>,
+
     private readonly dynamicService: DynamicService,
   ) {}
   async getList (options: IPaginationOptions, searchParam: string, sortParam: string, user: any) {
@@ -44,10 +46,11 @@ export class SymptomService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const newData = Object.assign(dto, {
-        rotlId: await getId(),
+      const newData = Object.assign({...dto}, {
+        personSymptomId: getId(),
         createdDate: new Date(),
-        createdEmployeeKeyId: user.employeeKey.employeeKeyId
+        createdEmployeeKeyId: user.employeeKey.employeeKeyId,
+        isActive: 1
       });
       await this.dynamicService.createTableData(queryRunner, PriPersonSymptom, this.priPersonSymptomRepository, newData, user)
       await queryRunner.commitTransaction();
@@ -63,7 +66,7 @@ export class SymptomService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const updateData = dto;
+      const updateData = { ...dto };
       await this.dynamicService.updateTableData(queryRunner, PriPersonSymptom, this.priPersonSymptomRepository, updateData, user)
       await queryRunner.commitTransaction();
     } catch (err) {
