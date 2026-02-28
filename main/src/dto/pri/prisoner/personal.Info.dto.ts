@@ -95,4 +95,7 @@ export class PrisonerPersonalInfoDto {
 
     @Expose({ name: 'RELIGION_ID' })
     religionId: number;
+
+    @Expose({ name: 'PRISONER_KEY_ID' })
+    prisonerKeyId: number;
 }
