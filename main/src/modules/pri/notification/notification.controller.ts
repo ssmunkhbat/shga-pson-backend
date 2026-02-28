@@ -11,8 +11,8 @@ export class NotificationController {
 
 	@UseGuards(JwtAuthGuard)
 	@Get('all')
-	async getList(@Req() req) {
-		return await this.service.getList(req.user);
+	async getList(@Req() req, @Query('type') type) {
+		return await this.service.getList(req.user, type);
 	}
 
 }
