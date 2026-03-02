@@ -27,8 +27,10 @@ import { OffenceService } from "./modules/pri/offence/offence.service";
 import { ReportService } from "./modules/report/report.service";
 import { SymptomService } from "./modules/pri/symptom/symptom.service";
 import { BodyAttributeService } from "./modules/pri/body-attribute/body-attribute.service";
+import { BasePersonService } from "./modules/baseperson/base.person.service"
 
 export const services = [
+    BasePersonService,
     UserService,
     DynamicService,
     TableConfigService,

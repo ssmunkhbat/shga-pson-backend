@@ -1,4 +1,4 @@
-import { ForbiddenException, HttpException, Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpException, Injectable, BadRequestException } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 import { BaseRoleDtoValidator } from 'src/dto/validation/basePerson.dto.validator';
@@ -7,11 +7,14 @@ import { PriEmployeeKey } from 'src/entity/pri/employee/priEmployeeKey';
 import { UmSystemUser } from 'src/entity/um/um-system-user.entity';
 import { UmUserRole } from 'src/entity/um/um-user-role';
 import { getFilter } from 'src/utils/helper';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, Equal } from 'typeorm';
 import { BasePerson } from 'src/entity/base/basePerson';
 import { ChangePasswordValidationDto } from 'src/dto/validation/changePassword.dto.validator';
 import { PriLoginLog } from 'src/entity/log/PriLoginLog.entity';
 import { getId } from 'src/utils/unique';
+import { UmSystemUserValidationDto } from 'src/dto/validation/settings/um.system.user.dto'
+import { UmUser } from 'src/entity/um/um-user.entity'
+
 const md5 = require('md5');
 const md5reverse = (val) => {
   const str = md5(val)
@@ -21,6 +24,8 @@ const md5reverse = (val) => {
 export class UserService {
   constructor(
     @InjectDataSource() private dataSource: DataSource,
+    @InjectRepository(UmUser)
+    private umUserRepo: Repository<UmUser>,
     @InjectRepository(UmSystemUser)
     private usersRepository: Repository<UmSystemUser>,
     @InjectRepository(UmUserRole)
@@ -33,7 +38,7 @@ export class UserService {
     private basePersonRepo: Repository<BasePerson>,
 
     @InjectRepository(PriLoginLog)
-    private priLoginLogRepository: Repository<PriLoginLog>
+    private priLoginLogRepository: Repository<PriLoginLog>,
   ) { }
 
   async findByUsername(username: string, passwordHash: string) {
@@ -193,22 +198,181 @@ export class UserService {
     }
   }
 
-    /**
-     * 
-     * @param queryRunner 
-     * @param TableEntity Entity
-     * @param repo Repository
-     * @param data any
-     * @param user any
-     * @returns void
-     */
-    async updateTableData(queryRunner = null, TableEntity, repo, data, user) {
-      const saved = new TableEntity({
-        ...data,
-        // modifiedUserId: user.id,
-        // modifiedDate: new Date()
-      })
-      if (queryRunner) return await queryRunner.manager.save(saved)
-      else return await repo.save(saved)
+  //#region [DYNAMIC]
+
+  /**
+   * 
+   * @param queryRunner 
+   * @param TableEntity Entity
+   * @param repo Repository
+   * @param data any
+   * @param user any
+   * @returns data
+   */
+  async createTableData(queryRunner = null, TableEntity, repo, data, user) {
+    const saved = new TableEntity({
+      id: getId(),
+      ...data,
+      // isActive: true,
+      // createdUserId: user.id,
+      // createdDate: new Date(),
+    })
+    if (queryRunner) return await queryRunner.manager.save(saved)
+    else return await repo.save(saved)
+  }
+
+  /**
+   * 
+   * @param queryRunner 
+   * @param TableEntity Entity
+   * @param repo Repository
+   * @param data any
+   * @param user any
+   * @returns void
+   */
+  async updateTableData(queryRunner = null, TableEntity, repo, data, user) {
+    const saved = new TableEntity({
+      ...data,
+      modifiedUserId: user.id,
+      modifiedDate: new Date()
+    })
+    if (queryRunner) return await queryRunner.manager.save(saved)
+    else return await repo.save(saved)
+  }
+
+  //#endregion  
+  
+  //#region [CRUD]
+  
+  async createAndUpdate(dto: UmSystemUserValidationDto, user: any) {
+    console.log('--------createAndUpdate--------', dto);
+    return dto.userId
+      ? this.update(dto, user)
+      : this.create(dto, user);
+  }
+
+  async create(dto: UmSystemUserValidationDto, user: any) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const count = await queryRunner.manager.count(PriEmployee, {
+        where: { employeeCode: Equal(dto.employeeCode) },
+      });
+      if (count > 0) {
+        throw new BadRequestException(`${dto.employeeCode} Албан хаагчийн код давхардаж байна!`);
+      }
+      const passwordHash = md5reverse(dto.password)
+      const newUmSystemUser = Object.assign({
+        userId: await getId(),
+        userName: dto.userName,
+        passwordHash: passwordHash,
+        personId: dto.personId,
+        createdDate: new Date(),
+        createdEmployeeKeyId: user.employeeKey.employeeKeyId
+      });
+      const savedUmSystemUser = await this.createTableData(queryRunner, UmSystemUser, this.usersRepository, newUmSystemUser, user)
+      const newUmUser = Object.assign({
+        userId: savedUmSystemUser.userId,
+        userName: dto.userName,
+        systemUserId: savedUmSystemUser.userId,
+        createdDate: new Date(),
+        createdEmployeeKeyId: user.employeeKey.employeeKeyId
+      });
+      const savedUmUser = await this.createTableData(queryRunner, UmUser, this.umUserRepo, newUmUser, user)
+      
+      const newPriEmployee = Object.assign({
+        employeeId: await getId(),
+        personId: dto.personId,
+        employeeCode: dto.employeeCode,
+        userId: savedUmUser.userId,
+        isActive: true,
+        createdDate: new Date(),
+      });
+      const savedPriEmployee = await this.createTableData(queryRunner, PriEmployee, this.employeeRepo, newPriEmployee, user)
+      
+      const newPriEmployeeKey = Object.assign({
+        employeeKeyId: await getId(),
+        employeeId: savedPriEmployee.employeeId,
+        departmentId: dto.departmentId,
+        positionTypeId: dto.positionTypeId,
+        militaryRankId: dto.militaryRankId,
+        employeeCode: dto.employeeCode,
+        isActive: true,
+        createdDate: new Date(),
+      });
+      await this.createTableData(queryRunner, PriEmployeeKey, this.employeeKeyRepo, newPriEmployeeKey, user)
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      console.log(err)
+      await queryRunner.rollbackTransaction();
+      throw new HttpException(err, 500)
+    } finally {
+      await queryRunner.release();
     }
+  }
+
+  async update(dto: UmSystemUserValidationDto, user: any) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const umSystemUser = await queryRunner.manager.findOne(UmSystemUser, {
+        where: { userId: dto.userId },
+      });
+      if (!umSystemUser) {
+        throw new BadRequestException(`Бүртгэл олдсонгүй!`)
+      }
+      const umUser = await queryRunner.manager.findOne(UmUser, {
+        where: { userId: dto.userId },
+      });
+      if (!umUser) {
+        throw new BadRequestException(`Бүртгэл олдсонгүй!`)
+      }
+
+      const priEmployee = await queryRunner.manager.findOne(PriEmployee, {
+        where: { userId: dto.userId, personId: dto.personId, isActive: true },
+      });
+      if (!priEmployee) {
+        throw new BadRequestException(`Албан хаагчийн бүртгэл олдсонгүй!`)
+      }
+      const priEmployeeKey = await queryRunner.manager.findOne(PriEmployeeKey, {
+        where: { employeeId: priEmployee.employeeId, isActive: true },
+      });
+      if (!priEmployeeKey) {
+        throw new BadRequestException(`Албан хаагчийн бүртгэл олдсонгүй!`)
+      }
+
+      umUser.userName = dto.userName
+      umSystemUser.userName = dto.userName
+      umSystemUser.personId = dto.personId
+      priEmployee.employeeCode = dto.employeeCode
+      priEmployeeKey.departmentId = dto.departmentId
+      priEmployeeKey.positionTypeId = dto.positionTypeId
+      priEmployeeKey.militaryRankId = dto.militaryRankId
+      await this.updateTableData(queryRunner, UmUser, this.umUserRepo, umUser, user)
+      await this.updateTableData(queryRunner, UmSystemUser, this.usersRepository, umSystemUser, user)
+      await this.updateTableData(queryRunner, PriEmployee, this.employeeRepo, priEmployee, user)
+      await this.updateTableData(queryRunner, PriEmployeeKey, this.employeeKeyRepo, priEmployeeKey, user)
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      console.log(err)
+      await queryRunner.rollbackTransaction();
+      throw new HttpException(err, 500)
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async findUserRoles(userId: number) {
+    const userRoles = await this.userRoleRepository.find({
+      where: { userId, isActive: true },
+      relations: ['role'],
+    });
+    return userRoles.map(r => { return { roleId: r.roleId, roleName: r?.role.roleName } })
+  }
+
+  //#endregion
+
 }

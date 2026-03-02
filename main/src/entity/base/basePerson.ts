@@ -73,14 +73,17 @@ export class BasePerson extends EntBase{
     Object.assign(this, item)
   }
 
-  // /*
-  //   * Table-ын талбаруудын мэдээлэл
-  // */
-  // static getTableFields() {
-  //   return {
-  //     id: { header: 'ID', type: 'number', sortable: true, filterable: false, width: 'w-16' },
-  //     userName: { header: 'Хэрэглэгчийн Нэр', type: 'string', sortable: true, filterable: true, width: 'w-48' },
-  //     createdDate: { header: 'Бүртгэсэн Огноо', type: 'date', sortable: true, filterable: true, width: 'w-40' },
-  //   };
-  // }
+  /*
+    * Table-ын талбаруудын мэдээлэл
+  */
+  static getTableFields() {
+    return {
+      // id: { header: 'ID', type: 'number', sortable: true, filterable: false, width: 'w-16' },
+      stateRegNumber: { header: 'Регистрийн дугаар', type: 'string', sortable: true, filterable: true, width: 'w-24' },
+      familyName: { header: 'Ургийн овог', type: 'string', sortable: true, filterable: true, width: 'w-24' },
+      lastName: { header: 'Эцэг/эх-ийн нэр', type: 'string', sortable: true, filterable: true, width: 'w-24' },
+      firstName: { header: 'Өөрийн нэр', type: 'string', sortable: true, filterable: true, width: 'w-24' },
+      // createdDate: { header: 'Бүртгэсэн Огноо', type: 'date', sortable: true, filterable: true, width: 'w-40' },
+    };
+  }
 }

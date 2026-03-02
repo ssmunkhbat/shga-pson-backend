@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { BaseRoleDtoValidator } from 'src/dto/validation/basePerson.dto.validator';
 import { ChangePasswordValidationDto } from 'src/dto/validation/changePassword.dto.validator';
+import { UmSystemUserValidationDto } from 'src/dto/validation/settings/um.system.user.dto'
 
 @Controller('user')
 export class UserController {
@@ -32,4 +33,17 @@ export class UserController {
     changePassword(@Req() req : any, @Body() body: ChangePasswordValidationDto) {
         return this.userService.changePassword(req.user, body)
     }
+
+    @UseGuards(JwtAuthGuard)
+    @Post()
+    createAndUpdate(@Req() req : any, @Body() body: UmSystemUserValidationDto) {
+        return this.userService.createAndUpdate(body, req.user)
+    }
+    
+    @UseGuards(JwtAuthGuard)
+    @Get('roles/:userId')
+    async findUserRoles(@Param('userId') userId: number) {
+        return await this.userService.findUserRoles(userId);
+    }
+    
 }

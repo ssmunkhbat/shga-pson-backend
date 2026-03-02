@@ -37,6 +37,7 @@ import { RefCountry } from 'src/entity/ref/refCountry';
 import { PriOffenceActionView } from 'src/entity/pri/offence/PriOffenceActionView.entity';
 import { PriPersonSymptomView } from 'src/entity/pri/symptom/PriPersonSymptomView.entity';
 import { PriPrisonerBodyAttributeView } from 'src/entity/pri/body-attribute/PriPrisonerBodyAttributeView.entity';
+import { BasePerson } from 'src/entity/base/basePerson'
 const moment = require("moment");
 
 interface TableFieldMeta {
@@ -54,6 +55,7 @@ interface TableFieldMeta {
 type TableFields = Record<string, TableFieldMeta>;
 type DynamicTable = { getTableFields(): TableFields };
 const dynamicTables: Record<string, DynamicTable> = {
+  'person': BasePerson as unknown as DynamicTable,
   'role': UmRole as unknown as DynamicTable,
   'user': UmSystemUser as unknown as DynamicTable,
   'pkw': PriPrisonerKeyView as unknown as DynamicTable,

@@ -20,8 +20,10 @@ import { OffenceController } from "./modules/pri/offence/offence.controller";
 import { ReportController } from "./modules/report/report.controller";
 import { SymptomController } from "./modules/pri/symptom/symptom.controller";
 import { BodyAttributeController } from "./modules/pri/body-attribute/body-attribute.controller";
+import { BasePersonController } from "./modules/baseperson/base.person.controller"
 
 export const controllers = [
+    BasePersonController,
     TableConfigController,
     SettingsController,
     RefsController,

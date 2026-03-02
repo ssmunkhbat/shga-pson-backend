@@ -68,13 +68,13 @@ import { PriPersonSymptom } from "./entity/pri/symptom/PriPersonSymptom.entity"
 import { PriPersonSymptomView } from "./entity/pri/symptom/PriPersonSymptomView.entity"
 import { PriPrisonerBodyAttributeView } from "./entity/pri/body-attribute/PriPrisonerBodyAttributeView.entity"
 import { PriPrisonerBodyAttribute } from "./entity/pri/body-attribute/PriPrisonerBodyAttribute.entity"
-
+import { UmUser } from './entity/um/um-user.entity'
 
 const Entities = [
   WfmStatus,
   MenuSettings, ActionSettings, RoleMenuSettings, RoleActionSettings,
   UmSystemUser, UmUserRole, UmRole,
-  BasePerson,
+  BasePerson, UmUser,
   PriEmployee, PriEmployeeKey,
   PriPrisoner, PriPrisonerKeyView, PriPrisonerKey,
   MovementDeparture, MovementArrival,

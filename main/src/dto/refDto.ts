@@ -53,6 +53,7 @@ export class RefDto {
             'NAME',
             'COUNTRY_NAME',
             'WFM_STATUS_NAME',
+            'ROLE_NAME',
         ].map(k => obj[k]).find(v => v !== undefined && v !== null)
     )
     name: string;
