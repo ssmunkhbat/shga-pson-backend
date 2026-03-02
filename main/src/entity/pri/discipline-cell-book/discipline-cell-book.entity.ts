@@ -11,13 +11,13 @@ export class PriDisciplineCellBook {
   @Column({ name: 'PRISON_CELL_ID' })
   prisonCellId: number;
 
-  @Column({ name: 'DESCRIPTION' })
-  description: string;
+  @Column({ name: 'REASON' })
+  reason: string;
 
   @Column({ name: 'BEGIN_DATE' })
   beginDate: Date;
 
-  @Column({ name: 'DAYS' })
+  @Column({ name: 'END_DATE' })
   endDate: Date;
 
   @Column({ name: 'CREATED_DATE' })

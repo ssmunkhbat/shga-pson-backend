@@ -71,6 +71,10 @@ import { PriPrisonerBodyAttribute } from "./entity/pri/body-attribute/PriPrisone
 import { UmUser } from './entity/um/um-user.entity'
 import { PriDisciplineCellBook } from "./entity/pri/discipline-cell-book/discipline-cell-book.entity"
 import { PriPrisonerBonusDay } from "./entity/pri/prisoner-bonus-day/prisoner-bonus-day.entity"
+import { PriOffenceView } from "./entity/pri/offence/PriOffenceView.entity"
+import { PriOffence } from "./entity/pri/offence/PriOffence.entity"
+import { PriOffenceAction } from "./entity/pri/offence/PriOffenceAction.entity"
+import { PriOffenceActionPrisonView } from "./entity/pri/offence/PriOffenceActionPrisonView.entity"
 
 
 const Entities = [
@@ -106,7 +110,7 @@ const Entities = [
 
   PriLoginLog, PriLoginLogView,
 
-  PriOffenceActionView,
+  PriOffenceActionView, PriOffenceView, PriOffence, PriOffenceAction,  PriOffenceActionPrisonView,
 
   PriPersonSymptom, PriPersonSymptomView,
   

@@ -44,5 +44,8 @@ export class PriOffenceAction {
 
   @Column({ name: 'CANCELLED_STATUS_ID' })
   cancelledStatusId: number;
-
+  
+  constructor(item: Partial<PriOffenceAction>) {
+    Object.assign(this, item)
+  }
 }

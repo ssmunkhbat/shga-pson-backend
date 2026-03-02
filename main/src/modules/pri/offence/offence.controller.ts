@@ -3,6 +3,7 @@ import { OffenceService } from './offence.service';
 import { JwtAuthGuard } from 'src/modules/auth/jwt.guard';
 import { Response } from 'express';
 import { PriOffenceValidationDto } from 'src/dto/validation/pri/offence/offence.validation.dto';
+import { PriOffenceActionValidationDto } from 'src/dto/validation/pri/offence/offence-action.validation.dto';
 
 @Controller('offence')
 export class OffenceController {
@@ -26,6 +27,12 @@ export class OffenceController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('action/detail/:offenceActionId')
+  getOffenceActionDetail (@Param('offenceActionId') offenceActionId: number) {
+    return this.service.getOffenceActionDetail(offenceActionId)
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('list')
   getList (@Req() req, @Query('page') page = 1, @Query('limit') limit = 10, @Query('search') search = '[]', @Query('sort') sort = '{}') {
     return this.service.getList({ page, limit }, search, sort, req.user)
@@ -35,6 +42,12 @@ export class OffenceController {
   @Post()
   createAndUpdate(@Body() dto: PriOffenceValidationDto, @Req() req) {
     return this.service.createAndUpdate(dto, req.user)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('action')
+  createAndUpdateAction(@Body() dto: PriOffenceActionValidationDto, @Req() req) {
+    return this.service.createAndUpdateAction(dto, req.user)
   }
   
   @UseGuards(JwtAuthGuard)
