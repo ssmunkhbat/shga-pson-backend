@@ -2,7 +2,7 @@ import { WfmStatus } from "src/entity/wfmStatus.entity";
 import { JoinColumn, OneToOne, ViewColumn, ViewEntity } from "typeorm";
 
 @ViewEntity('PRI_OFFENCE_ACTION_VIEW')
-export class PriOffenceActionView {
+export class PriOffenceActionPrisonView {
   @ViewColumn({ name: 'OFFENCE_ID' })
   offenceId: number;
 
@@ -111,27 +111,12 @@ export class PriOffenceActionView {
 
   static getTableFields() {
     return {
-      prisonerNumber: { header: 'Хоригдогчийн дугаар', type: 'string', sortable: true, filterable: true, width: 'w-16' },
-      register: { header: 'Регистрийн дугаар', type: 'string', sortable: true, filterable: true, width: 'w-48' },
-      lastName: { header: 'Эцэг/эх-ийн нэр', type: 'string', sortable: true, filterable: true, width: 'w-48' },
-      firstName: { header: 'Өөрийн нэр', type: 'string', sortable: true, filterable: true, width: 'w-48' },
       offenceTypeName: { header: 'Зөрчлийн төрөл', type: 'string', sortable: true, filterable: true, width: 'w-48' },
       offenceDate: { header: 'Зөрчил гаргасан огноо', type: 'date', sortable: true, filterable: true, width: 'w-48' },
       offenceActionTypeName: { header: 'Шийтгэлийн төрөл', type: 'string', sortable: true, filterable: true, width: 'w-48' },
       administrativeDecisionNumber: { header: 'Тушаалын дугаар', type: 'string', sortable: true, filterable: true, width: 'w-48' },
       decisionDate: { header: 'Тушаалын огноо', type: 'date', sortable: true, filterable: true, width: 'w-48' },
-      wfmStatus: {
-        header: 'Төлөв',
-        type: 'refstatus',
-        refField: 'wfmStatus.wfmStatusName', refListName: 'wfmStatusList', refListFilter: 'filters=[{"field":"WFM_STATUS_GROUP_ID","value":100800}]',
-        refColorField: 'wfmStatus.wfmStatusColor', refBgColorField: 'wfmStatus.wfmStatusBgColor',
-        sortable: false, filterable: true, width: 'w-16'
-      },
-      departmentName: { header: 'Хорих анги', type: 'string', sortable: true, filterable: true, width: 'w-48' },
-      createdDate: { header: 'Үүсгэсэн огноо', type: 'datetime', sortable: true, filterable: true, width: 'w-48' },
-      createdEmployeeName: { header: 'Бүртгэсэн ажилтан', type: 'string', sortable: true, filterable: true, width: 'w-48' },
-      updatedDate: { header: 'Засварласан огноо', type: 'datetime', sortable: true, filterable: true, width: 'w-48' },
-      updatedEmployeeName: { header: 'Засварласан ажилтан', type: 'string', sortable: true, filterable: true, width: 'w-48' },
+      wfmStatusName: { header: 'Төлөв', type: 'string', sortable: true, filterable: true, width: 'w-48' },
       cancelledStatusName: { header: 'Цуцалсан шалтгаан', type: 'string', sortable: true, filterable: true, width: 'w-48' }
     }
   }

@@ -69,6 +69,9 @@ import { PriPersonSymptomView } from "./entity/pri/symptom/PriPersonSymptomView.
 import { PriPrisonerBodyAttributeView } from "./entity/pri/body-attribute/PriPrisonerBodyAttributeView.entity"
 import { PriPrisonerBodyAttribute } from "./entity/pri/body-attribute/PriPrisonerBodyAttribute.entity"
 import { UmUser } from './entity/um/um-user.entity'
+import { PriDisciplineCellBook } from "./entity/pri/discipline-cell-book/discipline-cell-book.entity"
+import { PriPrisonerBonusDay } from "./entity/pri/prisoner-bonus-day/prisoner-bonus-day.entity"
+
 
 const Entities = [
   WfmStatus,
@@ -107,6 +110,8 @@ const Entities = [
 
   PriPersonSymptom, PriPersonSymptomView,
   
-  PriPrisonerBodyAttributeView, PriPrisonerBodyAttribute
+  PriPrisonerBodyAttributeView, PriPrisonerBodyAttribute,
+
+  PriDisciplineCellBook, PriPrisonerBonusDay
 ]
 export default Entities

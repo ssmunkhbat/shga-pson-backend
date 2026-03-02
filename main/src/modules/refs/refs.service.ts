@@ -43,6 +43,8 @@ const mapRef = {
   'priBodyAttributeTypeList': 'PRI_BODY_ATTRIBUTE_TYPE',
   'positionTypeList': 'PRI_INFO_POSITION_TYPE',
   'militaryRankList': 'PRI_INFO_MILITARY_RANK',
+  'priInfoOffenceTypeList': 'PRI_INFO_OFFENCE_TYPE',
+  'priInfoOffenceActionTypeList': 'PRI_INFO_OFFENCE_ACTION_TYPE',
 };
 
 const notCheckIsActive = {

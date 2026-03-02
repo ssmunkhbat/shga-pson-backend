@@ -18,10 +18,10 @@ export class PriPrisonerBodyAttribute {
   createdEmployeeKeyId: number;
 
   @Column({ name: 'CREATED_DATE' })
-  createdDate: number;
+  createdDate: Date;
 
   @Column({ name: 'DESCRIPTION' })
-  description: number;
+  description: string;
 
   constructor(item: Partial<PriPrisonerBodyAttribute>) {
     Object.assign(this, item)

@@ -40,6 +40,8 @@ export class RefDto {
             'SYMPTOM_ID',
             'BODY_ATTRIBUTE_TYPE_ID',
             'BODY_ATTRIBUTE_ID',
+            'OFFENCE_ACTION_TYPE_ID',
+            'OFFENCE_TYPE_ID',
             'ID',
             'POSITION_TYPE_ID',
             'MILITARY_RANK_ID',

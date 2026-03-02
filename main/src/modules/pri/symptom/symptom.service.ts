@@ -13,13 +13,12 @@ import { DataSource, Repository } from 'typeorm';
 export class SymptomService {
   constructor (
     @InjectDataSource() private dataSource: DataSource,
+    private readonly dynamicService: DynamicService,
     @InjectRepository(PriPersonSymptomView)
     private priPersonSymptomViewRepository : Repository<PriPersonSymptomView>,
 
     @InjectRepository(PriPersonSymptom)
     private priPersonSymptomRepository : Repository<PriPersonSymptom>,
-
-    private readonly dynamicService: DynamicService,
   ) {}
   async getList (options: IPaginationOptions, searchParam: string, sortParam: string, user: any) {
     const queryBuilder = this.priPersonSymptomViewRepository.createQueryBuilder('md');
@@ -84,7 +83,6 @@ export class SymptomService {
       await this.dynamicService.deleteHardTableData(queryRunner, this.priPersonSymptomRepository, id)
       await queryRunner.commitTransaction();
     } catch (err) {
-      console.log(err)
       await queryRunner.rollbackTransaction();
       throw new HttpException(err, 500)
     } finally {
